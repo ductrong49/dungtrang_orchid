@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Thư viện ảnh - Mẫu hoa</title>
+<style>
+  body {
+    font-family: Arial;
+    background: #f7f7f7;
+    padding: 20px;
+  }
+  h2 { text-align: center; }
+  .gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+  }
+  .gallery img {
+    width: 220px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+  .gallery img:hover {
+    transform: scale(1.05);
+  }
+</style>
+</head>
+<body>
+
+<h2>Thư viện ảnh - Mẫu hoa</h2>
+<div class="gallery" id="gallery"></div>
+
+<script>
+// Thay USERNAME và REPO bằng của bạn
+const apiURL = "https://api.github.com/repos/karaokerita/ductrong49/dungtrang_orchid/contents/mauhoa";
+
+async function loadImages() {
+  const res = await fetch(apiURL);
+  const files = await res.json();
+
+  const gallery = document.getElementById("gallery");
+
+  // Lọc file hình ảnh
+  const images = files.filter(f => 
+    /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name)
+  );
+
+  images.forEach(img => {
+    const el = document.createElement("img");
+    el.src = img.download_url;
+    gallery.appendChild(el);
+  });
+}
+
+loadImages();
+</script>
+
+</body>
+</html>
