@@ -2,50 +2,68 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Thư viện ảnh - Mẫu hoa</title>
+<title>Thư viện ảnh GitHub</title>
 <style>
-  body {
-    font-family: Arial;
-    background: #f7f7f7;
-    padding: 20px;
-  }
-  h2 { text-align: center; }
+  body { font-family: Arial; background:#fafafa; padding:20px; }
+  h2 { text-align:center; }
+  #folders { text-align:center; margin-bottom:20px; }
+  select { padding:10px; font-size:16px; }
   .gallery {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: center;
+    display:flex; flex-wrap:wrap; gap:15px; justify-content:center;
   }
   .gallery img {
-    width: 220px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    transition: transform 0.2s;
+    width:220px; border-radius:8px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.2);
+    transition:0.2s;
   }
-  .gallery img:hover {
-    transform: scale(1.05);
-  }
+  .gallery img:hover { transform:scale(1.05); }
 </style>
 </head>
 <body>
 
-<h2>Thư viện ảnh - Mẫu hoa</h2>
+<h2>THƯ VIỆN ẢNH</h2>
+
+<div id="folders">
+  <label>Chọn thư mục: </label>
+  <select id="folderSelect"></select>
+</div>
+
 <div class="gallery" id="gallery"></div>
 
 <script>
-// Thay USERNAME và REPO bằng của bạn
-const apiURL = "https://api.github.com/repos/ductrong49/dungtrang_orchid/contents/MauHoa";
+const repoAPI = "https://api.github.com/repos/ductrong49/dungtrang_orchid/contents";
 
-async function loadImages() {
-  const res = await fetch(apiURL);
+async function loadFolders() {
+  const res = await fetch(repoAPI);
+  const data = await res.json();
+
+  const folders = data.filter(item => item.type === "dir");
+
+  const select = document.getElementById("folderSelect");
+  folders.forEach(f => {
+    const opt = document.createElement("option");
+    opt.value = f.path;
+    opt.textContent = f.name;
+    select.appendChild(opt);
+  });
+
+  // Tự load thư mục đầu tiên
+  loadImages(folders[0].path);
+
+  select.addEventListener("change", () => {
+    loadImages(select.value);
+  });
+}
+
+async function loadImages(folder) {
+  const url = repoAPI + "/" + folder;
+  const res = await fetch(url);
   const files = await res.json();
 
   const gallery = document.getElementById("gallery");
+  gallery.innerHTML = "";
 
-  // Lọc file hình ảnh
-  const images = files.filter(f => 
-    /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name)
-  );
+  const images = files.filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name));
 
   images.forEach(img => {
     const el = document.createElement("img");
@@ -54,7 +72,7 @@ async function loadImages() {
   });
 }
 
-loadImages();
+loadFolders();
 </script>
 
 </body>
