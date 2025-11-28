@@ -16,7 +16,7 @@
     text-align:center;
     font-size:36px;
     color:#0074D9; /* xanh dương */
-    text-shadow: 2px 2px 5px rgba(0,0,0,0.5); /* nền đổ bóng */
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
     margin-bottom:10px;
   }
 
@@ -24,13 +24,27 @@
     text-align:center;
     font-size:18px;
     margin:3px 0;
+    transition: transform 0.3s, text-shadow 0.3s;
+  }
+
+  .subtitle a {
+    color: inherit;
+    text-decoration:none;
+    transition: transform 0.3s, text-shadow 0.3s;
+  }
+
+  .subtitle a:hover {
+    transform: scale(1.1);
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.4);
   }
 
   .phone { color: #2ECC40; } /* xanh lá cây */
+  .zalo { color: #2ECC40; }  /* xanh lá cây */
   .address { color: #8E44AD; } /* tím */
 
   #folders { text-align:center; margin:20px 0; }
   select { padding:10px; font-size:16px; margin:5px; }
+
   .album-title { text-align:center; margin:30px 0 10px; font-weight:bold; font-size:18px; }
   .gallery { display:flex; flex-wrap:wrap; gap:15px; justify-content:center; }
   .gallery img {
@@ -60,7 +74,15 @@
 <body>
 
 <h1>HOA LAN HỒ ĐIỆP DŨNG TRANG - ĐÀ LẠT</h1>
-<div class="subtitle phone">Số điện thoại/Zalo: 0918.60.42.60</div>
+
+<div class="subtitle phone">
+  <a href="tel:0918604260">Điện thoại: 0918.60.42.60</a>
+</div>
+
+<div class="subtitle zalo">
+  <a href="https://zalo.me/0918604260" target="_blank">Zalo: 0918.60.42.60</a>
+</div>
+
 <div class="subtitle address">Địa chỉ: 08 Lý Thường Kiệt, Đức Trọng, Lâm Đồng</div>
 
 <div id="folders">
