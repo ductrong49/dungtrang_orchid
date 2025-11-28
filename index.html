@@ -21,7 +21,8 @@
   /* Lightbox */
   #lightbox { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; justify-content:center; align-items:center; z-index:9999; flex-direction:column; }
   #lightbox img { max-width:90%; max-height:80%; border-radius:8px; margin-bottom:15px; }
-  #lightbox button { padding:10px 20px; font-size:16px; cursor:pointer; border:none; border-radius:5px; background:#fff; }
+  #lightbox button { padding:10px 20px; font-size:16px; cursor:pointer; border:none; border-radius:5px; background:#fff; margin:0 5px; }
+  #lightbox-controls { display:flex; justify-content:center; gap:10px; }
 </style>
 </head>
 <body>
@@ -40,7 +41,11 @@
 <!-- Lightbox -->
 <div id="lightbox">
   <img id="lightbox-img" src="">
-  <button onclick="closeLightbox()">Đóng</button>
+  <div id="lightbox-controls">
+    <button onclick="prevImage()">« Trước</button>
+    <button onclick="nextImage()">Sau »</button>
+    <button onclick="closeLightbox()">Đóng</button>
+  </div>
 </div>
 
 <script>
@@ -48,18 +53,18 @@ const USERNAME = "ductrong49";
 const REPO = "dungtrang_orchid";
 const repoAPI = `https://api.github.com/repos/${USERNAME}/${REPO}/contents`;
 
-// Map tên hiển thị album (tiếng Việt) -> tên thư mục repo
 const albumsMap = {
   "Mẫu Hoa": "MauHoa",
-  "Mẫu Đại": "mau_dai"
-  "Mẫu Trung": "mau_trung"
+  "Mẫu Đại": "mau_dai",
+  "Mẫu Trung": "mau_trung",
   "Mẫu Mini": "mau_mini"
 };
 
 let allFolders = Object.keys(albumsMap);
 let currentFolder = "all";
+let galleryImages = []; // lưu ảnh hiện tại để prev/next
+let currentIndex = 0;
 
-// Load danh sách album vào dropdown
 function loadAlbumSelect() {
   const select = document.getElementById("folderSelect");
   allFolders.forEach(name => {
@@ -76,15 +81,13 @@ function loadAlbumSelect() {
   });
 }
 
-// Load ảnh theo album
 async function loadImages(folder) {
   const galleryDiv = document.getElementById("gallery");
   galleryDiv.innerHTML = "";
+  galleryImages = [];
 
-  // Nếu folder = "all" -> load tất cả album, phân biệt từng nhóm
   if (folder === "all") {
     for (const [displayName, repoName] of Object.entries(albumsMap)) {
-      // Thêm tiêu đề album
       const title = document.createElement("div");
       title.className = "album-title";
       title.textContent = displayName;
@@ -95,10 +98,11 @@ async function loadImages(folder) {
       const images = files.filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
                           .map(f => f.download_url);
 
+      galleryImages = galleryImages.concat(images);
+
       const albumGallery = document.createElement("div");
       albumGallery.className = "gallery";
-
-      images.forEach(url => {
+      images.forEach((url, i) => {
         const img = document.createElement("img");
         img.src = url;
         img.onclick = () => openLightbox(url);
@@ -108,7 +112,6 @@ async function loadImages(folder) {
       galleryDiv.appendChild(albumGallery);
     }
   } else {
-    // Load ảnh album riêng
     const displayName = Object.keys(albumsMap).find(key => albumsMap[key] === folder);
     const title = document.createElement("div");
     title.className = "album-title";
@@ -120,9 +123,11 @@ async function loadImages(folder) {
     const images = files.filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
                         .map(f => f.download_url);
 
+    galleryImages = images;
+
     const albumGallery = document.createElement("div");
     albumGallery.className = "gallery";
-    images.forEach(url => {
+    images.forEach((url, i) => {
       const img = document.createElement("img");
       img.src = url;
       img.onclick = () => openLightbox(url);
@@ -135,11 +140,22 @@ async function loadImages(folder) {
 
 // Lightbox
 function openLightbox(url) {
+  currentIndex = galleryImages.indexOf(url);
   document.getElementById("lightbox-img").src = url;
   document.getElementById("lightbox").style.display = "flex";
 }
 function closeLightbox() {
   document.getElementById("lightbox").style.display = "none";
+}
+function prevImage() {
+  if (galleryImages.length === 0) return;
+  currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+  document.getElementById("lightbox-img").src = galleryImages[currentIndex];
+}
+function nextImage() {
+  if (galleryImages.length === 0) return;
+  currentIndex = (currentIndex + 1) % galleryImages.length;
+  document.getElementById("lightbox-img").src = galleryImages[currentIndex];
 }
 
 // Khởi tạo
