@@ -2,78 +2,20 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Thư viện ảnh GitHub</title>
+<title>Gallery 2 Album</title>
 <style>
-  body { font-family: Arial; background:#fafafa; padding:20px; }
-  h2 { text-align:center; }
-  #folders { text-align:center; margin-bottom:20px; }
-  select { padding:10px; font-size:16px; }
-  .gallery {
-    display:flex; flex-wrap:wrap; gap:15px; justify-content:center;
-  }
-  .gallery img {
-    width:220px; border-radius:8px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.2);
-    transition:0.2s;
-  }
-  .gallery img:hover { transform:scale(1.05); }
+  body { font-family: Arial; padding: 20px; background:#f7f7f7; }
+  h2 { text-align:center; margin-bottom:20px; }
+  iframe { width:100%; height:600px; border:none; margin-bottom:40px; }
 </style>
 </head>
 <body>
 
-<h2>THƯ VIỆN ẢNH</h2>
+<h2>Album 1: Mẫu Hoa</h2>
+<iframe src="https://photos-embed.com/a/nvP9g5VazHWoPe5M8"></iframe>
 
-<div id="folders">
-  <label>Chọn thư mục: </label>
-  <select id="folderSelect"></select>
-</div>
-
-<div class="gallery" id="gallery"></div>
-
-<script>
-const repoAPI = "https://api.github.com/repos/ductrong49/dungtrang_orchid/contents";
-
-async function loadFolders() {
-  const res = await fetch(repoAPI);
-  const data = await res.json();
-
-  const folders = data.filter(item => item.type === "dir");
-
-  const select = document.getElementById("folderSelect");
-  folders.forEach(f => {
-    const opt = document.createElement("option");
-    opt.value = f.path;
-    opt.textContent = f.name;
-    select.appendChild(opt);
-  });
-
-  // Tự load thư mục đầu tiên
-  loadImages(folders[0].path);
-
-  select.addEventListener("change", () => {
-    loadImages(select.value);
-  });
-}
-
-async function loadImages(folder) {
-  const url = repoAPI + "/" + folder;
-  const res = await fetch(url);
-  const files = await res.json();
-
-  const gallery = document.getElementById("gallery");
-  gallery.innerHTML = "";
-
-  const images = files.filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name));
-
-  images.forEach(img => {
-    const el = document.createElement("img");
-    el.src = img.download_url;
-    gallery.appendChild(el);
-  });
-}
-
-loadFolders();
-</script>
+<h2>Album 2: Lan</h2>
+<iframe src="https://photos-embed.com/a/kNYYUzFgjsUTBke8A"></iframe>
 
 </body>
 </html>
