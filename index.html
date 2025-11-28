@@ -2,64 +2,136 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Gallery 2 Album - Tự động</title>
+<title>Thư viện ảnh GitHub</title>
 <style>
-body { font-family: Arial, sans-serif; background:#f7f7f7; padding:20px; }
-h2 { text-align:center; margin:40px 0 20px; }
-.gallery { display:flex; flex-wrap:wrap; gap:15px; justify-content:center; }
-.gallery img { width:220px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:0.2s; cursor:pointer; }
-.gallery img:hover { transform: scale(1.05); }
-#lightbox { position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index:9999; }
-#lightbox img { max-width:90%; max-height:90%; border-radius:8px; }
+  body { font-family: Arial; background:#fafafa; padding:20px; }
+  h2 { text-align:center; }
+  #folders { text-align:center; margin-bottom:20px; }
+  select, button, input[type="file"] {
+    padding:10px; font-size:16px; margin:5px;
+  }
+  .gallery { display:flex; flex-wrap:wrap; gap:15px; justify-content:center; }
+  .gallery img {
+    width:220px; border-radius:8px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.2);
+    transition:0.2s;
+  }
+  .gallery img:hover { transform:scale(1.05); }
 </style>
 </head>
 <body>
 
-<h2>Album 1: Mẫu Hoa</h2>
-<div class="gallery" id="album1"></div>
+<h2>THƯ VIỆN ẢNH</h2>
 
-<h2>Album 2: Lan</h2>
-<div class="gallery" id="album2"></div>
-
-<div id="lightbox" onclick="this.style.display='none'">
-  <img id="lightbox-img" src="">
+<div id="folders">
+  <label>Chọn thư mục: </label>
+  <select id="folderSelect"></select>
 </div>
 
+<!-- Form Upload -->
+<div style="text-align:center; margin-bottom:20px;">
+  <input type="file" id="fileInput" accept="image/*">
+  <button onclick="uploadImage()">Upload ảnh</button>
+</div>
+
+<div class="gallery" id="gallery"></div>
+
 <script>
-// 2 album public Google Photos share link
-const albums = [
-  { id: 'album1', url: 'https://photos.app.goo.gl/nvP9g5VazHWoPe5M8' },
-  { id: 'album2', url: 'https://photos.app.goo.gl/kNYYUzFgjsUTBke8A' }
-];
+const USERNAME = "ductrong49";
+const REPO = "dungtrang_orchid";
 
-// Hàm load album
-async function loadAlbum(albumId, shareUrl) {
-  try {
-    // Google Photos public share có JSON trick
-    const res = await fetch(shareUrl);
-    const text = await res.text();
+// ⚠ DÁN TOKEN CỦA BẠN VÀO ĐÂY (token của tài khoản BOT càng tốt)
+const TOKEN = "YOUR_GITHUB_TOKEN_HERE";
 
-    // Lấy tất cả link ảnh JPG/PNG bằng regex
-    const imgUrls = [...text.matchAll(/"(https:\/\/lh3\.googleusercontent\.com\/[a-zA-Z0-9_-]+)"/g)]
-                    .map(m => m[1]);
+const repoAPI = `https://api.github.com/repos/${USERNAME}/${REPO}/contents`;
 
-    const container = document.getElementById(albumId);
-    imgUrls.forEach(url => {
-      const img = document.createElement('img');
-      img.src = url;
-      img.onclick = () => {
-        document.getElementById('lightbox-img').src = url;
-        document.getElementById('lightbox').style.display = 'flex';
-      };
-      container.appendChild(img);
-    });
-  } catch(err) {
-    console.error('Không load được album:', albumId, err);
-  }
+let currentFolder = "";
+
+/* =======================
+    LOAD FOLDER LIST
+======================= */
+async function loadFolders() {
+  const res = await fetch(repoAPI);
+  const data = await res.json();
+  const folders = data.filter(item => item.type === "dir");
+
+  const select = document.getElementById("folderSelect");
+  folders.forEach(f => {
+    const opt = document.createElement("option");
+    opt.value = f.path;
+    opt.textContent = f.name;
+    select.appendChild(opt);
+  });
+
+  currentFolder = folders[0].path;
+  loadImages(currentFolder);
+
+  select.addEventListener("change", () => {
+    currentFolder = select.value;
+    loadImages(currentFolder);
+  });
 }
 
-// Load tất cả album
-albums.forEach(a => loadAlbum(a.id, a.url));
+/* =======================
+    LOAD IMAGES
+======================= */
+async function loadImages(folder) {
+  const url = repoAPI + "/" + folder;
+  const res = await fetch(url);
+  const files = await res.json();
+
+  const gallery = document.getElementById("gallery");
+  gallery.innerHTML = "";
+
+  const images = files.filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name));
+
+  images.forEach(img => {
+    const el = document.createElement("img");
+    el.src = img.download_url;
+    gallery.appendChild(el);
+  });
+}
+
+/* =======================
+        UPLOAD IMAGE
+======================= */
+async function uploadImage() {
+  const file = document.getElementById("fileInput").files[0];
+  if (!file) {
+    alert("Chọn 1 ảnh trước!");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onloadend = async () => {
+    const base64 = reader.result.split(",")[1];
+
+    const uploadURL = `${repoAPI}/${currentFolder}/${file.name}`;
+
+    const res = await fetch(uploadURL, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: `Upload ${file.name}`,
+        content: base64
+      })
+    });
+
+    if (res.ok) {
+      alert("Upload thành công!");
+      loadImages(currentFolder);
+    } else {
+      alert("Upload thất bại!");
+    }
+  };
+
+  reader.readAsDataURL(file);
+}
+
+loadFolders();
 </script>
 
 </body>
