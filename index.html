@@ -4,15 +4,31 @@
 <meta charset="UTF-8">
 <title>HOA LAN HỒ ĐIỆP DŨNG TRANG - ĐÀ LẠT</title>
 <style>
-  body { font-family: Arial; background:#fafafa; padding:20px; }
+  body {
+    font-family: Arial;
+    background: url('background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    padding:20px;
+    color: #333;
+  }
+
   h1 {
     text-align:center;
     font-size:36px;
     color:#0074D9; /* xanh dương */
-    text-shadow: 2px 2px 5px rgba(0,0,0,0.3); /* nền đổ bóng */
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.5); /* nền đổ bóng */
     margin-bottom:10px;
   }
-  .subtitle { text-align:center; font-size:18px; margin:3px 0; color:#333; }
+
+  .subtitle {
+    text-align:center;
+    font-size:18px;
+    margin:3px 0;
+  }
+
+  .phone { color: #2ECC40; } /* xanh lá cây */
+  .address { color: #8E44AD; } /* tím */
+
   #folders { text-align:center; margin:20px 0; }
   select { padding:10px; font-size:16px; margin:5px; }
   .album-title { text-align:center; margin:30px 0 10px; font-weight:bold; font-size:18px; }
@@ -26,17 +42,26 @@
   .gallery img:hover { transform:scale(1.05); }
 
   /* Lightbox */
-  #lightbox { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; justify-content:center; align-items:center; z-index:9999; flex-direction:column; }
+  #lightbox {
+    position:fixed;
+    top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.9);
+    display:none; justify-content:center; align-items:center;
+    z-index:9999; flex-direction:column;
+  }
   #lightbox img { max-width:90%; max-height:80%; border-radius:8px; margin-bottom:15px; }
-  #lightbox button { padding:10px 20px; font-size:16px; cursor:pointer; border:none; border-radius:5px; background:#fff; margin:0 5px; }
+  #lightbox button {
+    padding:10px 20px; font-size:16px; cursor:pointer;
+    border:none; border-radius:5px; background:#fff; margin:0 5px;
+  }
   #lightbox-controls { display:flex; justify-content:center; gap:10px; }
 </style>
 </head>
 <body>
 
 <h1>HOA LAN HỒ ĐIỆP DŨNG TRANG - ĐÀ LẠT</h1>
-<div class="subtitle">Số điện thoại/Zalo: 0918.60.42.60</div>
-<div class="subtitle">Địa chỉ: 08 Lý Thường Kiệt, Đức Trọng, Lâm Đồng</div>
+<div class="subtitle phone">Số điện thoại/Zalo: 0918.60.42.60</div>
+<div class="subtitle address">Địa chỉ: 08 Lý Thường Kiệt, Đức Trọng, Lâm Đồng</div>
 
 <div id="folders">
   <label>Chọn album: </label>
