@@ -4,18 +4,66 @@
 <meta charset="UTF-8">
 <title>Gallery 2 Album</title>
 <style>
-  body { font-family: Arial; padding: 20px; background:#f7f7f7; }
-  h2 { text-align:center; margin-bottom:20px; }
-  iframe { width:100%; height:600px; border:none; margin-bottom:40px; }
+  body { font-family: Arial, sans-serif; background:#f7f7f7; padding:20px; }
+  h2 { text-align:center; margin:40px 0 20px; }
+  .gallery { display: flex; flex-wrap: wrap; gap:15px; justify-content: center; }
+  .gallery img {
+    width: 220px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.2);
+    transition: transform 0.2s; cursor: pointer;
+  }
+  .gallery img:hover { transform: scale(1.05); }
+  /* Lightbox */
+  #lightbox {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center;
+    z-index: 9999;
+  }
+  #lightbox img { max-width:90%; max-height:90%; border-radius:8px; }
 </style>
 </head>
 <body>
 
 <h2>Album 1: Mẫu Hoa</h2>
-<iframe src="https://photos-embed.com/a/nvP9g5VazHWoPe5M8"></iframe>
+<div class="gallery" id="album1"></div>
 
 <h2>Album 2: Lan</h2>
-<iframe src="https://photos-embed.com/a/kNYYUzFgjsUTBke8A"></iframe>
+<div class="gallery" id="album2"></div>
+
+<!-- Lightbox -->
+<div id="lightbox" onclick="this.style.display='none'">
+  <img id="lightbox-img" src="">
+</div>
+
+<script>
+// Dán URL trực tiếp từ Google Photos của 2 album vào đây
+const album1Images = [
+  "https://lh3.googleusercontent.com/abcXYZ1=w600-h400",
+  "https://lh3.googleusercontent.com/abcXYZ2=w600-h400"
+  // Thêm URL ảnh album 1
+];
+
+const album2Images = [
+  "https://lh3.googleusercontent.com/defXYZ1=w600-h400",
+  "https://lh3.googleusercontent.com/defXYZ2=w600-h400"
+  // Thêm URL ảnh album 2
+];
+
+function loadGallery(albumId, images) {
+  const container = document.getElementById(albumId);
+  images.forEach(url => {
+    const img = document.createElement('img');
+    img.src = url;
+    img.onclick = () => {
+      document.getElementById('lightbox-img').src = url;
+      document.getElementById('lightbox').style.display = 'flex';
+    };
+    container.appendChild(img);
+  });
+}
+
+loadGallery('album1', album1Images);
+loadGallery('album2', album2Images);
+</script>
 
 </body>
 </html>
