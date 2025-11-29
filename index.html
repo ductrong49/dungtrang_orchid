@@ -2,106 +2,80 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>HOA LAN HỒ ĐIỆP DŨNG TRANG - ĐÀ LẠT</title>
+<title>Admin Quản Lý Hình Ảnh</title>
 <style>
-  body {
-    font-family: Arial;
-    background: url('background2.jpg') no-repeat center center fixed;
-    background-size: cover;
-    padding:20px;
-    color: #333;
+  body { font-family: Arial; padding: 20px; background: #f0f2f5; }
+  h1 { text-align:center; color:#333; margin-bottom:25px; }
+  .box {
+    background:#fff; padding:20px; border-radius:10px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.12); margin-bottom:25px;
+  }
+  label { font-weight:bold; }
+  select, input[type="file"], input[type="text"] {
+    padding:10px; margin:8px 0; width:100%; border-radius:6px; border:1px solid #ccc;
+  }
+  button {
+    padding:10px 20px; cursor:pointer; border:none; background:#0074D9;
+    color:#fff; border-radius:6px; font-size:15px;
+  }
+  button:hover { background:#005fa3; }
+
+  /* Khung hình */
+  #images {
+    display:flex; flex-wrap:wrap; gap:20px; margin-top:20px;
+    justify-content:flex-start;
   }
 
-  h1 {
-    text-align:center;
-    font-size:36px;
-    color:#0074D9; /* xanh dương */
-    text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-    margin-bottom:10px;
+  .img-item {
+    width:200px; background:#fff; border-radius:10px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.15);
+    overflow:hidden; text-align:center; transition:0.2s;
+  }
+  .img-item:hover { transform:scale(1.03); }
+
+  .img-item img {
+    width:100%; height:180px; object-fit:cover;
   }
 
-  .subtitle {
-    text-align:center;
-    font-size:18px;
-    margin:3px 0;
-    transition: transform 0.3s, text-shadow 0.3s;
+  .img-name {
+    font-size:14px; padding:6px; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis;
   }
 
-  .subtitle a {
-    color: inherit;
-    text-decoration:none;
-    transition: transform 0.3s, text-shadow 0.3s;
+  .delete-btn {
+    width:100%; background:#FF4136 !important; padding:10px;
+    border:none; color:#fff; cursor:pointer; font-weight:bold;
   }
 
-  .subtitle a:hover {
-    transform: scale(1.1);
-    text-shadow: 1px 1px 5px rgba(0,0,0,0.4);
-  }
-
-  .phone { color: #2ECC40; } /* xanh lá cây */
-  .zalo { color: #2ECC40; }  /* xanh lá cây */
-  .address { color: #8E44AD; } /* tím */
-
-  #folders { text-align:center; margin:20px 0; }
-  select { padding:10px; font-size:16px; margin:5px; }
-
-  .album-title { text-align:center; margin:30px 0 10px; font-weight:bold; font-size:18px; }
-  .gallery { display:flex; flex-wrap:wrap; gap:15px; justify-content:center; }
-  .gallery img {
-    width:220px; border-radius:8px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.2);
-    transition:0.2s;
-    cursor:pointer;
-  }
-  .gallery img:hover { transform:scale(1.05); }
-
-  /* Lightbox */
-  #lightbox {
-    position:fixed;
-    top:0; left:0; width:100%; height:100%;
-    background:rgba(0,0,0,0.9);
-    display:none; justify-content:center; align-items:center;
-    z-index:9999; flex-direction:column;
-  }
-  #lightbox img { max-width:90%; max-height:80%; border-radius:8px; margin-bottom:15px; }
-  #lightbox button {
-    padding:10px 20px; font-size:16px; cursor:pointer;
-    border:none; border-radius:5px; background:#fff; margin:0 5px;
-  }
-  #lightbox-controls { display:flex; justify-content:center; gap:10px; }
+  .delete-btn:hover { background:#d93329 !important; }
 </style>
 </head>
+
 <body>
 
-<h1>HOA LAN HỒ ĐIỆP DŨNG TRANG - ĐÀ LẠT</h1>
+<h1>ADMIN QUẢN LÝ HÌNH HOA LAN</h1>
 
-<div class="subtitle phone">
-  <a href="tel:0918604260">Điện thoại: 0918.60.42.60</a>
+<div class="box">
+  <h3>1. Nhập Token GitHub</h3>
+  <input type="text" id="token" placeholder="Dán GitHub Personal Access Token tại đây">
 </div>
 
-<div class="subtitle zalo">
-  <a href="https://zalo.me/0918604260" target="_blank">Zalo: 0918.60.42.60</a>
+<div class="box">
+  <h3>2. Upload Hình</h3>
+
+  <label>Chọn Album</label>
+  <select id="folderSelect"></select>
+
+  <label>Chọn Hình</label>
+  <input type="file" id="fileInput">
+
+  <button onclick="uploadImage()">Upload</button>
 </div>
 
-<div class="subtitle address">Địa chỉ: 08 Lý Thường Kiệt, Đức Trọng, Lâm Đồng</div>
-
-<div id="folders">
-  <label>Chọn album: </label>
-  <select id="folderSelect">
-    <option value="all">Tất cả album</option>
-  </select>
-</div>
-
-<div id="gallery"></div>
-
-<!-- Lightbox -->
-<div id="lightbox">
-  <img id="lightbox-img" src="">
-  <div id="lightbox-controls">
-    <button onclick="prevImage()">« Trước</button>
-    <button onclick="nextImage()">Sau »</button>
-    <button onclick="closeLightbox()">Đóng</button>
-  </div>
+<div class="box">
+  <h3>3. Danh sách hình trong album</h3>
+  <button onclick="loadImages()">Tải lại danh sách</button>
+  <div id="images"></div>
 </div>
 
 <script>
@@ -116,103 +90,119 @@ const albumsMap = {
   "Mẫu Mini": "mau_mini"
 };
 
-let allFolders = Object.keys(albumsMap);
-let currentFolder = "all";
-let galleryImages = [];
-let currentIndex = 0;
-
+// Load album list
 function loadAlbumSelect() {
   const select = document.getElementById("folderSelect");
-  allFolders.forEach(name => {
+  select.innerHTML = "";
+
+  for (const [name, folder] of Object.entries(albumsMap)) {
     const opt = document.createElement("option");
-    opt.value = albumsMap[name];
+    opt.value = folder;
     opt.textContent = name;
     select.appendChild(opt);
-  });
-
-  select.addEventListener("change", () => {
-    const val = select.value;
-    if (val === "all") loadImages("all");
-    else loadImages(val);
-  });
+  }
 }
+loadAlbumSelect();
 
-async function loadImages(folder) {
-  const galleryDiv = document.getElementById("gallery");
-  galleryDiv.innerHTML = "";
-  galleryImages = [];
+// Upload image
+async function uploadImage() {
+  const token = document.getElementById("token").value.trim();
+  if (!token) return alert("Bạn chưa nhập token!");
 
-  if (folder === "all") {
-    for (const [displayName, repoName] of Object.entries(albumsMap)) {
-      const title = document.createElement("div");
-      title.className = "album-title";
-      title.textContent = displayName;
-      galleryDiv.appendChild(title);
+  const file = document.getElementById("fileInput").files[0];
+  if (!file) return alert("Bạn chưa chọn hình!");
 
-      const res = await fetch(`${repoAPI}/${repoName}`);
-      const files = await res.json();
-      const images = files.filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
-                          .map(f => f.download_url);
+  const folder = document.getElementById("folderSelect").value;
+  const fileName = file.name;
 
-      galleryImages = galleryImages.concat(images);
+  const reader = new FileReader();
+  reader.onload = async function () {
+    const base64Content = reader.result.split(",")[1];
+    const uploadURL = `${repoAPI}/${folder}/${fileName}`;
 
-      const albumGallery = document.createElement("div");
-      albumGallery.className = "gallery";
-      images.forEach(url => {
-        const img = document.createElement("img");
-        img.src = url;
-        img.onclick = () => openLightbox(url);
-        albumGallery.appendChild(img);
-      });
-
-      galleryDiv.appendChild(albumGallery);
-    }
-  } else {
-    const displayName = Object.keys(albumsMap).find(key => albumsMap[key] === folder);
-    const title = document.createElement("div");
-    title.className = "album-title";
-    title.textContent = displayName;
-    galleryDiv.appendChild(title);
-
-    const res = await fetch(`${repoAPI}/${folder}`);
-    const files = await res.json();
-    const images = files.filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
-                        .map(f => f.download_url);
-
-    galleryImages = images;
-
-    const albumGallery = document.createElement("div");
-    albumGallery.className = "gallery";
-    images.forEach(url => {
-      const img = document.createElement("img");
-      img.src = url;
-      img.onclick = () => openLightbox(url);
-      albumGallery.appendChild(img);
+    const res = await fetch(uploadURL, {
+      method: "PUT",
+      headers: {
+        "Authorization": `token ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: `Upload ${fileName}`,
+        content: base64Content
+      })
     });
 
-    galleryDiv.appendChild(albumGallery);
+    if (res.ok) {
+      alert("Upload thành công!");
+      loadImages();
+    } else {
+      alert("Lỗi upload!");
+      console.log(await res.text());
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// Load images in album
+async function loadImages() {
+  const folder = document.getElementById("folderSelect").value;
+  const imagesBox = document.getElementById("images");
+  imagesBox.innerHTML = "Đang tải...";
+
+  const res = await fetch(`${repoAPI}/${folder}`);
+  const files = await res.json();
+
+  imagesBox.innerHTML = "";
+
+  files
+    .filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
+    .forEach(file => {
+      const div = document.createElement("div");
+      div.className = "img-item";
+
+      div.innerHTML = `
+        <img src="${file.download_url}">
+        <div class="img-name">${file.name}</div>
+        <button class="delete-btn" onclick="deleteImage('${folder}', '${file.name}')">XÓA</button>
+      `;
+
+      imagesBox.appendChild(div);
+    });
+}
+
+// Delete image
+async function deleteImage(folder, filename) {
+  const token = document.getElementById("token").value.trim();
+  if (!token) return alert("Bạn chưa nhập token!");
+
+  const fileURL = `${repoAPI}/${folder}/${filename}`;
+
+  // Lấy SHA của file
+  const fileRes = await fetch(fileURL);
+  const fileData = await fileRes.json();
+
+  const res = await fetch(fileURL, {
+    method: "DELETE",
+    headers: {
+      "Authorization": `token ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message: `Delete ${filename}`,
+      sha: fileData.sha
+    })
+  });
+
+  if (res.ok) {
+    alert("Đã xóa!");
+    loadImages();
+  } else {
+    alert("Lỗi khi xóa ảnh!");
+    console.log(await res.text());
   }
 }
 
-function openLightbox(url) {
-  currentIndex = galleryImages.indexOf(url);
-  document.getElementById("lightbox-img").src = url;
-  document.getElementById("lightbox").style.display = "flex";
-}
-function closeLightbox() { document.getElementById("lightbox").style.display = "none"; }
-function prevImage() {
-  if (galleryImages.length === 0) return;
-  currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
-  document.getElementById("lightbox-img").src = galleryImages[currentIndex];
-}
-function nextImage() {
-  if (galleryImages.length === 0) return;
-  currentIndex = (currentIndex + 1) % galleryImages.length;
-  document.getElementById("lightbox-img").src = galleryImages[currentIndex];
-}
-
-loadAlbumSelect();
-loadImages("all");
+loadImages();
 </script>
 
 </body>
