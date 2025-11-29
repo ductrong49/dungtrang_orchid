@@ -12,7 +12,7 @@
   button { padding:10px 20px; cursor:pointer; border:none; background:#0074D9; color:#fff; border-radius:6px; }
   button:hover { background:#005fa3; }
   .img-box { display:flex; flex-wrap:wrap; gap:15px; margin-top:20px; }
-  .img-item { width:180px; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.15); text-align:center; }
+  .img-item { width:180px; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.15); text-align:center; padding-bottom:10px; }
   .img-item img { width:100%; }
   .delete-btn { width:100%; background:#FF4136 !important; margin-top:5px; }
 </style>
@@ -49,6 +49,11 @@
   <select id="viewFolderSelect"></select>
 
   <button onclick="loadImages()">Tải lại danh sách</button>
+
+  <button style="background:#FF4136; margin-top:10px;" onclick="deleteSelectedImages()">
+    XÓA CÁC HÌNH ĐÃ CHỌN
+  </button>
+
   <div id="images" class="img-box"></div>
 </div>
 
@@ -86,7 +91,6 @@ function loadAlbumSelect() {
     viewSel.appendChild(opt2);
   }
 }
-
 loadAlbumSelect();
 
 /* -------------------------
@@ -151,36 +155,45 @@ async function loadImages() {
 
   imagesBox.innerHTML = "";
 
-  files.filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
-       .forEach(file => {
-        const div = document.createElement("div");
-        div.className = "img-item";
+  files
+    .filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
+    .forEach(file => {
+      const div = document.createElement("div");
+      div.className = "img-item";
 
-        div.innerHTML = `
-          <img src="${file.download_url}">
-          <button class="delete-btn" onclick="deleteImage('${folder}', '${file.name}')">XÓA</button>
-        `;
+      div.innerHTML = `
+        <input type="checkbox" class="img-check" data-name="${file.name}" style="margin-top:8px;">
+        <img src="${file.download_url}">
+        <button class="delete-btn" onclick="deleteImage('${folder}', '${file.name}')">XÓA</button>
+      `;
 
-        imagesBox.appendChild(div);
-       });
+      imagesBox.appendChild(div);
+    });
 }
 
 /* -------------------------
-   XÓA HÌNH
+   XÓA TỪNG HÌNH
 ------------------------- */
 async function deleteImage(folder, filename) {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
+  if (!confirm(`Bạn có chắc muốn xóa hình: ${filename}?`)) return;
 
   const fileURL = `${repoAPI}/${folder}/${filename}`;
-  const fileRes = await fetch(fileURL);
+
+  // GET SHA trước khi xóa
+  const fileRes = await fetch(fileURL, {
+    headers: { "Accept": "application/vnd.github.v3+json" }
+  });
   const fileData = await fileRes.json();
 
+  // DELETE file
   const res = await fetch(fileURL, {
     method: "DELETE",
     headers: {
       "Authorization": `token ${token}`,
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "Accept": "application/vnd.github.v3+json"
     },
     body: JSON.stringify({
       message: `Delete ${filename}`,
@@ -189,11 +202,36 @@ async function deleteImage(folder, filename) {
   });
 
   if (res.ok) {
-    alert("Đã xóa!");
     loadImages();
   } else {
     alert("Lỗi xóa hình!");
   }
+}
+
+/* -------------------------
+   XÓA NHIỀU HÌNH
+------------------------- */
+async function deleteSelectedImages() {
+  const token = document.getElementById("token").value.trim();
+  if (!token) return alert("Bạn chưa nhập token!");
+
+  const folder = document.getElementById("viewFolderSelect").value;
+  const checks = document.querySelectorAll(".img-check:checked");
+
+  if (checks.length === 0) return alert("Bạn chưa chọn hình!");
+
+  if (!confirm(`Xóa ${checks.length} hình?`)) return;
+
+  let deleted = 0;
+
+  for (let c of checks) {
+    const filename = c.dataset.name;
+    await deleteImage(folder, filename);
+    deleted++;
+  }
+
+  alert(`Đã xóa ${deleted} hình!`);
+  loadImages();
 }
 
 loadImages();
