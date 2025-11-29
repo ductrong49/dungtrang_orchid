@@ -22,25 +22,32 @@
 
 <h1>ADMIN QUẢN LÝ HÌNH HOA LAN</h1>
 
+<!-- TOKEN -->
 <div class="box">
   <h3>1. Nhập Token GitHub</h3>
   <input type="text" id="token" placeholder="Dán GitHub Personal Access Token tại đây">
 </div>
 
+<!-- UPLOAD -->
 <div class="box">
   <h3>2. Upload Hình</h3>
 
   <label>Chọn Album</label>
   <select id="folderSelect"></select>
 
-  <label>Chọn Hình</label>
-  <input type="file" id="fileInput">
+  <label>Chọn Nhiều Hình</label>
+  <input type="file" id="fileInput" multiple>
 
-  <button onclick="uploadImage()">Upload</button>
+  <button onclick="uploadMultiple()">Upload</button>
 </div>
 
+<!-- DANH SÁCH HÌNH -->
 <div class="box">
   <h3>3. Danh sách hình trong album</h3>
+
+  <label>Chọn Album</label>
+  <select id="viewFolderSelect"></select>
+
   <button onclick="loadImages()">Tải lại danh sách</button>
   <div id="images" class="img-box"></div>
 </div>
@@ -57,63 +64,85 @@ const albumsMap = {
   "Mẫu Mini": "mau_mini"
 };
 
-// --- Load album vào select ---
+/* -------------------------
+   LOAD DANH SÁCH ALBUM
+------------------------- */
 function loadAlbumSelect() {
-  const select = document.getElementById("folderSelect");
-  select.innerHTML = "";
+  const upSel = document.getElementById("folderSelect");
+  const viewSel = document.getElementById("viewFolderSelect");
+
+  upSel.innerHTML = "";
+  viewSel.innerHTML = "";
 
   for (const [name, folder] of Object.entries(albumsMap)) {
-    const opt = document.createElement("option");
-    opt.value = folder;
-    opt.textContent = name;
-    select.appendChild(opt);
+    const opt1 = document.createElement("option");
+    opt1.value = folder;
+    opt1.textContent = name;
+    upSel.appendChild(opt1);
+
+    const opt2 = document.createElement("option");
+    opt2.value = folder;
+    opt2.textContent = name;
+    viewSel.appendChild(opt2);
   }
 }
+
 loadAlbumSelect();
 
-// --- Upload hình ---
-async function uploadImage() {
+/* -------------------------
+   UPLOAD NHIỀU HÌNH
+------------------------- */
+async function uploadMultiple() {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
 
-  const file = document.getElementById("fileInput").files[0];
-  if (!file) return alert("Bạn chưa chọn hình!");
+  const files = document.getElementById("fileInput").files;
+  if (files.length === 0) return alert("Bạn chưa chọn hình!");
 
   const folder = document.getElementById("folderSelect").value;
-  const fileName = file.name;
 
-  const reader = new FileReader();
-  reader.onload = async function () {
-    const base64Content = reader.result.split(",")[1];
+  let success = 0;
 
-    const uploadURL = `${repoAPI}/${folder}/${fileName}`;
+  for (let file of files) {
+    await uploadSingleImage(file, folder, token);
+    success++;
+  }
 
-    const res = await fetch(uploadURL, {
-      method: "PUT",
-      headers: {
-        "Authorization": `token ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: `Upload ${fileName}`,
-        content: base64Content
-      })
-    });
-
-    if (res.ok) {
-      alert("Upload thành công!");
-      loadImages();
-    } else {
-      alert("Lỗi upload!");
-      console.log(await res.text());
-    }
-  };
-  reader.readAsDataURL(file);
+  alert(`Upload xong ${success} hình!`);
+  loadImages();
 }
 
-// --- Load danh sách hình ---
+async function uploadSingleImage(file, folder, token) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = async function () {
+      const base64Content = reader.result.split(",")[1];
+      const uploadURL = `${repoAPI}/${folder}/${file.name}`;
+
+      await fetch(uploadURL, {
+        method: "PUT",
+        headers: {
+          "Authorization": `token ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: `Upload ${file.name}`,
+          content: base64Content
+        })
+      });
+
+      resolve();
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+/* -------------------------
+   LOAD HÌNH TRONG ALBUM
+------------------------- */
 async function loadImages() {
-  const folder = document.getElementById("folderSelect").value;
+  const folder = document.getElementById("viewFolderSelect").value;
   const imagesBox = document.getElementById("images");
   imagesBox.innerHTML = "Đang tải...";
 
@@ -122,29 +151,28 @@ async function loadImages() {
 
   imagesBox.innerHTML = "";
 
-  files
-    .filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
-    .forEach(file => {
-      const div = document.createElement("div");
-      div.className = "img-item";
+  files.filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
+       .forEach(file => {
+        const div = document.createElement("div");
+        div.className = "img-item";
 
-      div.innerHTML = `
-        <img src="${file.download_url}">
-        <button class="delete-btn" onclick="deleteImage('${folder}', '${file.name}')">XÓA</button>
-      `;
+        div.innerHTML = `
+          <img src="${file.download_url}">
+          <button class="delete-btn" onclick="deleteImage('${folder}', '${file.name}')">XÓA</button>
+        `;
 
-      imagesBox.appendChild(div);
-    });
+        imagesBox.appendChild(div);
+       });
 }
 
-// --- Xóa hình ---
+/* -------------------------
+   XÓA HÌNH
+------------------------- */
 async function deleteImage(folder, filename) {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
 
   const fileURL = `${repoAPI}/${folder}/${filename}`;
-
-  // Lấy sha file để xóa
   const fileRes = await fetch(fileURL);
   const fileData = await fileRes.json();
 
@@ -164,8 +192,7 @@ async function deleteImage(folder, filename) {
     alert("Đã xóa!");
     loadImages();
   } else {
-    alert("Lỗi khi xóa ảnh!");
-    console.log(await res.text());
+    alert("Lỗi xóa hình!");
   }
 }
 
