@@ -12,7 +12,7 @@
   button { padding:10px 20px; cursor:pointer; border:none; background:#0074D9; color:#fff; border-radius:6px; }
   button:hover { background:#005fa3; }
   .img-box { display:flex; flex-wrap:wrap; gap:15px; margin-top:20px; }
-  .img-item { width:180px; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.15); text-align:center; }
+  .img-item { width:180px; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.15); text-align:center; padding-bottom:10px; }
   .img-item img { width:100%; }
   .delete-btn { width:100%; background:#FF4136 !important; margin-top:5px; }
 </style>
@@ -38,9 +38,6 @@
   <label>Chọn Nhiều Hình</label>
   <input type="file" id="fileInput" multiple>
 
-  <label>Nhánh (branch)</label>
-  <input type="text" id="branchInputUpload" placeholder="main" value="main">
-
   <button onclick="uploadMultiple()">Upload</button>
 </div>
 
@@ -51,10 +48,12 @@
   <label>Chọn Album</label>
   <select id="viewFolderSelect"></select>
 
-  <label>Nhánh (branch)</label>
-  <input type="text" id="branchInputView" placeholder="main" value="main">
-
   <button onclick="loadImages()">Tải lại danh sách</button>
+
+  <button style="background:#FF4136; margin-top:10px;" onclick="deleteSelectedImages()">
+    XÓA CÁC HÌNH ĐÃ CHỌN
+  </button>
+
   <div id="images" class="img-box"></div>
 </div>
 
@@ -70,95 +69,125 @@ const albumsMap = {
   "Mẫu Mini": "mau_mini"
 };
 
-// ------------------ LOAD ALBUM ------------------
+/* -------------------------
+   LOAD DANH SÁCH ALBUM
+------------------------- */
 function loadAlbumSelect() {
   const upSel = document.getElementById("folderSelect");
   const viewSel = document.getElementById("viewFolderSelect");
+
   upSel.innerHTML = "";
   viewSel.innerHTML = "";
 
   for (const [name, folder] of Object.entries(albumsMap)) {
     const opt1 = document.createElement("option");
-    opt1.value = folder; opt1.textContent = name; upSel.appendChild(opt1);
+    opt1.value = folder;
+    opt1.textContent = name;
+    upSel.appendChild(opt1);
+
     const opt2 = document.createElement("option");
-    opt2.value = folder; opt2.textContent = name; viewSel.appendChild(opt2);
+    opt2.value = folder;
+    opt2.textContent = name;
+    viewSel.appendChild(opt2);
   }
 }
 loadAlbumSelect();
 
-// ------------------ UPLOAD NHIỀU HÌNH ------------------
+/* -------------------------
+   UPLOAD NHIỀU HÌNH
+------------------------- */
 async function uploadMultiple() {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
+
   const files = document.getElementById("fileInput").files;
   if (files.length === 0) return alert("Bạn chưa chọn hình!");
+
   const folder = document.getElementById("folderSelect").value;
-  const branch = document.getElementById("branchInputUpload").value.trim() || "main";
+
   let success = 0;
 
   for (let file of files) {
-    await uploadSingleImage(file, folder, token, branch);
+    await uploadSingleImage(file, folder, token);
     success++;
   }
+
   alert(`Upload xong ${success} hình!`);
   loadImages();
 }
 
-async function uploadSingleImage(file, folder, token, branch) {
+async function uploadSingleImage(file, folder, token) {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = async function () {
       const base64Content = reader.result.split(",")[1];
       const uploadURL = `${repoAPI}/${folder}/${file.name}`;
+
       await fetch(uploadURL, {
         method: "PUT",
         headers: {
           "Authorization": `token ${token}`,
-          "Content-Type": "application/json",
-          "Accept": "application/vnd.github.v3+json"
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           message: `Upload ${file.name}`,
-          content: base64Content,
-          branch: branch
+          content: base64Content
         })
       });
+
       resolve();
     };
+
     reader.readAsDataURL(file);
   });
 }
 
-// ------------------ LOAD HÌNH ------------------
+/* -------------------------
+   LOAD HÌNH TRONG ALBUM
+------------------------- */
 async function loadImages() {
   const folder = document.getElementById("viewFolderSelect").value;
-  const branch = document.getElementById("branchInputView").value.trim() || "main";
   const imagesBox = document.getElementById("images");
   imagesBox.innerHTML = "Đang tải...";
 
-  const res = await fetch(`${repoAPI}/${folder}?ref=${branch}`);
+  const res = await fetch(`${repoAPI}/${folder}`);
   const files = await res.json();
 
   imagesBox.innerHTML = "";
 
-  files.filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
-       .forEach(file => {
-        const div = document.createElement("div");
-        div.className = "img-item";
-        div.innerHTML = `
-          <img src="${file.download_url}">
-          <button class="delete-btn" onclick="deleteImage('${folder}', '${file.name}', '${file.sha}', '${branch}')">XÓA</button>
-        `;
-        imagesBox.appendChild(div);
-       });
+  files
+    .filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
+    .forEach(file => {
+      const div = document.createElement("div");
+      div.className = "img-item";
+
+      div.innerHTML = `
+        <input type="checkbox" class="img-check" data-name="${file.name}" style="margin-top:8px;">
+        <img src="${file.download_url}">
+        <button class="delete-btn" onclick="deleteImage('${folder}', '${file.name}')">XÓA</button>
+      `;
+
+      imagesBox.appendChild(div);
+    });
 }
 
-// ------------------ XÓA HÌNH ------------------
-async function deleteImage(folder, filename, sha, branch) {
+/* -------------------------
+   XÓA TỪNG HÌNH
+------------------------- */
+async function deleteImage(folder, filename) {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
+  if (!confirm(`Bạn có chắc muốn xóa hình: ${filename}?`)) return;
 
   const fileURL = `${repoAPI}/${folder}/${filename}`;
+
+  // GET SHA trước khi xóa
+  const fileRes = await fetch(fileURL, {
+    headers: { "Accept": "application/vnd.github.v3+json" }
+  });
+  const fileData = await fileRes.json();
+
+  // DELETE file
   const res = await fetch(fileURL, {
     method: "DELETE",
     headers: {
@@ -168,18 +197,41 @@ async function deleteImage(folder, filename, sha, branch) {
     },
     body: JSON.stringify({
       message: `Delete ${filename}`,
-      sha: sha,
-      branch: branch
+      sha: fileData.sha
     })
   });
 
   if (res.ok) {
-    alert("Đã xóa!");
     loadImages();
   } else {
-    const text = await res.text();
-    alert("Lỗi xóa hình! " + text);
+    alert("Lỗi xóa hình!");
   }
+}
+
+/* -------------------------
+   XÓA NHIỀU HÌNH
+------------------------- */
+async function deleteSelectedImages() {
+  const token = document.getElementById("token").value.trim();
+  if (!token) return alert("Bạn chưa nhập token!");
+
+  const folder = document.getElementById("viewFolderSelect").value;
+  const checks = document.querySelectorAll(".img-check:checked");
+
+  if (checks.length === 0) return alert("Bạn chưa chọn hình!");
+
+  if (!confirm(`Xóa ${checks.length} hình?`)) return;
+
+  let deleted = 0;
+
+  for (let c of checks) {
+    const filename = c.dataset.name;
+    await deleteImage(folder, filename);
+    deleted++;
+  }
+
+  alert(`Đã xóa ${deleted} hình!`);
+  loadImages();
 }
 
 loadImages();
