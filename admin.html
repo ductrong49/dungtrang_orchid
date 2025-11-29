@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Admin Quản Lý Hình Ảnh</title>
+<style>
+  body { font-family: Arial; padding: 20px; background: #f7f7f7; }
+  h1 { text-align:center; color:#333; margin-bottom:25px; }
+  .box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); margin-bottom:25px; }
+  label { font-weight:bold; }
+  select, input[type="file"], input[type="text"] { padding:10px; margin:8px 0; width:100%; }
+  button { padding:10px 20px; cursor:pointer; border:none; background:#0074D9; color:#fff; border-radius:6px; }
+  button:hover { background:#005fa3; }
+  .img-box { display:flex; flex-wrap:wrap; gap:15px; margin-top:20px; }
+  .img-item { width:180px; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.15); text-align:center; }
+  .img-item img { width:100%; }
+  .delete-btn { width:100%; background:#FF4136 !important; margin-top:5px; }
+</style>
+</head>
+
+<body>
+
+<h1>ADMIN QUẢN LÝ HÌNH HOA LAN</h1>
+
+<div class="box">
+  <h3>1. Nhập Token GitHub</h3>
+  <input type="text" id="token" placeholder="Dán GitHub Personal Access Token tại đây">
+</div>
+
+<div class="box">
+  <h3>2. Upload Hình</h3>
+
+  <label>Chọn Album</label>
+  <select id="folderSelect"></select>
+
+  <label>Chọn Hình</label>
+  <input type="file" id="fileInput">
+
+  <button onclick="uploadImage()">Upload</button>
+</div>
+
+<div class="box">
+  <h3>3. Danh sách hình trong album</h3>
+  <button onclick="loadImages()">Tải lại danh sách</button>
+  <div id="images" class="img-box"></div>
+</div>
+
+<script>
+const USERNAME = "ductrong49";
+const REPO = "dungtrang_orchid";
+const repoAPI = `https://api.github.com/repos/${USERNAME}/${REPO}/contents`;
+
+const albumsMap = {
+  "Mẫu Hoa": "MauHoa",
+  "Mẫu Đại": "mau_dai",
+  "Mẫu Trung": "mau_trung",
+  "Mẫu Mini": "mau_mini"
+};
+
+// --- Load album vào select ---
+function loadAlbumSelect() {
+  const select = document.getElementById("folderSelect");
+  select.innerHTML = "";
+
+  for (const [name, folder] of Object.entries(albumsMap)) {
+    const opt = document.createElement("option");
+    opt.value = folder;
+    opt.textContent = name;
+    select.appendChild(opt);
+  }
+}
+loadAlbumSelect();
+
+// --- Upload hình ---
+async function uploadImage() {
+  const token = document.getElementById("token").value.trim();
+  if (!token) return alert("Bạn chưa nhập token!");
+
+  const file = document.getElementById("fileInput").files[0];
+  if (!file) return alert("Bạn chưa chọn hình!");
+
+  const folder = document.getElementById("folderSelect").value;
+  const fileName = file.name;
+
+  const reader = new FileReader();
+  reader.onload = async function () {
+    const base64Content = reader.result.split(",")[1];
+
+    const uploadURL = `${repoAPI}/${folder}/${fileName}`;
+
+    const res = await fetch(uploadURL, {
+      method: "PUT",
+      headers: {
+        "Authorization": `token ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: `Upload ${fileName}`,
+        content: base64Content
+      })
+    });
+
+    if (res.ok) {
+      alert("Upload thành công!");
+      loadImages();
+    } else {
+      alert("Lỗi upload!");
+      console.log(await res.text());
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// --- Load danh sách hình ---
+async function loadImages() {
+  const folder = document.getElementById("folderSelect").value;
+  const imagesBox = document.getElementById("images");
+  imagesBox.innerHTML = "Đang tải...";
+
+  const res = await fetch(`${repoAPI}/${folder}`);
+  const files = await res.json();
+
+  imagesBox.innerHTML = "";
+
+  files
+    .filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
+    .forEach(file => {
+      const div = document.createElement("div");
+      div.className = "img-item";
+
+      div.innerHTML = `
+        <img src="${file.download_url}">
+        <button class="delete-btn" onclick="deleteImage('${folder}', '${file.name}')">XÓA</button>
+      `;
+
+      imagesBox.appendChild(div);
+    });
+}
+
+// --- Xóa hình ---
+async function deleteImage(folder, filename) {
+  const token = document.getElementById("token").value.trim();
+  if (!token) return alert("Bạn chưa nhập token!");
+
+  const fileURL = `${repoAPI}/${folder}/${filename}`;
+
+  // Lấy sha file để xóa
+  const fileRes = await fetch(fileURL);
+  const fileData = await fileRes.json();
+
+  const res = await fetch(fileURL, {
+    method: "DELETE",
+    headers: {
+      "Authorization": `token ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message: `Delete ${filename}`,
+      sha: fileData.sha
+    })
+  });
+
+  if (res.ok) {
+    alert("Đã xóa!");
+    loadImages();
+  } else {
+    alert("Lỗi khi xóa ảnh!");
+    console.log(await res.text());
+  }
+}
+
+loadImages();
+</script>
+
+</body>
+</html>
