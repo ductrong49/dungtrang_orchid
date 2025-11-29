@@ -20,10 +20,8 @@
   }
   button:hover { background:#005fa3; }
 
-  /* Khung hình */
   #images {
     display:flex; flex-wrap:wrap; gap:20px; margin-top:20px;
-    justify-content:flex-start;
   }
 
   .img-item {
@@ -46,8 +44,12 @@
     width:100%; background:#FF4136 !important; padding:10px;
     border:none; color:#fff; cursor:pointer; font-weight:bold;
   }
-
   .delete-btn:hover { background:#d93329 !important; }
+
+  #progress {
+    margin-top:10px; font-size:14px; color:#333;
+    font-weight:bold; white-space:pre-line;
+  }
 </style>
 </head>
 
@@ -66,10 +68,12 @@
   <label>Chọn Album</label>
   <select id="folderSelect"></select>
 
-  <label>Chọn Hình</label>
-  <input type="file" id="fileInput">
+  <label>Chọn Hình (nhiều file)</label>
+  <input type="file" id="fileInput" multiple>
 
-  <button onclick="uploadImage()">Upload</button>
+  <button onclick="uploadMultiple()">Upload</button>
+
+  <div id="progress"></div>
 </div>
 
 <div class="box">
@@ -90,11 +94,9 @@ const albumsMap = {
   "Mẫu Mini": "mau_mini"
 };
 
-// Load album list
 function loadAlbumSelect() {
   const select = document.getElementById("folderSelect");
   select.innerHTML = "";
-
   for (const [name, folder] of Object.entries(albumsMap)) {
     const opt = document.createElement("option");
     opt.value = folder;
@@ -104,46 +106,67 @@ function loadAlbumSelect() {
 }
 loadAlbumSelect();
 
-// Upload image
-async function uploadImage() {
+/* ============================
+   UPLOAD NHIỀU FILE
+============================ */
+async function uploadMultiple() {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
 
-  const file = document.getElementById("fileInput").files[0];
-  if (!file) return alert("Bạn chưa chọn hình!");
+  const files = document.getElementById("fileInput").files;
+  if (files.length === 0) return alert("Bạn chưa chọn hình!");
 
   const folder = document.getElementById("folderSelect").value;
-  const fileName = file.name;
+  const progress = document.getElementById("progress");
 
-  const reader = new FileReader();
-  reader.onload = async function () {
-    const base64Content = reader.result.split(",")[1];
-    const uploadURL = `${repoAPI}/${folder}/${fileName}`;
+  progress.textContent = `Đang upload ${files.length} hình...\n`;
 
-    const res = await fetch(uploadURL, {
-      method: "PUT",
-      headers: {
-        "Authorization": `token ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: `Upload ${fileName}`,
-        content: base64Content
-      })
-    });
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
 
-    if (res.ok) {
-      alert("Upload thành công!");
-      loadImages();
-    } else {
-      alert("Lỗi upload!");
-      console.log(await res.text());
-    }
-  };
-  reader.readAsDataURL(file);
+    progress.textContent += `\n▶ Upload: ${file.name}...`;
+
+    const ok = await uploadSingle(file, folder, token);
+
+    if (ok)
+      progress.textContent += " ✔ Thành công";
+    else
+      progress.textContent += " ✘ Lỗi";
+  }
+
+  progress.textContent += "\n\nHoàn tất!";
+  loadImages();
 }
 
-// Load images in album
+// Upload một file
+async function uploadSingle(file, folder, token) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = async function () {
+      const base64Content = reader.result.split(",")[1];
+      const uploadURL = `${repoAPI}/${folder}/${file.name}`;
+
+      const res = await fetch(uploadURL, {
+        method: "PUT",
+        headers: {
+          "Authorization": `token ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: `Upload ${file.name}`,
+          content: base64Content
+        })
+      });
+
+      resolve(res.ok);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ============================
+   LOAD DANH SÁCH HÌNH
+============================ */
 async function loadImages() {
   const folder = document.getElementById("folderSelect").value;
   const imagesBox = document.getElementById("images");
@@ -170,14 +193,15 @@ async function loadImages() {
     });
 }
 
-// Delete image
+/* ============================
+   XÓA HÌNH
+============================ */
 async function deleteImage(folder, filename) {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
 
   const fileURL = `${repoAPI}/${folder}/${filename}`;
 
-  // Lấy SHA của file
   const fileRes = await fetch(fileURL);
   const fileData = await fileRes.json();
 
