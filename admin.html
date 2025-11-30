@@ -72,7 +72,7 @@ const albumsMap = {
   "Mẫu Mini": "mau_mini"
 };
 
-// Load album select & chọn mặc định album đầu tiên
+// Load album select
 function loadAlbumSelect() {
   const upSel = document.getElementById("folderSelect");
   const viewSel = document.getElementById("viewFolderSelect");
@@ -85,8 +85,6 @@ function loadAlbumSelect() {
   if(viewSel.options.length>0) viewSel.selectedIndex = 0;
 }
 loadAlbumSelect();
-
-// Khi chọn album khác, load lại hình
 document.getElementById("viewFolderSelect").addEventListener("change", loadImages);
 
 /* -------------------------
@@ -131,14 +129,35 @@ async function uploadSingleImage(file, folder, token) {
     const reader = new FileReader();
     reader.onload = async function() {
       const base64Content = reader.result.split(",")[1];
-      await fetch(`${repoAPI}/${folder}/${file.name}`, {
-        method:"PUT",
-        headers:{
+      const fileURL = `${repoAPI}/${folder}/${file.name}`;
+      let sha = null;
+
+      // Kiểm tra file đã tồn tại
+      try {
+        const res = await fetch(fileURL, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/vnd.github+json"
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          sha = data.sha; // nếu file đã tồn tại, lấy SHA để update
+        }
+      } catch(e) { }
+
+      await fetch(fileURL, {
+        method: "PUT",
+        headers: {
           "Authorization": `Bearer ${token}`,
-          "Content-Type":"application/json",
-          "Accept": "application/vnd.github.v3+json"
+          "Content-Type": "application/json",
+          "Accept": "application/vnd.github+json"
         },
-        body: JSON.stringify({ message:`Upload ${file.name}`, content:base64Content })
+        body: JSON.stringify({
+          message: `Upload ${file.name}`,
+          content: base64Content,
+          sha: sha
+        })
       });
       resolve();
     };
@@ -165,7 +184,7 @@ async function loadImages() {
     const res = await fetch(`${repoAPI}/${folder}`, {
       headers: {
         "Authorization": `Bearer ${token}`,
-        "Accept": "application/vnd.github.v3+json"
+        "Accept": "application/vnd.github+json"
       }
     });
     if(!res.ok) throw new Error(`Lỗi tải album: ${res.status}`);
@@ -204,14 +223,18 @@ async function deleteFileAPI(folder, filename, token){
   const fileRes=await fetch(fileURL, {
     headers:{
       "Authorization": `Bearer ${token}`,
-      "Accept": "application/vnd.github.v3+json"
+      "Accept": "application/vnd.github+json"
     }
   });
   if(!fileRes.ok) throw new Error(`Không tìm thấy file ${filename}`);
   const fileData=await fileRes.json();
   return fetch(fileURL,{
     method:"DELETE",
-    headers:{ "Authorization":`Bearer ${token}`, "Content-Type":"application/json", "Accept":"application/vnd.github.v3+json" },
+    headers:{ 
+      "Authorization":`Bearer ${token}`, 
+      "Content-Type":"application/json", 
+      "Accept":"application/vnd.github+json" 
+    },
     body:JSON.stringify({ message:`Delete ${filename}`, sha:fileData.sha })
   });
 }
