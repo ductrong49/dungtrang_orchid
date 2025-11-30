@@ -16,7 +16,6 @@
   .img-item img { width:100%; }
   .delete-btn { width:100%; background:#FF4136 !important; margin-top:5px; }
 
-  /* Tiến trình upload */
   #progressWrap, #deleteProgressWrap {
     width:100%; background:#ddd; height:18px; border-radius:10px; margin-top:10px; display:none;
   }
@@ -25,50 +24,36 @@
   #progressText, #deleteProgressText { margin-top:5px; font-size:14px; font-weight:bold; display:none; }
 </style>
 </head>
-
 <body>
 
 <h1>ADMIN QUẢN LÝ HÌNH HOA LAN</h1>
 
-<!-- TOKEN -->
 <div class="box">
   <h3>1. Nhập Token GitHub</h3>
   <input type="text" id="token" placeholder="Dán GitHub Personal Access Token tại đây">
 </div>
 
-<!-- UPLOAD -->
 <div class="box">
   <h3>2. Upload Hình</h3>
-
   <label>Chọn Album</label>
   <select id="folderSelect"></select>
-
   <label>Chọn Nhiều Hình</label>
   <input type="file" id="fileInput" multiple>
-
   <button onclick="uploadMultiple()">Upload</button>
 
-  <!-- Tiến trình upload -->
   <div id="progressWrap">
     <div id="progressBar"></div>
   </div>
   <div id="progressText">0%</div>
 </div>
 
-<!-- DANH SÁCH HÌNH -->
 <div class="box">
   <h3>3. Danh sách hình trong album</h3>
-
   <label>Chọn Album</label>
   <select id="viewFolderSelect"></select>
-
   <button onclick="loadImages()">Tải lại danh sách</button>
+  <button style="background:#FF4136; margin-top:10px;" onclick="deleteSelectedImages()">XÓA CÁC HÌNH ĐÃ CHỌN</button>
 
-  <button style="background:#FF4136; margin-top:10px;" onclick="deleteSelectedImages()">
-    XÓA CÁC HÌNH ĐÃ CHỌN
-  </button>
-
-  <!-- Tiến trình xóa ảnh -->
   <div id="deleteProgressWrap">
     <div id="deleteProgressBar"></div>
   </div>
@@ -89,16 +74,11 @@ const albumsMap = {
   "Mẫu Mini": "mau_mini"
 };
 
-/* -------------------------
-   LOAD DANH SÁCH ALBUM
-------------------------- */
 function loadAlbumSelect() {
   const upSel = document.getElementById("folderSelect");
   const viewSel = document.getElementById("viewFolderSelect");
-
   upSel.innerHTML = "";
   viewSel.innerHTML = "";
-
   for (const [name, folder] of Object.entries(albumsMap)) {
     upSel.innerHTML += `<option value="${folder}">${name}</option>`;
     viewSel.innerHTML += `<option value="${folder}">${name}</option>`;
@@ -107,61 +87,52 @@ function loadAlbumSelect() {
 loadAlbumSelect();
 
 /* -------------------------
-   UPLOAD NHIỀU HÌNH (CÓ TIẾN TRÌNH)
+   UPLOAD NHIỀU HÌNH SONG SONG
 ------------------------- */
 async function uploadMultiple() {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
-
   const files = document.getElementById("fileInput").files;
   if (files.length === 0) return alert("Bạn chưa chọn hình!");
-
   const folder = document.getElementById("folderSelect").value;
 
   const progressWrap = document.getElementById("progressWrap");
   const progressBar = document.getElementById("progressBar");
   const progressText = document.getElementById("progressText");
-
   progressWrap.style.display = "block";
   progressText.style.display = "block";
 
   let done = 0;
+  const concurrency = 3; // upload cùng lúc 3 file
+  const chunks = [];
 
-  for (let file of files) {
-    await uploadSingleImage(file, folder, token);
-    done++;
-
-    let percent = Math.round((done / files.length) * 100);
-    progressBar.style.width = percent + "%";
-    progressText.innerText = percent + "%";
+  for (let i=0; i<files.length; i+=concurrency) {
+    chunks.push(files.slice(i, i+concurrency));
   }
 
+  for (let chunk of chunks) {
+    await Promise.all([...chunk].map(f => uploadSingleImage(f, folder, token).then(()=> {
+      done++;
+      let percent = Math.round((done / files.length)*100);
+      progressBar.style.width = percent + "%";
+      progressText.innerText = percent + "%";
+    })));
+  }
+
+  setTimeout(()=>{progressWrap.style.display="none"; progressText.style.display="none"; progressBar.style.width="0%";},1000);
   alert(`Upload xong ${done} hình!`);
-
-  setTimeout(() => {
-    progressWrap.style.display = "none";
-    progressText.style.display = "none";
-    progressBar.style.width = "0%";
-  }, 1000);
-
   loadImages();
 }
 
 async function uploadSingleImage(file, folder, token) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const reader = new FileReader();
-    reader.onload = async function () {
+    reader.onload = async function() {
       const base64Content = reader.result.split(",")[1];
       await fetch(`${repoAPI}/${folder}/${file.name}`, {
-        method: "PUT",
-        headers: {
-          "Authorization": `token ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: `Upload ${file.name}`,
-          content: base64Content
-        })
+        method:"PUT",
+        headers:{ "Authorization":`token ${token}`, "Content-Type":"application/json" },
+        body: JSON.stringify({ message:`Upload ${file.name}`, content:base64Content })
       });
       resolve();
     };
@@ -176,103 +147,85 @@ async function loadImages() {
   const folder = document.getElementById("viewFolderSelect").value;
   const imagesBox = document.getElementById("images");
   imagesBox.innerHTML = "Đang tải...";
-
   const res = await fetch(`${repoAPI}/${folder}`);
   const files = await res.json();
-
   imagesBox.innerHTML = "";
-
-  files
-    .filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
+  files.filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
     .forEach(file => {
       imagesBox.innerHTML += `
         <div class="img-item">
           <input type="checkbox" class="img-check" data-name="${file.name}" style="margin-top:8px;">
           <img src="${file.download_url}">
           <button class="delete-btn" onclick="deleteImage('${folder}', '${file.name}')">XÓA</button>
-        </div>
-      `;
+        </div>`;
     });
 }
 
 /* -------------------------
-   XÓA 1 HÌNH (CÓ CONFIRM)
+   XÓA 1 HÌNH CÓ CONFIRM
 ------------------------- */
-async function deleteImage(folder, filename) {
-  const token = document.getElementById("token").value.trim();
-  if (!token) return alert("Bạn chưa nhập token!");
-  if (!confirm(`Bạn có chắc muốn xóa hình: ${filename}?`)) return;
-
+async function deleteImage(folder, filename){
+  const token=document.getElementById("token").value.trim();
+  if(!token) return alert("Bạn chưa nhập token!");
+  if(!confirm(`Bạn có chắc muốn xóa hình: ${filename}?`)) return;
   await deleteFileAPI(folder, filename, token);
   loadImages();
 }
 
-/* API xóa file */
-async function deleteFileAPI(folder, filename, token) {
-  const fileURL = `${repoAPI}/${folder}/${filename}`;
-
-  const fileRes = await fetch(fileURL);
-  const fileData = await fileRes.json();
-
-  return fetch(fileURL, {
-    method: "DELETE",
-    headers: {
-      "Authorization": `token ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      message: `Delete ${filename}`,
-      sha: fileData.sha
-    })
+/* -------------------------
+   XÓA FILE API
+------------------------- */
+async function deleteFileAPI(folder, filename, token){
+  const fileURL=`${repoAPI}/${folder}/${filename}`;
+  const fileRes=await fetch(fileURL);
+  const fileData=await fileRes.json();
+  return fetch(fileURL,{
+    method:"DELETE",
+    headers:{ "Authorization":`token ${token}`,"Content-Type":"application/json" },
+    body:JSON.stringify({ message:`Delete ${filename}`, sha:fileData.sha })
   });
 }
 
 /* -------------------------
-   XÓA NHIỀU HÌNH (KHÔNG CONFIRM) - CÓ TIẾN TRÌNH
+   XÓA NHIỀU HÌNH SONG SONG
 ------------------------- */
-async function deleteSelectedImages() {
-  const token = document.getElementById("token").value.trim();
-  if (!token) return alert("Bạn chưa nhập token!");
+async function deleteSelectedImages(){
+  const token=document.getElementById("token").value.trim();
+  if(!token) return alert("Bạn chưa nhập token!");
+  const folder=document.getElementById("viewFolderSelect").value;
+  const checks=document.querySelectorAll(".img-check:checked");
+  if(checks.length===0) return alert("Bạn chưa chọn hình!");
 
-  const folder = document.getElementById("viewFolderSelect").value;
-  const checks = document.querySelectorAll(".img-check:checked");
+  const total=checks.length;
+  const wrap=document.getElementById("deleteProgressWrap");
+  const bar=document.getElementById("deleteProgressBar");
+  const text=document.getElementById("deleteProgressText");
 
-  if (checks.length === 0) return alert("Bạn chưa chọn hình!");
+  wrap.style.display="block";
+  text.style.display="block";
+  bar.style.width="0%";
+  text.innerText="0%";
 
-  const total = checks.length;
+  let done=0;
+  const concurrency=3; // xóa cùng lúc 3 file
+  const arrChecks=[...checks];
 
-  const wrap = document.getElementById("deleteProgressWrap");
-  const bar = document.getElementById("deleteProgressBar");
-  const text = document.getElementById("deleteProgressText");
-
-  wrap.style.display = "block";
-  text.style.display = "block";
-  bar.style.width = "0%";
-  text.innerText = "0%";
-
-  let done = 0;
-
-  for (let c of checks) {
-    await deleteFileAPI(folder, c.dataset.name, token);
-    done++;
-
-    let percent = Math.round((done / total) * 100);
-    bar.style.width = percent + "%";
-    text.innerText = percent + "%";
+  for(let i=0;i<arrChecks.length;i+=concurrency){
+    const chunk=arrChecks.slice(i,i+concurrency);
+    await Promise.all(chunk.map(c => deleteFileAPI(folder,c.dataset.name,token).then(()=>{
+      done++;
+      let percent=Math.round((done/total)*100);
+      bar.style.width=percent+"%";
+      text.innerText=percent+"%";
+    })));
   }
 
-  setTimeout(() => {
-    wrap.style.display = "none";
-    text.style.display = "none";
-    bar.style.width = "0%";
-  }, 700);
-
+  setTimeout(()=>{wrap.style.display="none"; text.style.display="none"; bar.style.width="0%";},700);
   alert(`Đã xóa ${done} hình!`);
   loadImages();
 }
 
 loadImages();
 </script>
-
 </body>
 </html>
