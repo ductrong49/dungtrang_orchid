@@ -15,6 +15,11 @@
   .img-item { width:180px; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.15); text-align:center; padding-bottom:10px; }
   .img-item img { width:100%; }
   .delete-btn { width:100%; background:#FF4136 !important; margin-top:5px; }
+
+  /* Tiến trình upload */
+  #progressWrap { width:100%; background:#ddd; height:18px; border-radius:10px; margin-top:10px; display:none; }
+  #progressBar { height:100%; width:0%; background:#28a745; border-radius:10px; transition:0.3s; }
+  #progressText { margin-top:5px; font-size:14px; font-weight:bold; display:none; }
 </style>
 </head>
 
@@ -39,6 +44,12 @@
   <input type="file" id="fileInput" multiple>
 
   <button onclick="uploadMultiple()">Upload</button>
+
+  <!-- hiển thị tiến trình -->
+  <div id="progressWrap">
+    <div id="progressBar"></div>
+  </div>
+  <div id="progressText">0%</div>
 </div>
 
 <!-- DANH SÁCH HÌNH -->
@@ -69,9 +80,6 @@ const albumsMap = {
   "Mẫu Mini": "mau_mini"
 };
 
-/* -------------------------
-   LOAD DANH SÁCH ALBUM
-------------------------- */
 function loadAlbumSelect() {
   const upSel = document.getElementById("folderSelect");
   const viewSel = document.getElementById("viewFolderSelect");
@@ -80,22 +88,15 @@ function loadAlbumSelect() {
   viewSel.innerHTML = "";
 
   for (const [name, folder] of Object.entries(albumsMap)) {
-    const opt1 = document.createElement("option");
-    opt1.value = folder;
-    opt1.textContent = name;
-    upSel.appendChild(opt1);
-
-    const opt2 = document.createElement("option");
-    opt2.value = folder;
-    opt2.textContent = name;
-    viewSel.appendChild(opt2);
+    upSel.innerHTML += `<option value="${folder}">${name}</option>`;
+    viewSel.innerHTML += `<option value="${folder}">${name}</option>`;
   }
 }
 loadAlbumSelect();
 
-/* -------------------------
-   UPLOAD NHIỀU HÌNH
-------------------------- */
+/* ==========================
+   UPLOAD NHIỀU HÌNH (CÓ TIẾN TRÌNH)
+========================== */
 async function uploadMultiple() {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
@@ -105,14 +106,32 @@ async function uploadMultiple() {
 
   const folder = document.getElementById("folderSelect").value;
 
-  let success = 0;
+  const progressWrap = document.getElementById("progressWrap");
+  const progressBar = document.getElementById("progressBar");
+  const progressText = document.getElementById("progressText");
+
+  progressWrap.style.display = "block";
+  progressText.style.display = "block";
+
+  let done = 0;
 
   for (let file of files) {
     await uploadSingleImage(file, folder, token);
-    success++;
+    done++;
+
+    let percent = Math.round((done / files.length) * 100);
+    progressBar.style.width = percent + "%";
+    progressText.innerText = percent + "%";
   }
 
-  alert(`Upload xong ${success} hình!`);
+  alert(`Upload xong ${done} hình!`);
+
+  setTimeout(() => {
+    progressWrap.style.display = "none";
+    progressText.style.display = "none";
+    progressBar.style.width = "0%";
+  }, 1000);
+
   loadImages();
 }
 
@@ -121,9 +140,7 @@ async function uploadSingleImage(file, folder, token) {
     const reader = new FileReader();
     reader.onload = async function () {
       const base64Content = reader.result.split(",")[1];
-      const uploadURL = `${repoAPI}/${folder}/${file.name}`;
-
-      await fetch(uploadURL, {
+      await fetch(`${repoAPI}/${folder}/${file.name}`, {
         method: "PUT",
         headers: {
           "Authorization": `token ${token}`,
@@ -134,17 +151,15 @@ async function uploadSingleImage(file, folder, token) {
           content: base64Content
         })
       });
-
       resolve();
     };
-
     reader.readAsDataURL(file);
   });
 }
 
-/* -------------------------
-   LOAD HÌNH TRONG ALBUM
-------------------------- */
+/* ==========================
+   LOAD HÌNH
+========================== */
 async function loadImages() {
   const folder = document.getElementById("viewFolderSelect").value;
   const imagesBox = document.getElementById("images");
@@ -158,59 +173,51 @@ async function loadImages() {
   files
     .filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name))
     .forEach(file => {
-      const div = document.createElement("div");
-      div.className = "img-item";
-
-      div.innerHTML = `
-        <input type="checkbox" class="img-check" data-name="${file.name}" style="margin-top:8px;">
-        <img src="${file.download_url}">
-        <button class="delete-btn" onclick="deleteImage('${folder}', '${file.name}')">XÓA</button>
+      imagesBox.innerHTML += `
+        <div class="img-item">
+          <input type="checkbox" class="img-check" data-name="${file.name}" style="margin-top:8px;">
+          <img src="${file.download_url}">
+          <button class="delete-btn" onclick="deleteImage('${folder}', '${file.name}')">XÓA</button>
+        </div>
       `;
-
-      imagesBox.appendChild(div);
     });
 }
 
-/* -------------------------
-   XÓA TỪNG HÌNH
-------------------------- */
+/* ==========================
+   XÓA 1 HÌNH (CÓ CONFIRM)
+========================== */
 async function deleteImage(folder, filename) {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
   if (!confirm(`Bạn có chắc muốn xóa hình: ${filename}?`)) return;
 
+  await deleteFileAPI(folder, filename, token);
+  loadImages();
+}
+
+/* API xóa file */
+async function deleteFileAPI(folder, filename, token) {
   const fileURL = `${repoAPI}/${folder}/${filename}`;
 
-  // GET SHA trước khi xóa
-  const fileRes = await fetch(fileURL, {
-    headers: { "Accept": "application/vnd.github.v3+json" }
-  });
+  const fileRes = await fetch(fileURL);
   const fileData = await fileRes.json();
 
-  // DELETE file
-  const res = await fetch(fileURL, {
+  return fetch(fileURL, {
     method: "DELETE",
     headers: {
       "Authorization": `token ${token}`,
-      "Content-Type": "application/json",
-      "Accept": "application/vnd.github.v3+json"
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       message: `Delete ${filename}`,
       sha: fileData.sha
     })
   });
-
-  if (res.ok) {
-    loadImages();
-  } else {
-    alert("Lỗi xóa hình!");
-  }
 }
 
-/* -------------------------
-   XÓA NHIỀU HÌNH
-------------------------- */
+/* ==========================
+   XÓA NHIỀU HÌNH — KHÔNG CONFIRM
+========================== */
 async function deleteSelectedImages() {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
@@ -220,13 +227,10 @@ async function deleteSelectedImages() {
 
   if (checks.length === 0) return alert("Bạn chưa chọn hình!");
 
-  if (!confirm(`Xóa ${checks.length} hình?`)) return;
-
   let deleted = 0;
 
   for (let c of checks) {
-    const filename = c.dataset.name;
-    await deleteImage(folder, filename);
+    await deleteFileAPI(folder, c.dataset.name, token);
     deleted++;
   }
 
