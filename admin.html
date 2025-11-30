@@ -17,9 +17,12 @@
   .delete-btn { width:100%; background:#FF4136 !important; margin-top:5px; }
 
   /* Tiến trình upload */
-  #progressWrap { width:100%; background:#ddd; height:18px; border-radius:10px; margin-top:10px; display:none; }
+  #progressWrap, #deleteProgressWrap {
+    width:100%; background:#ddd; height:18px; border-radius:10px; margin-top:10px; display:none;
+  }
   #progressBar { height:100%; width:0%; background:#28a745; border-radius:10px; transition:0.3s; }
-  #progressText { margin-top:5px; font-size:14px; font-weight:bold; display:none; }
+  #deleteProgressBar { height:100%; width:0%; background:#ff5c33; border-radius:10px; transition:0.3s; }
+  #progressText, #deleteProgressText { margin-top:5px; font-size:14px; font-weight:bold; display:none; }
 </style>
 </head>
 
@@ -45,7 +48,7 @@
 
   <button onclick="uploadMultiple()">Upload</button>
 
-  <!-- hiển thị tiến trình -->
+  <!-- Tiến trình upload -->
   <div id="progressWrap">
     <div id="progressBar"></div>
   </div>
@@ -65,6 +68,12 @@
     XÓA CÁC HÌNH ĐÃ CHỌN
   </button>
 
+  <!-- Tiến trình xóa ảnh -->
+  <div id="deleteProgressWrap">
+    <div id="deleteProgressBar"></div>
+  </div>
+  <div id="deleteProgressText">0%</div>
+
   <div id="images" class="img-box"></div>
 </div>
 
@@ -80,6 +89,9 @@ const albumsMap = {
   "Mẫu Mini": "mau_mini"
 };
 
+/* -------------------------
+   LOAD DANH SÁCH ALBUM
+------------------------- */
 function loadAlbumSelect() {
   const upSel = document.getElementById("folderSelect");
   const viewSel = document.getElementById("viewFolderSelect");
@@ -94,9 +106,9 @@ function loadAlbumSelect() {
 }
 loadAlbumSelect();
 
-/* ==========================
+/* -------------------------
    UPLOAD NHIỀU HÌNH (CÓ TIẾN TRÌNH)
-========================== */
+------------------------- */
 async function uploadMultiple() {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
@@ -157,9 +169,9 @@ async function uploadSingleImage(file, folder, token) {
   });
 }
 
-/* ==========================
+/* -------------------------
    LOAD HÌNH
-========================== */
+------------------------- */
 async function loadImages() {
   const folder = document.getElementById("viewFolderSelect").value;
   const imagesBox = document.getElementById("images");
@@ -183,9 +195,9 @@ async function loadImages() {
     });
 }
 
-/* ==========================
+/* -------------------------
    XÓA 1 HÌNH (CÓ CONFIRM)
-========================== */
+------------------------- */
 async function deleteImage(folder, filename) {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
@@ -215,9 +227,9 @@ async function deleteFileAPI(folder, filename, token) {
   });
 }
 
-/* ==========================
-   XÓA NHIỀU HÌNH — KHÔNG CONFIRM
-========================== */
+/* -------------------------
+   XÓA NHIỀU HÌNH (KHÔNG CONFIRM) - CÓ TIẾN TRÌNH
+------------------------- */
 async function deleteSelectedImages() {
   const token = document.getElementById("token").value.trim();
   if (!token) return alert("Bạn chưa nhập token!");
@@ -227,14 +239,35 @@ async function deleteSelectedImages() {
 
   if (checks.length === 0) return alert("Bạn chưa chọn hình!");
 
-  let deleted = 0;
+  const total = checks.length;
+
+  const wrap = document.getElementById("deleteProgressWrap");
+  const bar = document.getElementById("deleteProgressBar");
+  const text = document.getElementById("deleteProgressText");
+
+  wrap.style.display = "block";
+  text.style.display = "block";
+  bar.style.width = "0%";
+  text.innerText = "0%";
+
+  let done = 0;
 
   for (let c of checks) {
     await deleteFileAPI(folder, c.dataset.name, token);
-    deleted++;
+    done++;
+
+    let percent = Math.round((done / total) * 100);
+    bar.style.width = percent + "%";
+    text.innerText = percent + "%";
   }
 
-  alert(`Đã xóa ${deleted} hình!`);
+  setTimeout(() => {
+    wrap.style.display = "none";
+    text.style.display = "none";
+    bar.style.width = "0%";
+  }, 700);
+
+  alert(`Đã xóa ${done} hình!`);
   loadImages();
 }
 
