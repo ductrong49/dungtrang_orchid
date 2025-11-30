@@ -4,24 +4,22 @@
 <meta charset="UTF-8">
 <title>Admin Quản Lý Hình Ảnh</title>
 <style>
-  body { font-family: Arial; padding: 20px; background: #f7f7f7; }
-  h1 { text-align:center; color:#333; margin-bottom:25px; }
-  .box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); margin-bottom:25px; }
-  label { font-weight:bold; }
-  select, input[type="file"], input[type="text"] { padding:10px; margin:8px 0; width:100%; }
-  button { padding:10px 20px; cursor:pointer; border:none; background:#0074D9; color:#fff; border-radius:6px; }
-  button:hover { background:#005fa3; }
-  .img-box { display:flex; flex-wrap:wrap; gap:15px; margin-top:20px; }
-  .img-item { width:180px; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.15); text-align:center; padding-bottom:10px; }
-  .img-item img { width:100%; }
-  .delete-btn { width:100%; background:#FF4136 !important; margin-top:5px; }
+body { font-family: Arial; padding: 20px; background: #f7f7f7; }
+h1 { text-align:center; color:#333; margin-bottom:25px; }
+.box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); margin-bottom:25px; }
+label { font-weight:bold; }
+select, input[type="file"], input[type="text"] { padding:10px; margin:8px 0; width:100%; }
+button { padding:10px 20px; cursor:pointer; border:none; background:#0074D9; color:#fff; border-radius:6px; }
+button:hover { background:#005fa3; }
+.img-box { display:flex; flex-wrap:wrap; gap:15px; margin-top:20px; }
+.img-item { width:180px; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.15); text-align:center; padding-bottom:10px; }
+.img-item img { width:100%; }
+.delete-btn { width:100%; background:#FF4136 !important; margin-top:5px; }
 
-  #progressWrap, #deleteProgressWrap {
-    width:100%; background:#ddd; height:18px; border-radius:10px; margin-top:10px; display:none;
-  }
-  #progressBar { height:100%; width:0%; background:#28a745; border-radius:10px; transition:0.3s; }
-  #deleteProgressBar { height:100%; width:0%; background:#ff5c33; border-radius:10px; transition:0.3s; }
-  #progressText, #deleteProgressText { margin-top:5px; font-size:14px; font-weight:bold; display:none; }
+#progressWrap, #deleteProgressWrap { width:100%; background:#ddd; height:18px; border-radius:10px; margin-top:10px; display:none; }
+#progressBar { height:100%; width:0%; background:#28a745; border-radius:10px; transition:0.3s; }
+#deleteProgressBar { height:100%; width:0%; background:#ff5c33; border-radius:10px; transition:0.3s; }
+#progressText, #deleteProgressText { margin-top:5px; font-size:14px; font-weight:bold; display:none; }
 </style>
 </head>
 <body>
@@ -108,9 +106,8 @@ async function uploadMultiple() {
   progressText.style.display = "block";
 
   let done = 0;
-  const concurrency = 3; // upload cùng lúc 3 file
+  const concurrency = 3;
   const chunks = [];
-
   for (let i=0; i<files.length; i+=concurrency) {
     chunks.push(files.slice(i, i+concurrency));
   }
@@ -136,7 +133,11 @@ async function uploadSingleImage(file, folder, token) {
       const base64Content = reader.result.split(",")[1];
       await fetch(`${repoAPI}/${folder}/${file.name}`, {
         method:"PUT",
-        headers:{ "Authorization":`token ${token}`, "Content-Type":"application/json" },
+        headers:{
+          "Authorization": `Bearer ${token}`,
+          "Content-Type":"application/json",
+          "Accept": "application/vnd.github.v3+json"
+        },
         body: JSON.stringify({ message:`Upload ${file.name}`, content:base64Content })
       });
       resolve();
@@ -151,9 +152,22 @@ async function uploadSingleImage(file, folder, token) {
 async function loadImages() {
   const folder = document.getElementById("viewFolderSelect").value;
   const imagesBox = document.getElementById("images");
+  const token = document.getElementById("token").value.trim();
+
+  if(!token) {
+    imagesBox.innerHTML = "Bạn chưa nhập token!";
+    return;
+  }
+
   imagesBox.innerHTML = "Đang tải...";
+
   try {
-    const res = await fetch(`${repoAPI}/${folder}`);
+    const res = await fetch(`${repoAPI}/${folder}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github.v3+json"
+      }
+    });
     if(!res.ok) throw new Error(`Lỗi tải album: ${res.status}`);
     const files = await res.json();
     imagesBox.innerHTML = "";
@@ -187,12 +201,17 @@ async function deleteImage(folder, filename){
 ------------------------- */
 async function deleteFileAPI(folder, filename, token){
   const fileURL=`${repoAPI}/${folder}/${filename}`;
-  const fileRes=await fetch(fileURL);
+  const fileRes=await fetch(fileURL, {
+    headers:{
+      "Authorization": `Bearer ${token}`,
+      "Accept": "application/vnd.github.v3+json"
+    }
+  });
   if(!fileRes.ok) throw new Error(`Không tìm thấy file ${filename}`);
   const fileData=await fileRes.json();
   return fetch(fileURL,{
     method:"DELETE",
-    headers:{ "Authorization":`token ${token}`,"Content-Type":"application/json" },
+    headers:{ "Authorization":`Bearer ${token}`, "Content-Type":"application/json", "Accept":"application/vnd.github.v3+json" },
     body:JSON.stringify({ message:`Delete ${filename}`, sha:fileData.sha })
   });
 }
