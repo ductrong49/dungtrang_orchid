@@ -235,7 +235,7 @@ function drawOverlay(){
 
   const lines = [];
   const name = productName.value.trim(); if(name) lines.push(name);
-  const size = sizeInput.value.trim(); if(size) lines.push(size);
+  const size = sizeInput.value.trim(); if(size) lines.push('Mô tả SP: '+size);
   const qty = qtyInput.value; const unit = unitInput.value;
   if(qty) lines.push('Số lượng: '+qty+' '+unit);
   const price = priceInput.value.trim(); if(price) lines.push('Giá: '+price);
