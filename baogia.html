@@ -1,114 +1,39 @@
 <!DOCTYPE html>
+
 <html lang="vi">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>BÁO GIÁ - Hoa lan Hồ Điệp Dũng Trang Đà Lạt</title>
 <style>
-:root {
-  --bg:#f3f4f6;
-  --card:#ffffff;
-  --accent:#0b74da;
-  --muted:#6b7280;
-}
-body {
-  font-family:Inter, system-ui, Arial, Helvetica, sans-serif;
-  background:var(--bg); margin:0; padding:24px; color:#111;
-}
-.wrap {
-  max-width:980px;
-  margin:0 auto;
-  display:grid;
-  gap:18px;
-  grid-template-columns:1fr 420px;
-}
-header {
-  grid-column:1/-1;
-  text-align:center;
-  margin-bottom:20px;
-}
-h1 {
-  margin:0;
-  font-size:32px;
-  color:#0b74da;
-}
-.shop-info {
-  margin-top:6px;
-  font-size:14px;
-  color:#444;
-  line-height:1.4;
-}
-.card {
-  background:var(--card);
-  border-radius:10px;
-  padding:14px;
-  box-shadow:0 6px 18px rgba(12,12,12,0.06);
-}
-form .row {
-  display:flex;
-  gap:8px;
-  margin-bottom:10px;
-}
-label {
-  font-size:13px;
-  color:var(--muted);
-  display:block;
-  margin-bottom:6px;
-}
-input[type="text"], input[type="file"], input[type="number"], input[type="tel"], input[type="date"], select, textarea {
-  width:100%;
-  padding:8px 10px;
-  border-radius:8px;
-  border:1px solid #e5e7eb;
-  font-size:14px;
-  box-sizing:border-box;
-}
-.small {
-  font-size:13px;
-  color:var(--muted);
-}
-button {
-  background:var(--accent);
-  color:#fff;
-  border:none;
-  padding:10px 14px;
-  border-radius:8px;
-  cursor:pointer;
-}
-button.secondary {
-  background:#374151;
-}
-canvas {
-  width:100%;
-  height:auto;
-  border-radius:8px;
-  background:#fff;
-  display:block;
-}
-.controls {
-  display:flex;
-  gap:8px;
-  margin-top:8px;
-  flex-wrap:wrap;
-}
-.right-col {
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-.info-inline {
-  display:flex;
-  gap:8px;
-}
-.muted {
-  color:var(--muted);
-}
-@media (max-width:980px) {
-  .wrap {
-    grid-template-columns:1fr;
-    padding-bottom:60px;
+  :root{
+    --bg:#f3f4f6;
+    --card:#ffffff;
+    --accent:#0b74da;
+    --muted:#6b7280;
   }
-}
+  body{font-family:Inter, system-ui, Arial, Helvetica, sans-serif; background:var(--bg); margin:0; padding:24px; color:#111}
+  .wrap{max-width:980px; margin:0 auto; display:grid; gap:18px; grid-template-columns:1fr 420px;}
+  header{grid-column:1/-1; text-align:center; margin-bottom:20px;}
+  h1{margin:0; font-size:32px; color:#0b74da;}
+  .shop-info{margin-top:6px; font-size:14px; color:#444; line-height:1.4;}
+  .card{background:var(--card); border-radius:10px; padding:14px; box-shadow:0 6px 18px rgba(12,12,12,0.06);}
+  form .row{display:flex; gap:8px; margin-bottom:10px;}
+  label{font-size:13px; color:var(--muted); display:block; margin-bottom:6px}
+  input[type="text"], input[type="file"], input[type="number"], input[type="tel"], input[type="date"], select, textarea {
+    width:100%; padding:8px 10px; border-radius:8px; border:1px solid #e5e7eb; font-size:14px; box-sizing:border-box;
+  }
+  .small{font-size:13px; color:var(--muted);}
+  button{background:var(--accent); color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer;}
+  button.secondary{background:#374151;}
+  canvas{width:100%; height:auto; border-radius:8px; background:#fff; display:block;}
+  .controls{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;}
+  .right-col{display:flex; flex-direction:column; gap:12px;}
+  .info-inline{display:flex; gap:8px;}
+  .muted{color:var(--muted)}
+  @media (max-width:980px){
+    .wrap{grid-template-columns:1fr; padding-bottom:60px;}
+  }
 </style>
 </head>
 <body>
@@ -133,18 +58,23 @@ canvas {
         </select>
       </div>
     </div>
-    <div style="margin-top:12px;">
-      <canvas id="canvas"></canvas>
-      <div class="controls">
-        <button id="downloadBtn">Tải ảnh xuống</button>
-        <button id="downloadJpeg" class="secondary">Tải JPEG (quality 0.9)</button>
-        <button id="downloadImmediate" class="secondary">Tạo & Tải nhanh</button>
-        <button id="shareBtn" style="background:#2fa5e0;">Chia sẻ</button>
-        <button id="resetBtn" class="secondary">Xoá & bắt đầu lại</button>
-        <label class="small muted" style="align-self:center;margin-left:12px">Ảnh xử lý ở trình duyệt — không lưu server</label>
-      </div>
-    </div>
+
+```
+<div style="margin-top:12px;">
+  <canvas id="canvas"></canvas>
+  <div class="controls">
+    <button id="downloadBtn">Tải ảnh xuống</button>
+    <button id="downloadJpeg" class="secondary">Tải JPEG (quality 0.9)</button>
+    <button id="downloadImmediate" class="secondary">Tạo & Tải nhanh</button>
+    <button id="shareBtn" style="background:#2fa5e0;">Chia sẻ</button>
+    <button id="resetBtn" class="secondary">Xoá & bắt đầu lại</button>
+    <label class="small muted" style="align-self:center;margin-left:12px">Ảnh xử lý ở trình duyệt — không lưu server</label>
   </div>
+</div>
+```
+
+  </div>
+
   <aside class="right-col">
     <div class="card">
       <h3 style="margin:0 0 8px 0">Upload & thông tin ảnh</h3>
@@ -153,154 +83,207 @@ canvas {
           <label for="imageInput">Chọn ảnh sản phẩm</label>
           <input id="imageInput" type="file" accept="image/*" />
         </div>
-        <div style="margin-top:10px;">
-          <label for="productName">Tên sản phẩm</label>
-          <input id="productName" type="text" placeholder="Ví dụ: Hoa lan Hồ Điệp" />
-        </div>
-        <div style="margin-top:10px;">
-          <label for="size">Kích thước / Chi tiết</label>
-          <input id="size" type="text" placeholder="Ví dụ: 1 cây, cao 60-70cm" />
-        </div>
-        <div class="row">
-          <div style="flex:1">
-            <label for="qty">Số lượng</label>
-            <input id="qty" type="number" min="0" value="1" />
-          </div>
-          <div style="width:130px">
-            <label for="unit">Đơn vị</label>
-            <select id="unit">
-              <option value="cây">cây</option>
-              <option value="cành">cành</option>
-            </select>
-          </div>
-        </div>
-        <div style="margin-top:8px;">
-          <label for="price">Giá</label>
-          <input id="price" type="text" value="11x K" />
-        </div>
-        <div style="margin-top:8px;">
-          <label for="phone">Số điện thoại</label>
-          <input id="phone" type="tel" value="0918.604260" />
-        </div>
-        <div class="row" style="margin-top:8px">
-          <div style="flex:1">
-            <label for="quoteDate">Ngày báo giá</label>
-            <input id="quoteDate" type="date" />
-          </div>
-          <div style="width:120px">
-            <label for="fontSize">Kích chữ</label>
-            <input id="fontSize" type="number" min="12" max="72" value="24" />
-          </div>
-        </div>
-        <div style="margin-top:8px;">
-          <label for="overlayPosition">Vị trí thông tin trên ảnh</label>
-          <select id="overlayPosition">
-            <option value="bottom">Dưới cùng</option>
-            <option value="top">Trên cùng</option>
-            <option value="center">Giữa ảnh</option>
-          </select>
-        </div>
-        <div style="margin-top:10px; display:flex; gap:8px;">
-          <button id="renderBtn">Tạo ảnh (gắn thông tin)</button>
-        </div>
-      </form>
+
+```
+    <div style="margin-top:10px;">
+      <label for="productName">Tên sản phẩm</label>
+      <input id="productName" type="text" placeholder="Ví dụ: Hoa lan Hồ Điệp" />
     </div>
+
+    <div style="margin-top:10px;">
+      <label for="size">Kích thước / Chi tiết</label>
+      <input id="size" type="text" placeholder="Ví dụ: 1 cây, cao 60-70cm" />
+    </div>
+
+    <div class="row">
+      <div style="flex:1">
+        <label for="qty">Số lượng</label>
+        <input id="qty" type="number" min="0" value="1" />
+      </div>
+      <div style="width:130px">
+        <label for="unit">Đơn vị</label>
+        <select id="unit">
+          <option value="cây">cây</option>
+          <option value="cành">cành</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:8px;">
+      <label for="price">Giá</label>
+      <input id="price" type="text" value="11x K" />
+    </div>
+
+    <div style="margin-top:8px;">
+      <label for="phone">Số điện thoại</label>
+      <input id="phone" type="tel" value="0918.604260" />
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <div style="flex:1">
+        <label for="quoteDate">Ngày báo giá</label>
+        <input id="quoteDate" type="date" />
+      </div>
+      <div style="width:120px">
+        <label for="fontSize">Kích chữ</label>
+        <input id="fontSize" type="number" min="12" max="72" value="24" />
+      </div>
+    </div>
+
+    <div style="margin-top:8px;">
+      <label for="overlayPosition">Vị trí thông tin trên ảnh</label>
+      <select id="overlayPosition">
+        <option value="bottom">Dưới cùng</option>
+        <option value="top">Trên cùng</option>
+        <option value="center">Giữa ảnh</option>
+      </select>
+    </div>
+
+    <div style="margin-top:10px; display:flex; gap:8px;">
+      <button id="renderBtn">Tạo ảnh (gắn thông tin)</button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin:0 0 8px 0">Tùy chọn hiển thị</h3>
+  <div style="display:flex; gap:8px; align-items:center;">
+    <label style="margin:0">Màu chữ</label>
+    <input id="textColor" type="color" value="#ffffff" />
+    <label style="margin:0">Màu nền khung</label>
+    <input id="boxColor" type="color" value="#000000" />
+  </div>
+  <div style="margin-top:8px;">
+    <label class="small">Độ mờ khung (0-1)</label>
+    <input id="boxOpacity" type="number" min="0" max="1" step="0.05" value="0.6" />
+  </div>
+  <div style="margin-top:8px;">
+    <label class="small">Bo góc khung (px)</label>
+    <input id="boxRadius" type="number" min="0" max="60" value="12" />
+  </div>
+</div>
+```
+
   </aside>
 </div>
 
 <script>
-const imageInput=document.getElementById('imageInput');
-const canvas=document.getElementById('canvas');
-const ctx=canvas.getContext('2d');
-let img=new Image(),imgLoaded=false;
-const productName=document.getElementById('productName');
-const sizeInput=document.getElementById('size');
-const qtyInput=document.getElementById('qty');
-const unitInput=document.getElementById('unit');
-const priceInput=document.getElementById('price');
-const phoneInput=document.getElementById('phone');
-const quoteDate=document.getElementById('quoteDate');
-const fontSizeInput=document.getElementById('fontSize');
-const overlayPosition=document.getElementById('overlayPosition');
-const textColor=document.getElementById('textColor');
-const boxColor=document.getElementById('boxColor');
-const boxOpacity=document.getElementById('boxOpacity');
-const renderBtn=document.getElementById('renderBtn');
-const downloadBtn=document.getElementById('downloadBtn');
-const downloadJpeg=document.getElementById('downloadJpeg');
-const downloadImmediate=document.getElementById('downloadImmediate');
-const shareBtn=document.getElementById('shareBtn');
-const resetBtn=document.getElementById('resetBtn');
-const exportFormat=document.getElementById('exportFormat');
+const imageInput = document.getElementById('imageInput');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let img = new Image(), imgLoaded = false;
+
+const productName = document.getElementById('productName');
+const sizeInput = document.getElementById('size');
+const qtyInput = document.getElementById('qty');
+const unitInput = document.getElementById('unit');
+const priceInput = document.getElementById('price');
+const phoneInput = document.getElementById('phone');
+const quoteDate = document.getElementById('quoteDate');
+const fontSizeInput = document.getElementById('fontSize');
+const overlayPosition = document.getElementById('overlayPosition');
+const textColor = document.getElementById('textColor');
+const boxColor = document.getElementById('boxColor');
+const boxOpacity = document.getElementById('boxOpacity');
+
+const renderBtn = document.getElementById('renderBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const downloadJpeg = document.getElementById('downloadJpeg');
+const downloadImmediate = document.getElementById('downloadImmediate');
+const shareBtn = document.getElementById('shareBtn');
+const resetBtn = document.getElementById('resetBtn');
+const exportFormat = document.getElementById('exportFormat');
 
 // default date
 (function(){
-  const d=new Date();
-  quoteDate.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const d = new Date();
+  quoteDate.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 })();
 
-imageInput.addEventListener('change', e=>{
-  const f=e.target.files?.[0];
-  if(!f) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    img=new Image();
-    img.onload=()=>{
-      imgLoaded=true;
-      canvas.width=img.width;
-      canvas.height=img.height;
+imageInput.addEventListener('change', e => {
+  const f = e.target.files?.[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    img = new Image();
+    img.onload = () => {
+      imgLoaded = true;
+      canvas.width = img.width;
+      canvas.height = img.height;
       ctx.drawImage(img,0,0,canvas.width,canvas.height);
     };
-    img.src=ev.target.result;
+    img.src = ev.target.result;
   };
   reader.readAsDataURL(f);
 });
 
 function drawOverlay(){
-  if(!imgLoaded){ alert('Chưa chọn ảnh sản phẩm!'); return; }
+  if (!imgLoaded){ alert('Chưa chọn ảnh sản phẩm!'); return; }
+
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.drawImage(img,0,0,canvas.width,canvas.height);
 
-  const lines=[];
-  const name=productName.value.trim(); if(name) lines.push(name);
-  const size=sizeInput.value.trim(); const qty=qtyInput.value; const unit=unitInput.value;
-  if(size||qty) lines.push([size, qty+' '+unit].filter(Boolean).join(' • '));
-  const price=priceInput.value.trim(); if(price) lines.push('Giá: '+price);
-  const phone=phoneInput.value.trim(); if(phone) lines.push('ĐT: '+phone);
-  const date=quoteDate.value; if(date){ const p=date.split('-'); if(p.length===3) lines.push(`Ngày: ${p[2]}/${p[1]}/${p[0]}`); else lines.push('Ngày: '+date); }
+  const headerText = 'HOA LAN HỒ ĐIỆP DŨNG TRANG - ĐÀ LẠT';
+  const headerFont = Math.round(canvas.width * 0.02);
+  ctx.save();
+  ctx.font = `bold ${headerFont}px sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText(headerText, canvas.width/2, 35);
+  ctx.restore();
 
-  const fs=Math.max(14,Number(fontSizeInput.value)||20);
-  ctx.font=`${fs}px sans-serif`;
-  let maxW=0; lines.forEach(l=>{const w=ctx.measureText(l).width; if(w>maxW) maxW=w;});
-  const padding=Math.round(fs*0.6);
-  const boxW=Math.min(canvas.width-40,maxW+padding*2);
-  const lineHeight=Math.round(fs*1.4);
-  const boxH=lines.length*lineHeight+padding*2;
+  const lines = [];
+  const name = productName.value.trim(); if(name) lines.push(name);
+  const size = sizeInput.value.trim(); if(size) lines.push(size);
+  const qty = qtyInput.value; const unit = unitInput.value;
+  if(qty) lines.push('Số lượng: '+qty+' '+unit);
+  const price = priceInput.value.trim(); if(price) lines.push('Giá: '+price);
+  const phone = phoneInput.value.trim(); if(phone) lines.push('ĐT: '+phone);
+  const date = quoteDate.value;
+  if(date){ const p=date.split('-'); if(p.length===3) lines.push(`Ngày: ${p[2]}/${p[1]}/${p[0]}`); else lines.push('Ngày: '+date); }
+
+  const fs = Math.max(14, Number(fontSizeInput.value)||20);
+  ctx.font = `${fs}px sans-serif`;
+  let maxW = 0;
+  lines.forEach(l=>{const w=ctx.measureText(l).width;if(w>maxW) maxW=w;});
+  const padding = Math.round(fs*0.6);
+  const boxW = Math.min(canvas.width-40,maxW+padding*2);
+  const lineHeight = Math.round(fs*1.4);
+  const boxH = lines.length*lineHeight+padding*2;
+
   let x=20, y=20;
   if(overlayPosition.value==='bottom') y=canvas.height-boxH-20;
   else if(overlayPosition.value==='center'){ x=Math.round((canvas.width-boxW)/2); y=Math.round((canvas.height-boxH)/2); }
 
   ctx.save();
-  ctx.globalAlpha=parseFloat(boxOpacity.value)||0.6;
-  ctx.fillStyle=boxColor.value||'#000';
+  ctx.globalAlpha = parseFloat(boxOpacity.value)||0.6;
+  ctx.fillStyle = boxColor.value||'#000';
   ctx.fillRect(x,y,boxW,boxH);
   ctx.restore();
 
-  ctx.fillStyle=textColor.value||'#fff';
-  ctx.textBaseline='top';
+  ctx.fillStyle = textColor.value||'#fff';
+  ctx.textBaseline = 'top';
   let ty=y+padding;
   ctx.textAlign='left';
-  lines.forEach(l=>{ ctx.font=`${fs}px sans-serif`; ctx.fillText(l,x+padding,ty); ty+=lineHeight; });
+  lines.forEach(l=>{
+    ctx.font = `${fs}px sans-serif`;
+    ctx.fillText(l, x+padding, ty);
+    ty+=lineHeight;
+  });
 }
 
 renderBtn.addEventListener('click', drawOverlay);
+
 downloadBtn.addEventListener('click', ()=>{
   if(!imgLoaded) return;
+  const mime = exportFormat.value||'image/png';
   const a=document.createElement('a');
-  a.href=canvas.toDataURL(exportFormat.value||'image/png');
+  a.href=canvas.toDataURL(mime);
   a.download='baogia.png';
   a.click();
 });
+
 downloadJpeg.addEventListener('click', ()=>{
   if(!imgLoaded) return;
   const a=document.createElement('a');
@@ -308,6 +291,7 @@ downloadJpeg.addEventListener('click', ()=>{
   a.download='baogia.jpg';
   a.click();
 });
+
 downloadImmediate.addEventListener('click', ()=>{
   drawOverlay();
   const a=document.createElement('a');
@@ -315,15 +299,21 @@ downloadImmediate.addEventListener('click', ()=>{
   a.download='baogia.png';
   a.click();
 });
-resetBtn.addEventListener('click', ()=>{ imgLoaded=false; ctx.clearRect(0,0,canvas.width,canvas.height); });
+
+resetBtn.addEventListener('click', ()=>{
+  imgLoaded=false;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+});
+
 shareBtn.addEventListener('click', async ()=>{
   drawOverlay();
   canvas.toBlob(async blob=>{
-    const file=new File([blob],'baogia.png',{type:'image/png'});
+    const file = new File([blob],'baogia.png',{type:'image/png'});
     if(navigator.canShare && navigator.canShare({files:[file]})){
-      try{ await navigator.share({files:[file], title:'Báo giá hoa lan', text:'Báo giá hoa lan Dũng Trang'}); }
-      catch(err){ alert('Chia sẻ thất bại: '+err); }
-    } else {
+      try{
+        await navigator.share({files:[file], title:'Báo giá hoa lan', text:'Báo giá hoa lan Dũng Trang'});
+      }catch(err){ alert('Chia sẻ thất bại: '+err); }
+    }else{
       const a=document.createElement('a');
       a.href=URL.createObjectURL(blob);
       a.download='baogia.png';
@@ -333,5 +323,6 @@ shareBtn.addEventListener('click', async ()=>{
   });
 });
 </script>
+
 </body>
 </html>
