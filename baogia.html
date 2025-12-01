@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Web tạo ảnh báo giá (không lưu server)</title>
+<title>BÁO GIÁ - Hoa lan Hồ Điệp Dũng Trang Đà Lạt</title>
 <style>
   :root{
     --bg:#f3f4f6;
@@ -13,9 +13,9 @@
   }
   body{font-family:Inter, system-ui, Arial, Helvetica, sans-serif; background:var(--bg); margin:0; padding:24px; color:#111}
   .wrap{max-width:980px; margin:0 auto; display:grid; gap:18px; grid-template-columns:1fr 420px;}
-  header{grid-column:1/-1; display:flex; gap:12px; align-items:center;}
-  h1{margin:0; font-size:20px;}
-  p.lead{margin:0; color:var(--muted); font-size:13px}
+  header{grid-column:1/-1; text-align:center; margin-bottom:20px;}
+  h1{margin:0; font-size:32px; color:#0b74da;}
+  .shop-info{margin-top:6px; font-size:14px; color:#444; line-height:1.4;}
   .card{background:var(--card); border-radius:10px; padding:14px; box-shadow:0 6px 18px rgba(12,12,12,0.06);}
   form .row{display:flex; gap:8px; margin-bottom:10px;}
   label{font-size:13px; color:var(--muted); display:block; margin-bottom:6px}
@@ -28,7 +28,6 @@
   canvas{width:100%; height:auto; border-radius:8px; background:#fff; display:block;}
   .controls{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;}
   .right-col{display:flex; flex-direction:column; gap:12px;}
-  .preview-wrap{display:flex; flex-direction:column; gap:8px;}
   .info-inline{display:flex; gap:8px;}
   .muted{color:var(--muted)}
   @media (max-width:980px){
@@ -39,13 +38,14 @@
 <body>
 <div class="wrap">
   <header>
-    <div>
-      <h1>Trình tạo ảnh báo giá (client-side)</h1>
-      <p class="lead">Upload ảnh, nhập thông tin — tạo ảnh có ghi thông tin & tải về. Không lưu trữ trên server.</p>
+    <h1>BÁO GIÁ</h1>
+    <div class="shop-info">
+      HOA LAN HỒ ĐIỆP DŨNG TRANG – ĐÀ LẠT<br>
+      ĐT / Zalo: 0918.60.42.60<br>
+      Địa chỉ: 08 Lý Thường Kiệt, Đức Trọng, Lâm Đồng
     </div>
   </header>
 
-  <!-- LEFT: canvas preview và các tuỳ chọn xuất -->
   <div class="card">
     <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;">
       <div><strong>Preview ảnh</strong><div class="small muted">Xem trước & điều chỉnh</div></div>
@@ -64,12 +64,11 @@
         <button id="downloadBtn">Tải ảnh xuống</button>
         <button id="downloadJpeg" class="secondary">Tải JPEG (quality 0.9)</button>
         <button id="resetBtn" class="secondary">Xoá & bắt đầu lại</button>
-        <label class="small muted" style="align-self:center;margin-left:12px">Lưu ý: ảnh xử lý ở trình duyệt (không upload lên server)</label>
+        <label class="small muted" style="align-self:center;margin-left:12px">Ảnh xử lý ở trình duyệt — không lưu server</label>
       </div>
     </div>
   </div>
 
-  <!-- RIGHT: form nhập -->
   <aside class="right-col">
     <div class="card">
       <h3 style="margin:0 0 8px 0">Upload & thông tin ảnh</h3>
@@ -81,28 +80,36 @@
 
         <div style="margin-top:10px;">
           <label for="productName">Tên sản phẩm</label>
-          <input id="productName" type="text" placeholder="Ví dụ: Bình giữ nhiệt 500ml" />
+          <input id="productName" type="text" placeholder="Ví dụ: Hoa lan Hồ Điệp" />
         </div>
 
-        <div class="row" style="margin-top:10px">
+        <div style="margin-top:10px;">
+          <label for="size">Kích thước / Chi tiết</label>
+          <input id="size" type="text" placeholder="Ví dụ: 1 cây, cao 60-70cm" />
+        </div>
+
+        <div class="row">
           <div style="flex:1">
-            <label for="size">Kích thước</label>
-            <input id="size" type="text" placeholder="Ví dụ: 500ml / M / 40x30cm" />
-          </div>
-          <div style="width:130px">
             <label for="qty">Số lượng</label>
             <input id="qty" type="number" min="0" value="1" />
+          </div>
+          <div style="width:130px">
+            <label for="unit">Đơn vị</label>
+            <select id="unit">
+              <option value="cây">cây</option>
+              <option value="cành">cành</option>
+            </select>
           </div>
         </div>
 
         <div style="margin-top:8px;">
-          <label for="price">Giá (số nguyên)</label>
-          <input id="price" type="number" min="0" step="1" placeholder="Ví dụ: 199000" />
+          <label for="price">Giá</label>
+          <input id="price" type="text" value="11x K" />
         </div>
 
         <div style="margin-top:8px;">
           <label for="phone">Số điện thoại</label>
-          <input id="phone" type="tel" placeholder="Ví dụ: 0912345678" />
+          <input id="phone" type="tel" value="0918.604260" />
         </div>
 
         <div class="row" style="margin-top:8px">
@@ -112,14 +119,14 @@
           </div>
           <div style="width:120px">
             <label for="fontSize">Kích chữ</label>
-            <input id="fontSize" type="number" min="12" max="72" value="22" />
+            <input id="fontSize" type="number" min="12" max="72" value="24" />
           </div>
         </div>
 
         <div style="margin-top:8px;">
           <label for="overlayPosition">Vị trí thông tin trên ảnh</label>
           <select id="overlayPosition">
-            <option value="bottom">Dưới cùng (mặc định)</option>
+            <option value="bottom">Dưới cùng</option>
             <option value="top">Trên cùng</option>
             <option value="center">Giữa ảnh</option>
           </select>
@@ -132,9 +139,8 @@
       </form>
     </div>
 
-    <!-- box options -->
     <div class="card">
-      <h3 style="margin:0 0 8px 0">Tuỳ chọn hiển thị</h3>
+      <h3 style="margin:0 0 8px 0">Tùy chọn hiển thị</h3>
       <div style="display:flex; gap:8px; align-items:center;">
         <label style="margin:0">Màu chữ</label>
         <input id="textColor" type="color" value="#ffffff" />
@@ -146,7 +152,7 @@
         <input id="boxOpacity" type="number" min="0" max="1" step="0.05" value="0.6" />
       </div>
       <div style="margin-top:8px;">
-        <label class="small">Độ bo góc khung (px)</label>
+        <label class="small">Bo góc khung (px)</label>
         <input id="boxRadius" type="number" min="0" max="60" value="12" />
       </div>
     </div>
@@ -155,175 +161,180 @@
 </div>
 
 <script>
-const imageInput = document.getElementById("imageInput");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-let img = new Image();
-let imgLoaded = false;
-const MAX_WIDTH = 2000;
-const MAX_HEIGHT = 2000;
+// --- thiết lập mặc định ---
+const imageInput = document.getElementById('imageInput');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let img = new Image(), imgLoaded = false;
+const MAX_WIDTH = 2000, MAX_HEIGHT = 2000;
 
-const productName = document.getElementById("productName");
-const sizeInput = document.getElementById("size");
-const qtyInput = document.getElementById("qty");
-const priceInput = document.getElementById("price");
-const phoneInput = document.getElementById("phone");
-const quoteDate = document.getElementById("quoteDate");
-const fontSizeInput = document.getElementById("fontSize");
-const overlayPosition = document.getElementById("overlayPosition");
-const textColor = document.getElementById("textColor");
-const boxColor = document.getElementById("boxColor");
-const boxOpacity = document.getElementById("boxOpacity");
-const boxRadius = document.getElementById("boxRadius");
+const productName = document.getElementById('productName');
+const sizeInput = document.getElementById('size');
+const qtyInput = document.getElementById('qty');
+const unitInput = document.getElementById('unit');
+const priceInput = document.getElementById('price');
+const phoneInput = document.getElementById('phone');
+const quoteDate = document.getElementById('quoteDate');
+const fontSizeInput = document.getElementById('fontSize');
+const overlayPosition = document.getElementById('overlayPosition');
+const textColor = document.getElementById('textColor');
+const boxColor = document.getElementById('boxColor');
+const boxOpacity = document.getElementById('boxOpacity');
+const boxRadius = document.getElementById('boxRadius');
 
-const renderBtn = document.getElementById("renderBtn");
-const downloadBtn = document.getElementById("downloadBtn");
-const downloadJpeg = document.getElementById("downloadJpeg");
-const downloadImmediate = document.getElementById("downloadImmediate");
-const resetBtn = document.getElementById("resetBtn");
-const exportFormat = document.getElementById("exportFormat");
+const renderBtn = document.getElementById('renderBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const downloadJpeg = document.getElementById('downloadJpeg');
+const downloadImmediate = document.getElementById('downloadImmediate');
+const resetBtn = document.getElementById('resetBtn');
+const exportFormat = document.getElementById('exportFormat');
 
-(function setToday(){
-  const t=new Date();
-  quoteDate.value=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`;
+// mặc định date = hôm nay
+(function(){
+  const d = new Date();
+  quoteDate.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 })();
 
-imageInput.addEventListener("change", e=>{
-  const file = e.target.files?.[0];
-  if(!file) return;
-  const reader=new FileReader();
-  reader.onload = ev=>{
-    img=new Image();
-    img.onload=()=>{
-      imgLoaded=true;
-      let w=img.width, h=img.height, r=w/h;
-      if(w>MAX_WIDTH){ w=MAX_WIDTH; h=Math.round(w/r); }
-      if(h>MAX_HEIGHT){ h=MAX_HEIGHT; w=Math.round(h*r); }
-      canvas.width=w; canvas.height=h;
+imageInput.addEventListener('change', e => {
+  const f = e.target.files?.[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    img = new Image();
+    img.onload = () => {
+      imgLoaded = true;
+      let w = img.width, h = img.height;
+      const r = w/h;
+      if (w > MAX_WIDTH){ w = MAX_WIDTH; h = Math.round(w/r); }
+      if (h > MAX_HEIGHT){ h = MAX_HEIGHT; w = Math.round(h*r); }
+      canvas.width = w; canvas.height = h;
       ctx.drawImage(img,0,0,w,h);
     };
-    img.src=ev.target.result;
+    img.src = ev.target.result;
   };
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(f);
 });
 
-function formatPrice(num){
-  const n=Number(num); if(isNaN(n)) return num;
-  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,".")+" đ";
-}
-
-CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
-  if(w<2*r) r=w/2; if(h<2*r) r=h/2;
-  this.beginPath();
-  this.moveTo(x+r, y);
-  this.arcTo(x+w, y, x+w, y+h, r);
-  this.arcTo(x+w, y+h, x, y+h, r);
-  this.arcTo(x, y+h, x, y, r);
-  this.arcTo(x, y, x+w, y, r);
-  this.closePath();
-  return this;
-};
-
+// vẽ overlay + thông tin
 function drawOverlay(){
-  if(!imgLoaded) return alert("Chưa chọn ảnh!");
+  if (!imgLoaded){ alert('Chưa chọn ảnh sản phẩm!'); return; }
 
+  // vẽ ảnh gốc
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.drawImage(img,0,0,canvas.width,canvas.height);
 
-  const lines=[];
-  const name=productName.value.trim();
-  const size=sizeInput.value.trim();
-  const qty=qtyInput.value;
-  const price=priceInput.value;
-  const phone=phoneInput.value.trim();
-  const date=quoteDate.value;
-  const fs=Math.max(12, Number(fontSizeInput.value)||22);
-  const pos=overlayPosition.value;
-  const txtColor=textColor.value;
-  const bColor=boxColor.value;
-  const opacity=parseFloat(boxOpacity.value)||0.6;
-  const radius=Number(boxRadius.value)||12;
-
-  if(name) lines.push(name);
-  const arr=[];
-  if(size) arr.push(size);
-  if(qty!=="") arr.push("SL: "+qty);
-  if(arr.length) lines.push(arr.join(" • "));
-  if(price) lines.push("Giá: "+formatPrice(price));
-  if(phone) lines.push("ĐT: "+phone);
-  if(date){
-    const p=date.split("-");
-    if(p.length===3) lines.push(`Ngày: ${p[2]}/${p[1]}/${p[0]}`);
-  }
-
-  if(!lines.length) return;
-
-  ctx.font=`${fs}px sans-serif`;
-  let maxW=0;
-  lines.forEach(l=>{
-    let w=ctx.measureText(l).width;
-    if(w>maxW) maxW=w;
-  });
-
-  const pad=Math.round(fs*0.6);
-  const boxW=Math.min(canvas.width-40, maxW+pad*2);
-  const lh=Math.round(fs*1.25);
-  const boxH=lines.length*lh+pad*2;
-
-  let x=20, y=20;
-  if(pos==="bottom") y=canvas.height-boxH-20;
-  else if(pos==="center"){
-    x=Math.round((canvas.width-boxW)/2);
-    y=Math.round((canvas.height-boxH)/2);
-  }
-
+  // vẽ dòng mờ shop trên cùng, căn giữa
+  const headerText = 'HOA LAN HỒ ĐIỆP DŨNG TRANG - ĐÀ LẠT';
+  const headerFont = Math.round(canvas.width * 0.05);
   ctx.save();
-  ctx.globalAlpha=opacity;
-  ctx.fillStyle=bColor;
-  ctx.roundRect(x,y,boxW,boxH,radius).fill();
+  ctx.font = `bold ${headerFont}px sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText(headerText, canvas.width/2, 20);
   ctx.restore();
 
-  ctx.textBaseline="top";
-  let ty=y+pad;
-  for(let i=0;i<lines.length;i++){
-    ctx.font = i==0 ? `bold ${fs+2}px sans-serif` : `${fs}px sans-serif`;
-    ctx.fillStyle=txtColor;
-    ctx.fillText(lines[i], x+pad, ty);
-    ty+=lh;
+  // thu thập thông tin sản phẩm
+  const lines = [];
+  const name = productName.value.trim();
+  if (name) lines.push(name);
+
+  const size = sizeInput.value.trim();
+  const qty = qtyInput.value;
+  const unit = unitInput.value;
+  if (size || qty){
+    const part = [];
+    if (size) part.push(size);
+    if (qty) part.push(qty + ' ' + unit);
+    lines.push(part.join(' • '));
   }
+
+  const price = priceInput.value.trim();
+  if (price) lines.push('Giá: ' + price);
+
+  const phone = phoneInput.value.trim();
+  if (phone) lines.push('ĐT: ' + phone);
+
+  const date = quoteDate.value;
+  if (date){
+    const p = date.split('-');
+    if (p.length===3) lines.push(`Ngày: ${p[2]}/${p[1]}/${p[0]}`);
+    else lines.push('Ngày: ' + date);
+  }
+
+  if (lines.length === 0) return;
+
+  // tính khung nền
+  const fs = Math.max(14, Number(fontSizeInput.value) || 20);
+  ctx.font = `${fs}px sans-serif`;
+  let maxW = 0;
+  lines.forEach(l => {
+    const w = ctx.measureText(l).width;
+    if (w > maxW) maxW = w;
+  });
+  const padding = Math.round(fs * 0.6);
+  const boxW = Math.min(canvas.width - 40, maxW + padding * 2);
+  const lineHeight = Math.round(fs * 1.4);
+  const boxH = lines.length * lineHeight + padding * 2;
+
+  let x = 20, y = 20;
+  const pos = overlayPosition.value;
+  if (pos === 'bottom'){
+    y = canvas.height - boxH - 20;
+  } else if (pos === 'center'){
+    x = Math.round((canvas.width - boxW)/2);
+    y = Math.round((canvas.height - boxH)/2);
+  }
+
+  // vẽ nền khung
+  ctx.save();
+  ctx.globalAlpha = parseFloat(boxOpacity.value) || 0.6;
+  ctx.fillStyle = boxColor.value || '#000';
+  ctx.fillRect(x, y, boxW, boxH);
+  ctx.restore();
+
+  // vẽ text
+  ctx.fillStyle = textColor.value || '#fff';
+  ctx.textBaseline = 'top';
+  let ty = y + padding;
+  ctx.textAlign = 'left';
+  lines.forEach((l, i) => {
+    ctx.font = `${fs}px sans-serif`;
+    ctx.fillText(l, x + padding, ty);
+    ty += lineHeight;
+  });
 }
 
-renderBtn.addEventListener("click", ()=> drawOverlay());
+renderBtn.addEventListener('click', drawOverlay);
 
-downloadBtn.addEventListener("click", ()=>{
-  if(!imgLoaded) return;
-  const mime=exportFormat.value || "image/png";
-  const a=document.createElement("a");
-  a.href=canvas.toDataURL(mime);
-  a.download="baogia.png";
+downloadBtn.addEventListener('click', ()=>{
+  if (!imgLoaded) return;
+  const mime = exportFormat.value || 'image/png';
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL(mime);
+  a.download = 'baogia.png';
   a.click();
 });
 
-downloadJpeg.addEventListener("click", ()=>{
-  if(!imgLoaded) return;
-  const a=document.createElement("a");
-  a.href=canvas.toDataURL("image/jpeg",0.9);
-  a.download="baogia.jpg";
+downloadJpeg.addEventListener('click', ()=>{
+  if (!imgLoaded) return;
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/jpeg', 0.9);
+  a.download = 'baogia.jpg';
   a.click();
 });
 
-downloadImmediate.addEventListener("click", ()=>{
+downloadImmediate.addEventListener('click', ()=>{
   drawOverlay();
-  const a=document.createElement("a");
-  a.href=canvas.toDataURL("image/png");
-  a.download="baogia.png";
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = 'baogia.png';
   a.click();
 });
 
-resetBtn.addEventListener("click", ()=>{
-  imgLoaded=false;
-  canvas.width=600; canvas.height=400;
-  ctx.clearRect(0,0,600,400);
+resetBtn.addEventListener('click', ()=>{
+  imgLoaded = false;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 });
 </script>
 </body>
