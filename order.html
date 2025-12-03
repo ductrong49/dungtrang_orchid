@@ -3,28 +3,57 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- ⭐ NGĂN iOS ZOOM KHI FOCUS INPUT -->
+<!-- NGĂN iOS ZOOM -->
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0,
                maximum-scale=1.0, user-scalable=no">
 
 <title>Đặt Hàng – Nhiều Sản Phẩm</title>
+
 <style>
   body {
     font-family: Arial;
-    background: #f3f3f3;
+    background: linear-gradient(180deg, #e8f1ff, #f7f7f7);
     padding: 20px;
-  }
-  .container {
-    max-width: 600px;
-    margin: auto;
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
   }
 
-  /* ⭐ NGĂN iOS ZOOM: font-size >= 16px */
+  .container {
+    max-width: 650px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+  }
+
+  /* TIÊU ĐỀ */
+  h2 {
+    text-align: center;
+    color: #0066ff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.25);
+    font-size: 26px;
+    margin-bottom: 25px;
+    font-weight: bold;
+  }
+
+  /* KHỐI THÔNG TIN KHÁCH */
+  .customer-box {
+    background: #e7ffe7;
+    border-left: 6px solid #28a745;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+
+  /* LABEL */
+  label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+    color: #333;
+  }
+
+  /* NGĂN iOS ZOOM */
   input, textarea {
     width: 100%;
     padding: 10px;
@@ -32,47 +61,64 @@
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 16px !important;
+    background: #fafafa;
   }
 
+  /* BUTTON */
   button {
     width: 100%;
     padding: 12px;
     border: none;
     color: white;
     background: #007bff;
-    font-size: 16px;
-    border-radius: 6px;
+    font-size: 17px;
+    border-radius: 8px;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: 0.2s;
+  }
+  button:active {
+    transform: scale(0.97);
   }
   #addProductBtn { background: #28a745; }
   #newOrderBtn { background: #ff4d4d; }
 
+  /* KẾT QUẢ */
   #resultBox {
     margin-top: 20px;
     padding: 15px;
-    background: white;
+    background: #ffffff;
     border-radius: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid #cfcfcf;
     white-space: pre-wrap;
     min-height: 160px;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.1);
+  }
+
+  h3 {
+    margin-top: 25px;
+    color: #0066cc;
   }
 </style>
+
 </head>
 <body>
 
 <div class="container">
 
-  <h2>Form Đặt Hàng</h2>
+  <h2>ĐẶT HÀNG</h2>
 
-  <!-- THÔNG TIN CHUNG -->
-  <label>Tên khách</label>
-  <input id="tenkhach" oninput="refreshResult()">
+  <!-- KHỐI THÔNG TIN KHÁCH -->
+  <div class="customer-box">
+    <label>Tên khách</label>
+    <input id="tenkhach" oninput="refreshResult()">
 
-  <label>Địa chỉ</label>
-  <input id="diachi" oninput="refreshResult()">
+    <label>Địa chỉ</label>
+    <input id="diachi" oninput="refreshResult()">
+  </div>
 
-  <!-- FORM NHẬP HÀNG HÓA -->
+  <!-- THÊM HÀNG -->
   <h3>Thêm hàng hóa</h3>
 
   <label>Tên hàng</label>
@@ -90,6 +136,8 @@
   <button id="addProductBtn" onclick="addProduct()">+ Thêm hàng hóa</button>
 
   <!-- THÔNG TIN CUỐI -->
+  <h3>Thông tin thêm</h3>
+
   <label>Cước</label>
   <input id="cuoc" oninput="refreshResult()">
 
@@ -99,10 +147,11 @@
   <label>NV Sale</label>
   <input id="nhanvien" oninput="refreshResult()">
 
+  <!-- KẾT QUẢ -->
   <div id="resultBox"></div>
 
-  <button onclick="copyText()">Copy Text</button>
-  <button id="newOrderBtn" onclick="newOrder()">Tạo đơn mới</button>
+  <button onclick="copyText()">📋 Copy Nội Dung</button>
+  <button id="newOrderBtn" onclick="newOrder()">🆕 Tạo đơn mới</button>
 
 </div>
 
@@ -122,7 +171,6 @@ function addProduct() {
 
   products.push({ tenhang, soluong, ncc, gia });
 
-  // Clear form hàng hóa
   document.getElementById("tenhang").value = "";
   document.getElementById("soluong").value = "";
   document.getElementById("ncc").value = "";
@@ -134,11 +182,9 @@ function addProduct() {
 function refreshResult() {
   let text = "";
 
-  // thông tin chung
   text += "Tên khách: " + document.getElementById("tenkhach").value + "\n";
   text += "Địa chỉ: " + document.getElementById("diachi").value + "\n\n";
 
-  // danh sách hàng hóa
   if (products.length > 0) {
     text += "Danh sách hàng hóa:\n";
     products.forEach((p, i) => {
@@ -149,7 +195,6 @@ function refreshResult() {
     });
   }
 
-  // cuối đơn
   text += "Cước: " + document.getElementById("cuoc").value + "\n";
   text += "Ghi chú: " + document.getElementById("ghichu").value + "\n";
   text += "NV Sale: " + document.getElementById("nhanvien").value;
