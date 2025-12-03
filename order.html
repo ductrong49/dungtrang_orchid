@@ -3,16 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Web Đặt Hàng Tạm Thời</title>
+<title>Đặt Hàng Tạm Thời - Văn Bản</title>
 <style>
-  body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
+  body { font-family: Arial; padding: 20px; background: #f9f9f9; }
   h1 { text-align: center; }
   form { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
   label { display: block; margin-top: 10px; }
-  input, select, button { margin-top: 5px; padding: 8px; width: 100%; max-width: 400px; }
-  table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; border-radius: 8px; overflow: hidden; }
-  th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
-  img { max-width: 50px; max-height: 50px; }
+  input, button { margin-top: 5px; padding: 8px; width: 100%; max-width: 400px; }
+  textarea { width: 100%; max-width: 600px; height: 300px; margin-top: 20px; padding: 10px; font-family: monospace; }
   button.copy-btn { margin-top: 10px; width: auto; cursor: pointer; background: #0b74da; color: #fff; border: none; border-radius: 5px; padding: 8px 15px; }
 </style>
 </head>
@@ -30,90 +28,39 @@
   <label>Số lượng:</label>
   <input type="number" id="quantity" required min="1">
 
-  <label>Upload hình (tùy chọn):</label>
-  <input type="file" id="imageUpload" accept="image/*">
-
-  <button type="submit">Thêm vào bảng</button>
+  <button type="submit">Thêm vào danh sách</button>
 </form>
 
-<button class="copy-btn" onclick="copyTable()">Copy kết quả</button>
+<button class="copy-btn" onclick="copyText()">Copy toàn bộ</button>
 
-<table id="resultTable">
-  <thead>
-    <tr>
-      <th>STT</th>
-      <th>Tên khách</th>
-      <th>Món hàng</th>
-      <th>Số lượng</th>
-      <th>Hình</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
+<textarea id="resultText" readonly placeholder="Các đơn sẽ hiển thị ở đây..."></textarea>
 
 <script>
 let counter = 0;
+
 document.getElementById('orderForm').addEventListener('submit', function(e){
     e.preventDefault();
 
-    const name = document.getElementById('customerName').value;
-    const item = document.getElementById('itemName').value;
+    const name = document.getElementById('customerName').value.trim();
+    const item = document.getElementById('itemName').value.trim();
     const qty = document.getElementById('quantity').value;
-    const fileInput = document.getElementById('imageUpload');
-    const tbody = document.getElementById('resultTable').querySelector('tbody');
 
-    counter++;
+    if(name && item && qty){
+        counter++;
+        const line = `${counter}. ${name} | ${item} | ${qty}\n`;
+        document.getElementById('resultText').value += line;
 
-    const tr = document.createElement('tr');
-
-    const tdIndex = document.createElement('td');
-    tdIndex.textContent = counter;
-    tr.appendChild(tdIndex);
-
-    const tdName = document.createElement('td');
-    tdName.textContent = name;
-    tr.appendChild(tdName);
-
-    const tdItem = document.createElement('td');
-    tdItem.textContent = item;
-    tr.appendChild(tdItem);
-
-    const tdQty = document.createElement('td');
-    tdQty.textContent = qty;
-    tr.appendChild(tdQty);
-
-    const tdImage = document.createElement('td');
-    if(fileInput.files && fileInput.files[0]){
-        const reader = new FileReader();
-        reader.onload = function(e){
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            tdImage.appendChild(img);
-        }
-        reader.readAsDataURL(fileInput.files[0]);
+        // Reset form
+        document.getElementById('orderForm').reset();
     }
-    tr.appendChild(tdImage);
-
-    tbody.appendChild(tr);
-
-    // Reset form
-    document.getElementById('orderForm').reset();
 });
 
-function copyTable(){
-    const table = document.getElementById('resultTable');
-    let text = '';
-    for(let row of table.rows){
-        let rowText = [];
-        for(let cell of row.cells){
-            rowText.push(cell.innerText || '');
-        }
-        text += rowText.join(' | ') + '\n';
-    }
-    navigator.clipboard.writeText(text).then(() => {
-        alert('Đã copy bảng! Bạn có thể dán sang Zalo.');
-    });
+function copyText(){
+    const textarea = document.getElementById('resultText');
+    textarea.select();
+    textarea.setSelectionRange(0, 99999); // cho mobile
+    document.execCommand('copy');
+    alert('Đã copy toàn bộ đơn! Bạn có thể dán sang Zalo.');
 }
 </script>
 
