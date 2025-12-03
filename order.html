@@ -3,15 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Đặt Hàng Tạm Thời</title>
+<title>Đặt Hàng Tạm Thời - Rich Text</title>
 <style>
   body { font-family: Arial; padding: 20px; background: #f9f9f9; }
   h1 { text-align: center; }
   form { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
   label { display: block; margin-top: 10px; }
   input, textarea, button { margin-top: 5px; padding: 8px; width: 100%; max-width: 500px; }
-  textarea { height: 400px; font-family: monospace; margin-top: 20px; }
-  button.copy-btn { margin-top: 10px; width: auto; cursor: pointer; background: #0b74da; color: #fff; border: none; border-radius: 5px; padding: 8px 15px; }
+  textarea { height: 100px; }
+  button.copy-btn { margin-top: 10px; cursor: pointer; background: #0b74da; color: #fff; border: none; border-radius: 5px; padding: 8px 15px; }
+  #resultDiv { border: 1px solid #ccc; background: #fff; padding: 10px; min-height: 200px; border-radius: 5px; }
+  .order-block { border-bottom: 1px dashed #aaa; margin-bottom: 10px; padding-bottom: 10px; }
+  .order-block img { max-width: 150px; display: block; margin-top: 5px; }
 </style>
 </head>
 <body>
@@ -29,26 +32,26 @@
   <input type="text" id="itemName" required>
 
   <label>Số lượng:</label>
-  <input type="number" id="quantity" required min="1">
+  <input type="text" id="quantity" required>
 
   <label>NCC:</label>
   <input type="text" id="supplier">
 
-  <label>Ghi chú:</label>
-  <input type="text" id="note">
-
-  <label>Cước:</label>
-  <input type="text" id="fee">
-
   <label>NV Sale:</label>
   <input type="text" id="sale">
+
+  <label>Ghi chú:</label>
+  <textarea id="note"></textarea>
+
+  <label>Upload hình (tùy chọn):</label>
+  <input type="file" id="imageUpload" accept="image/*">
 
   <button type="submit">Thêm vào danh sách</button>
 </form>
 
-<button class="copy-btn" onclick="copyText()">Copy toàn bộ</button>
+<button class="copy-btn" onclick="copyContent()">Copy toàn bộ</button>
 
-<textarea id="resultText" readonly placeholder="Các đơn sẽ hiển thị ở đây..."></textarea>
+<div id="resultDiv" contenteditable="false"></div>
 
 <script>
 document.getElementById('orderForm').addEventListener('submit', function(e){
@@ -59,35 +62,54 @@ document.getElementById('orderForm').addEventListener('submit', function(e){
     const item = document.getElementById('itemName').value.trim();
     const qty = document.getElementById('quantity').value.trim();
     const supplier = document.getElementById('supplier').value.trim();
-    const note = document.getElementById('note').value.trim();
-    const fee = document.getElementById('fee').value.trim();
     const sale = document.getElementById('sale').value.trim();
+    const note = document.getElementById('note').value.trim();
+    const fileInput = document.getElementById('imageUpload');
 
-    if(name && addr && item && qty){
-        const block = 
-`Tên khách: ${name}
-Địa chỉ: ${addr}
-Tên hàng: ${item}
-Số lượng: ${qty}
-NCC: ${supplier}
-Ghi chú: ${note}
-Cước: ${fee}
-NV Sale: ${sale}
+    const blockDiv = document.createElement('div');
+    blockDiv.classList.add('order-block');
 
-`;
-        document.getElementById('resultText').value += block;
+    let htmlContent = 
+`<div>Tên khách: ${name}</div>
+<div>Địa chỉ: ${addr}</div>
+<div>Tên hàng: ${item}</div>
+<div>Số lượng: ${qty}</div>
+<div>NCC: ${supplier}</div>
+<div>NV Sale: ${sale}</div>
+<div>Ghi chú: ${note}</div>`;
 
-        // Reset form
-        document.getElementById('orderForm').reset();
+    blockDiv.innerHTML = htmlContent;
+
+    if(fileInput.files && fileInput.files[0]){
+        const reader = new FileReader();
+        reader.onload = function(e){
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            blockDiv.appendChild(img);
+        }
+        reader.readAsDataURL(fileInput.files[0]);
     }
+
+    document.getElementById('resultDiv').appendChild(blockDiv);
+
+    // Reset form
+    document.getElementById('orderForm').reset();
 });
 
-function copyText(){
-    const textarea = document.getElementById('resultText');
-    textarea.select();
-    textarea.setSelectionRange(0, 99999);
-    document.execCommand('copy');
-    alert('Đã copy toàn bộ đơn! Bạn có thể dán sang Zalo.');
+function copyContent(){
+    const resultDiv = document.getElementById('resultDiv');
+    const range = document.createRange();
+    range.selectNodeContents(resultDiv);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    try {
+        document.execCommand('copy');
+        alert('Đã copy toàn bộ nội dung! Bao gồm cả hình.');
+    } catch(err) {
+        alert('Không thể copy tự động. Vui lòng thử Ctrl+C.');
+    }
+    sel.removeAllRanges();
 }
 </script>
 
