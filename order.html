@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Đặt Hàng Tạm Thời - Rich Text</title>
+<title>Đặt Hàng Tạm Thời - Copy Hình & Text</title>
 <style>
   body { font-family: Arial; padding: 20px; background: #f9f9f9; }
   h1 { text-align: center; }
@@ -12,14 +12,14 @@
   input, textarea, button { margin-top: 5px; padding: 8px; width: 100%; max-width: 500px; }
   textarea { height: 100px; }
   button.copy-btn { margin-top: 10px; cursor: pointer; background: #0b74da; color: #fff; border: none; border-radius: 5px; padding: 8px 15px; }
-  #resultDiv { border: 1px solid #ccc; background: #fff; padding: 10px; min-height: 200px; border-radius: 5px; }
+  #resultDiv { border: 1px solid #ccc; background: #fff; padding: 10px; min-height: 200px; border-radius: 5px; margin-top: 10px; }
   .order-block { border-bottom: 1px dashed #aaa; margin-bottom: 10px; padding-bottom: 10px; }
-  .order-block img { max-width: 150px; display: block; margin-top: 5px; }
+  .order-block img { max-width: 150px; display: block; margin-top: 5px; border-radius: 6px; }
 </style>
 </head>
 <body>
 
-<h1>Đặt Hàng Tạm Thời</h1>
+<h1>Đặt Hàng</h1>
 
 <form id="orderForm">
   <label>Tên khách:</label>
@@ -37,79 +37,90 @@
   <label>NCC:</label>
   <input type="text" id="supplier">
 
+  <label>Cước:</label>
+  <input type="text" id="fee">
+
   <label>NV Sale:</label>
   <input type="text" id="sale">
 
   <label>Ghi chú:</label>
   <textarea id="note"></textarea>
 
-  <label>Upload hình (tùy chọn):</label>
+  <label>Upload hình:</label>
   <input type="file" id="imageUpload" accept="image/*">
 
   <button type="submit">Thêm vào danh sách</button>
 </form>
 
-<button class="copy-btn" onclick="copyContent()">Copy toàn bộ</button>
+<button class="copy-btn" onclick="copyAll()">Copy toàn bộ (gồm hình)</button>
 
-<div id="resultDiv" contenteditable="false"></div>
+<div id="resultDiv"></div>
 
 <script>
-document.getElementById('orderForm').addEventListener('submit', function(e){
+let imageFiles = [];
+
+document.getElementById("orderForm").addEventListener("submit", function(e){
     e.preventDefault();
 
-    const name = document.getElementById('customerName').value.trim();
-    const addr = document.getElementById('address').value.trim();
-    const item = document.getElementById('itemName').value.trim();
-    const qty = document.getElementById('quantity').value.trim();
-    const supplier = document.getElementById('supplier').value.trim();
-    const sale = document.getElementById('sale').value.trim();
-    const note = document.getElementById('note').value.trim();
-    const fileInput = document.getElementById('imageUpload');
+    const name = customerName.value.trim();
+    const addr = address.value.trim();
+    const item = itemName.value.trim();
+    const qty = quantity.value.trim();
+    const supplier = supplier.value.trim();
+    const fee = fee.value.trim();
+    const sale = sale.value.trim();
+    const note = note.value.trim();
+    const file = imageUpload.files[0];
 
-    const blockDiv = document.createElement('div');
-    blockDiv.classList.add('order-block');
+    let block = document.createElement("div");
+    block.className = "order-block";
 
-    let htmlContent = 
-`<div>Tên khách: ${name}</div>
-<div>Địa chỉ: ${addr}</div>
-<div>Tên hàng: ${item}</div>
-<div>Số lượng: ${qty}</div>
-<div>NCC: ${supplier}</div>
-<div>NV Sale: ${sale}</div>
-<div>Ghi chú: ${note}</div>`;
+    block.innerHTML = `
+        <div>Tên khách: ${name}</div>
+        <div>Địa chỉ: ${addr}</div>
+        <div>Tên hàng: ${item}</div>
+        <div>Số lượng: ${qty}</div>
+        <div>NCC: ${supplier}</div>
+        <div>Cước: ${fee}</div>
+        <div>NV Sale: ${sale}</div>
+        <div>Ghi chú: ${note}</div>
+    `;
 
-    blockDiv.innerHTML = htmlContent;
+    if(file){
+        const imgURL = URL.createObjectURL(file);
+        let img = document.createElement("img");
+        img.src = imgURL;
+        block.appendChild(img);
 
-    if(fileInput.files && fileInput.files[0]){
-        const reader = new FileReader();
-        reader.onload = function(e){
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            blockDiv.appendChild(img);
-        }
-        reader.readAsDataURL(fileInput.files[0]);
+        imageFiles.push(file); 
     }
 
-    document.getElementById('resultDiv').appendChild(blockDiv);
+    resultDiv.appendChild(block);
 
-    // Reset form
-    document.getElementById('orderForm').reset();
+    orderForm.reset();
 });
 
-function copyContent(){
-    const resultDiv = document.getElementById('resultDiv');
-    const range = document.createRange();
-    range.selectNodeContents(resultDiv);
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-    try {
-        document.execCommand('copy');
-        alert('Đã copy toàn bộ nội dung! Bao gồm cả hình.');
-    } catch(err) {
-        alert('Không thể copy tự động. Vui lòng thử Ctrl+C.');
+async function copyAll(){
+    let textToCopy = resultDiv.innerText;
+
+    let clipboardItems = [];
+
+    clipboardItems.push(
+        new ClipboardItem({ "text/plain": new Blob([textToCopy], { type: "text/plain" }) })
+    );
+
+    for(let file of imageFiles){
+        clipboardItems.push(
+            new ClipboardItem({ [file.type]: file })
+        );
     }
-    sel.removeAllRanges();
+
+    try {
+        await navigator.clipboard.write(clipboardItems);
+        alert("Đã copy text + hình. Dán vào Zalo được luôn!");
+    } catch (err){
+        alert("Trình duyệt không hỗ trợ copy hình. Hãy dùng Chrome hoặc Edge.");
+    }
 }
 </script>
 
