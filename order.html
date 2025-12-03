@@ -17,82 +17,78 @@
     border-radius: 12px;
     box-shadow: 0 3px 8px rgba(0,0,0,0.1);
   }
-  input, textarea, select {
+  input, textarea {
     width: 100%;
     padding: 10px;
-    margin: 6px 0 15px 0;
+    margin: 6px 0 15px;
     border: 1px solid #ccc;
     border-radius: 6px;
+    font-size: 16px;
   }
   button {
-    padding: 12px;
     width: 100%;
+    padding: 12px;
     border: none;
-    background: #007bff;
     color: white;
+    background: #007bff;
     font-size: 16px;
     border-radius: 6px;
     cursor: pointer;
+    margin-top: 10px;
   }
-  button:active {
-    opacity: 0.8;
+  #newOrderBtn {
+    background: #ff4d4d;
   }
   #resultBox {
-    margin-top: 25px;
+    margin-top: 20px;
     padding: 15px;
-    background: white;
+    background: #fff;
     border-radius: 10px;
     border: 1px solid #ddd;
     white-space: pre-wrap;
-  }
-  .img-preview {
-    width: 100%;
-    margin-top: 10px;
-    border-radius: 10px;
+    min-height: 140px;
   }
 </style>
 </head>
 <body>
 
 <div class="container">
+
   <h2>Form Đặt Hàng</h2>
 
   <label>Tên khách</label>
-  <input id="tenkhach" type="text">
+  <input id="tenkhach" type="text" oninput="refreshResult()">
 
   <label>Địa chỉ</label>
-  <input id="diachi" type="text">
+  <input id="diachi" type="text" oninput="refreshResult()">
 
   <label>Tên hàng</label>
-  <input id="tenhang" type="text">
+  <input id="tenhang" type="text" oninput="refreshResult()">
 
   <label>Số lượng</label>
-  <input id="soluong" type="text">
+  <input id="soluong" type="text" oninput="refreshResult()">
 
   <label>Nhà cung cấp</label>
-  <input id="ncc" type="text">
+  <input id="ncc" type="text" oninput="refreshResult()">
 
   <label>Cước</label>
-  <input id="cuoc" type="text">
+  <input id="cuoc" type="text" oninput="refreshResult()">
 
   <label>Ghi chú</label>
-  <textarea id="ghichu" rows="3"></textarea>
+  <textarea id="ghichu" rows="3" oninput="refreshResult()"></textarea>
 
   <label>NV Sale</label>
-  <input id="nhanvien" type="text">
-
-  <label>Upload hình</label>
-  <input id="hinhupload" type="file" accept="image/*">
-
-  <button onclick="taoKetQua()">Tạo Kết Quả</button>
-  <button onclick="copyText()">Copy Text</button>
+  <input id="nhanvien" type="text" oninput="refreshResult()">
 
   <div id="resultBox"></div>
-  <div id="imagePreview"></div>
+
+  <button onclick="copyText()">Copy Text</button>
+  <button id="newOrderBtn" onclick="newOrder()">Tạo đơn mới</button>
+
 </div>
 
 <script>
-function taoKetQua() {
+function refreshResult() {
   let text =
     "Tên khách: " + document.getElementById("tenkhach").value + "\n" +
     "Địa chỉ: " + document.getElementById("diachi").value + "\n" +
@@ -104,29 +100,18 @@ function taoKetQua() {
     "NV Sale: " + document.getElementById("nhanvien").value;
 
   document.getElementById("resultBox").textContent = text;
-
-  // xử lý ảnh
-  let file = document.getElementById("hinhupload").files[0];
-  let imgPreview = document.getElementById("imagePreview");
-  imgPreview.innerHTML = "";
-
-  if (file) {
-    let reader = new FileReader();
-    reader.onload = function (e) {
-      let img = document.createElement("img");
-      img.src = e.target.result;
-      img.className = "img-preview";
-      imgPreview.appendChild(img);
-    };
-    reader.readAsDataURL(file);
-  }
 }
 
 function copyText() {
   let text = document.getElementById("resultBox").textContent;
   navigator.clipboard.writeText(text).then(() => {
-    alert("Đã copy nội dung (không gồm hình)");
+    alert("Đã copy nội dung!");
   });
+}
+
+function newOrder() {
+  document.querySelectorAll("input, textarea").forEach(el => el.value = "");
+  document.getElementById("resultBox").textContent = "";
 }
 </script>
 
