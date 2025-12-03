@@ -2,15 +2,15 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title> Đặt Hàng</title>
+<title>Đặt Hàng – Nhiều Sản Phẩm</title>
 <style>
   body {
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     background: #f3f3f3;
     padding: 20px;
   }
   .container {
-    max-width: 500px;
+    max-width: 600px;
     margin: auto;
     background: white;
     padding: 20px;
@@ -36,17 +36,17 @@
     cursor: pointer;
     margin-top: 10px;
   }
-  #newOrderBtn {
-    background: #ff4d4d;
-  }
+  #addProductBtn { background: #28a745; }
+  #newOrderBtn { background: #ff4d4d; }
+
   #resultBox {
     margin-top: 20px;
     padding: 15px;
-    background: #fff;
+    background: white;
     border-radius: 10px;
     border: 1px solid #ddd;
     white-space: pre-wrap;
-    min-height: 140px;
+    min-height: 160px;
   }
 </style>
 </head>
@@ -54,31 +54,41 @@
 
 <div class="container">
 
-  <h2>Đặt Hàng</h2>
+  <h2>Form Đặt Hàng</h2>
 
+  <!-- THÔNG TIN CHUNG -->
   <label>Tên khách</label>
-  <input id="tenkhach" type="text" oninput="refreshResult()">
+  <input id="tenkhach" oninput="refreshResult()">
 
   <label>Địa chỉ</label>
-  <input id="diachi" type="text" oninput="refreshResult()">
+  <input id="diachi" oninput="refreshResult()">
+
+  <!-- FORM NHẬP HÀNG HÓA -->
+  <h3>Thêm hàng hóa</h3>
 
   <label>Tên hàng</label>
-  <input id="tenhang" type="text" oninput="refreshResult()">
+  <input id="tenhang">
 
   <label>Số lượng</label>
-  <input id="soluong" type="text" oninput="refreshResult()">
+  <input id="soluong">
 
-  <label>Nhà cung cấp</label>
-  <input id="ncc" type="text" oninput="refreshResult()">
+  <label>NCC</label>
+  <input id="ncc">
 
+  <label>Giá</label>
+  <input id="gia">
+
+  <button id="addProductBtn" onclick="addProduct()">+ Thêm hàng hóa</button>
+
+  <!-- THÔNG TIN CUỐI -->
   <label>Cước</label>
-  <input id="cuoc" type="text" oninput="refreshResult()">
+  <input id="cuoc" oninput="refreshResult()">
 
-  <label>Giá mua - Giá bán</label>
+  <label>Ghi chú</label>
   <textarea id="ghichu" rows="3" oninput="refreshResult()"></textarea>
 
   <label>NV Sale</label>
-  <input id="nhanvien" type="text" oninput="refreshResult()">
+  <input id="nhanvien" oninput="refreshResult()">
 
   <div id="resultBox"></div>
 
@@ -88,22 +98,58 @@
 </div>
 
 <script>
+let products = [];
+
+function addProduct() {
+  const tenhang = document.getElementById("tenhang").value.trim();
+  const soluong = document.getElementById("soluong").value.trim();
+  const ncc = document.getElementById("ncc").value.trim();
+  const gia = document.getElementById("gia").value.trim();
+
+  if (!tenhang) {
+    alert("Vui lòng nhập TÊN HÀNG!");
+    return;
+  }
+
+  products.push({ tenhang, soluong, ncc, gia });
+
+  // Clear form hàng hóa
+  document.getElementById("tenhang").value = "";
+  document.getElementById("soluong").value = "";
+  document.getElementById("ncc").value = "";
+  document.getElementById("gia").value = "";
+
+  refreshResult();
+}
+
 function refreshResult() {
-  let text =
-    "Tên khách: " + document.getElementById("tenkhach").value + "\n" +
-    "Địa chỉ: " + document.getElementById("diachi").value + "\n" +
-    "Tên hàng: " + document.getElementById("tenhang").value + "\n" +
-    "Số lượng: " + document.getElementById("soluong").value + "\n" +
-    "NCC: " + document.getElementById("ncc").value + "\n" +
-    "Cước: " + document.getElementById("cuoc").value + "\n" +
-    "Ghi chú: " + document.getElementById("ghichu").value + "\n" +
-    "NV Sale: " + document.getElementById("nhanvien").value;
+  let text = "";
+
+  // thông tin chung
+  text += "Tên khách: " + document.getElementById("tenkhach").value + "\n";
+  text += "Địa chỉ: " + document.getElementById("diachi").value + "\n\n";
+
+  // danh sách hàng hóa
+  if (products.length > 0) {
+    text += "Danh sách hàng hóa:\n";
+    products.forEach((p, i) => {
+      text += (i + 1) + ". Tên hàng: " + p.tenhang + "\n";
+      text += "   Số lượng: " + p.soluong + "\n";
+      text += "   NCC: " + p.ncc + "\n";
+      text += "   Giá: " + p.gia + "\n\n";
+    });
+  }
+
+  // cuối đơn
+  text += "Cước: " + document.getElementById("cuoc").value + "\n";
+  text += "Ghi chú: " + document.getElementById("ghichu").value + "\n";
+  text += "NV Sale: " + document.getElementById("nhanvien").value;
 
   document.getElementById("resultBox").textContent = text;
 }
 
 function copyText() {
-  let text = document.getElementById("resultBox").textContent;
+  const text = document.getElementById("resultBox").textContent;
   navigator.clipboard.writeText(text).then(() => {
     alert("Đã copy nội dung!");
   });
@@ -111,6 +157,7 @@ function copyText() {
 
 function newOrder() {
   document.querySelectorAll("input, textarea").forEach(el => el.value = "");
+  products = [];
   document.getElementById("resultBox").textContent = "";
 }
 </script>
