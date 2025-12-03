@@ -2,6 +2,12 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
+
+<!-- ⭐ NGĂN iOS ZOOM KHI FOCUS INPUT -->
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0,
+               maximum-scale=1.0, user-scalable=no">
+
 <title>Đặt Hàng – Nhiều Sản Phẩm</title>
 <style>
   body {
@@ -17,14 +23,17 @@
     border-radius: 12px;
     box-shadow: 0 3px 8px rgba(0,0,0,0.1);
   }
+
+  /* ⭐ NGĂN iOS ZOOM: font-size >= 16px */
   input, textarea {
     width: 100%;
     padding: 10px;
     margin: 6px 0 15px;
     border: 1px solid #ccc;
     border-radius: 6px;
-    font-size: 16px;
+    font-size: 16px !important;
   }
+
   button {
     width: 100%;
     padding: 12px;
