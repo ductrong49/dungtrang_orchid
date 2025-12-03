@@ -2,125 +2,131 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Đặt Hàng Tạm Thời - Copy Hình & Text</title>
+<title>Form Đặt Hàng</title>
 <style>
-  body { font-family: Arial; padding: 20px; background: #f9f9f9; }
-  h1 { text-align: center; }
-  form { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-  label { display: block; margin-top: 10px; }
-  input, textarea, button { margin-top: 5px; padding: 8px; width: 100%; max-width: 500px; }
-  textarea { height: 100px; }
-  button.copy-btn { margin-top: 10px; cursor: pointer; background: #0b74da; color: #fff; border: none; border-radius: 5px; padding: 8px 15px; }
-  #resultDiv { border: 1px solid #ccc; background: #fff; padding: 10px; min-height: 200px; border-radius: 5px; margin-top: 10px; }
-  .order-block { border-bottom: 1px dashed #aaa; margin-bottom: 10px; padding-bottom: 10px; }
-  .order-block img { max-width: 150px; display: block; margin-top: 5px; border-radius: 6px; }
+  body {
+    font-family: Arial, sans-serif;
+    background: #f3f3f3;
+    padding: 20px;
+  }
+  .container {
+    max-width: 500px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  }
+  input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0 15px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  button {
+    padding: 12px;
+    width: 100%;
+    border: none;
+    background: #007bff;
+    color: white;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  button:active {
+    opacity: 0.8;
+  }
+  #resultBox {
+    margin-top: 25px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    white-space: pre-wrap;
+  }
+  .img-preview {
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 10px;
+  }
 </style>
 </head>
 <body>
 
-<h1>Đặt Hàng</h1>
+<div class="container">
+  <h2>Form Đặt Hàng</h2>
 
-<form id="orderForm">
-  <label>Tên khách:</label>
-  <input type="text" id="customerName" required>
+  <label>Tên khách</label>
+  <input id="tenkhach" type="text">
 
-  <label>Địa chỉ:</label>
-  <input type="text" id="address" required>
+  <label>Địa chỉ</label>
+  <input id="diachi" type="text">
 
-  <label>Tên hàng:</label>
-  <input type="text" id="itemName" required>
+  <label>Tên hàng</label>
+  <input id="tenhang" type="text">
 
-  <label>Số lượng:</label>
-  <input type="text" id="quantity" required>
+  <label>Số lượng</label>
+  <input id="soluong" type="text">
 
-  <label>NCC:</label>
-  <input type="text" id="supplier">
+  <label>Nhà cung cấp</label>
+  <input id="ncc" type="text">
 
-  <label>Cước:</label>
-  <input type="text" id="fee">
+  <label>Cước</label>
+  <input id="cuoc" type="text">
 
-  <label>NV Sale:</label>
-  <input type="text" id="sale">
+  <label>Ghi chú</label>
+  <textarea id="ghichu" rows="3"></textarea>
 
-  <label>Ghi chú:</label>
-  <textarea id="note"></textarea>
+  <label>NV Sale</label>
+  <input id="nhanvien" type="text">
 
-  <label>Upload hình:</label>
-  <input type="file" id="imageUpload" accept="image/*">
+  <label>Upload hình</label>
+  <input id="hinhupload" type="file" accept="image/*">
 
-  <button type="submit">Thêm vào danh sách</button>
-</form>
+  <button onclick="taoKetQua()">Tạo Kết Quả</button>
+  <button onclick="copyText()">Copy Text</button>
 
-<button class="copy-btn" onclick="copyAll()">Copy toàn bộ (gồm hình)</button>
-
-<div id="resultDiv"></div>
+  <div id="resultBox"></div>
+  <div id="imagePreview"></div>
+</div>
 
 <script>
-let imageFiles = [];
+function taoKetQua() {
+  let text =
+    "Tên khách: " + document.getElementById("tenkhach").value + "\n" +
+    "Địa chỉ: " + document.getElementById("diachi").value + "\n" +
+    "Tên hàng: " + document.getElementById("tenhang").value + "\n" +
+    "Số lượng: " + document.getElementById("soluong").value + "\n" +
+    "NCC: " + document.getElementById("ncc").value + "\n" +
+    "Cước: " + document.getElementById("cuoc").value + "\n" +
+    "Ghi chú: " + document.getElementById("ghichu").value + "\n" +
+    "NV Sale: " + document.getElementById("nhanvien").value;
 
-document.getElementById("orderForm").addEventListener("submit", function(e){
-    e.preventDefault();
+  document.getElementById("resultBox").textContent = text;
 
-    const name = customerName.value.trim();
-    const addr = address.value.trim();
-    const item = itemName.value.trim();
-    const qty = quantity.value.trim();
-    const supplier = supplier.value.trim();
-    const fee = fee.value.trim();
-    const sale = sale.value.trim();
-    const note = note.value.trim();
-    const file = imageUpload.files[0];
+  // xử lý ảnh
+  let file = document.getElementById("hinhupload").files[0];
+  let imgPreview = document.getElementById("imagePreview");
+  imgPreview.innerHTML = "";
 
-    let block = document.createElement("div");
-    block.className = "order-block";
+  if (file) {
+    let reader = new FileReader();
+    reader.onload = function (e) {
+      let img = document.createElement("img");
+      img.src = e.target.result;
+      img.className = "img-preview";
+      imgPreview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  }
+}
 
-    block.innerHTML = `
-        <div>Tên khách: ${name}</div>
-        <div>Địa chỉ: ${addr}</div>
-        <div>Tên hàng: ${item}</div>
-        <div>Số lượng: ${qty}</div>
-        <div>NCC: ${supplier}</div>
-        <div>Cước: ${fee}</div>
-        <div>NV Sale: ${sale}</div>
-        <div>Ghi chú: ${note}</div>
-    `;
-
-    if(file){
-        const imgURL = URL.createObjectURL(file);
-        let img = document.createElement("img");
-        img.src = imgURL;
-        block.appendChild(img);
-
-        imageFiles.push(file); 
-    }
-
-    resultDiv.appendChild(block);
-
-    orderForm.reset();
-});
-
-async function copyAll(){
-    let textToCopy = resultDiv.innerText;
-
-    let clipboardItems = [];
-
-    clipboardItems.push(
-        new ClipboardItem({ "text/plain": new Blob([textToCopy], { type: "text/plain" }) })
-    );
-
-    for(let file of imageFiles){
-        clipboardItems.push(
-            new ClipboardItem({ [file.type]: file })
-        );
-    }
-
-    try {
-        await navigator.clipboard.write(clipboardItems);
-        alert("Đã copy text + hình. Dán vào Zalo được luôn!");
-    } catch (err){
-        alert("Trình duyệt không hỗ trợ copy hình. Hãy dùng Chrome hoặc Edge.");
-    }
+function copyText() {
+  let text = document.getElementById("resultBox").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Đã copy nội dung (không gồm hình)");
+  });
 }
 </script>
 
