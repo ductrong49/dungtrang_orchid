@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+
+<!-- NGĂN iOS ZOOM -->
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0,
+               maximum-scale=1.0, user-scalable=no">
+
+<title>Đặt Hàng – Nhiều Sản Phẩm</title>
+
+<style>
+  body {
+    font-family: Arial, "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    background: linear-gradient(180deg, #e8f1ff, #f7f7f7);
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 650px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+  }
+
+  /* TIÊU ĐỀ */
+  h2 {
+    text-align: center;
+    color: #0066ff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.25);
+    font-size: 26px;
+    margin-bottom: 25px;
+    font-weight: bold;
+  }
+
+  /* KHỐI THÔNG TIN KHÁCH */
+  .customer-box {
+    background: #e7ffe7;
+    border-left: 6px solid #28a745;
+    padding: 10px;
+    border-radius: 20px;
+    margin-bottom: 5px;
+  }
+
+  /* LABEL */
+  label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+    color: #333;
+  }
+
+  /* NGĂN iOS ZOOM */
+  input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px !important;
+    background: #fafafa;
+  }
+
+  /* BUTTON */
+  button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    color: white;
+    background: #007bff;
+    font-size: 17px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: 0.2s;
+  }
+  button:active {
+    transform: scale(0.97);
+  }
+  #addProductBtn { background: #28a745; }
+  #newOrderBtn { background: #ff4d4d; }
+
+  /* KẾT QUẢ */
+  #resultBox {
+    margin-top: 20px;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #cfcfcf;
+    white-space: pre-wrap;
+    min-height: 160px;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.1);
+  }
+
+  h3 {
+    margin-top: 25px;
+    color: #0066cc;
+  }
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+  <h2>ĐẶT HÀNG</h2>
+
+  <!-- KHỐI THÔNG TIN KHÁCH -->
+  <div class="customer-box">
+    <label>👤 Tên khách</label>
+    <input id="tenkhach" oninput="refreshResult()">
+
+    <label>📍 Địa chỉ</label>
+    <input id="diachi" oninput="refreshResult()">
+  </div>
+
+  <!-- THÊM HÀNG -->
+  <h3>🛒 Thêm hàng hóa</h3>
+
+  <label>📦 Tên hàng</label>
+  <input id="tenhang">
+
+  <label>🔢 Số lượng</label>
+  <input id="soluong">
+
+  <label>🏭 NCC</label>
+  <input id="ncc">
+
+  <label>💲 Giá</label>
+  <input id="gia">
+
+  <button id="addProductBtn" onclick="addProduct()">➕ Thêm hàng hóa</button>
+
+  <!-- THÔNG TIN CUỐI -->
+  <h3>📝 Thông tin thêm</h3>
+
+  <label>🚚 Cước</label>
+  <input id="cuoc" oninput="refreshResult()">
+
+  <label>👉 Ghi chú</label>
+  <textarea id="ghichu" rows="3" oninput="refreshResult()"></textarea>
+
+  <label>👨‍💼 NV Sale</label>
+  <input id="nhanvien" oninput="refreshResult()">
+
+  <!-- KẾT QUẢ -->
+  <div id="resultBox"></div>
+
+  <button onclick="copyText()">📋 Copy Nội Dung</button>
+  <button id="newOrderBtn" onclick="newOrder()">🆕 Tạo đơn mới</button>
+
+</div>
+
+<script>
+let products = [];
+
+function addProduct() {
+  const tenhang = document.getElementById("tenhang").value.trim();
+  const soluong = document.getElementById("soluong").value.trim();
+  const ncc = document.getElementById("ncc").value.trim();
+  const gia = document.getElementById("gia").value.trim();
+
+  if (!tenhang) {
+    alert("Vui lòng nhập TÊN HÀNG!");
+    return;
+  }
+
+  products.push({ tenhang, soluong, ncc, gia });
+
+  document.getElementById("tenhang").value = "";
+  document.getElementById("soluong").value = "";
+  document.getElementById("ncc").value = "";
+  document.getElementById("gia").value = "";
+
+  refreshResult();
+}
+
+function refreshResult() {
+  let text = "";
+
+  text += "👤 Tên khách: " + document.getElementById("tenkhach").value + "\n";
+  text += "📍 Địa chỉ: " + document.getElementById("diachi").value + "\n\n";
+
+  if (products.length > 0) {
+    text += "🛒 Danh sách hàng hóa:\n";
+    products.forEach((p, i) => {
+      text += (i + 1) + ". 📦 Tên hàng: " + p.tenhang + "\n";
+      text += "   🔢 Số lượng: " + p.soluong + "\n";
+      text += "   🏭 NCC: " + p.ncc + "\n";
+      text += "   💲 Giá: " + p.gia + "\n\n";
+    });
+  }
+
+  text += "🚚 Cước: " + document.getElementById("cuoc").value + "\n";
+  text += "👉 Ghi chú: " + document.getElementById("ghichu").value + "\n";
+  text += "👨‍💼 NV Sale: " + document.getElementById("nhanvien").value;
+
+  document.getElementById("resultBox").textContent = text;
+}
+
+function copyText() {
+  const text = document.getElementById("resultBox").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Đã copy nội dung!");
+  });
+}
+
+function newOrder() {
+  document.querySelectorAll("input, textarea").forEach(el => el.value = "");
+  products = [];
+  document.getElementById("resultBox").textContent = "";
+}
+</script>
+
+</body>
+</html>
