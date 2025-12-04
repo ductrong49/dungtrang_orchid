@@ -12,7 +12,7 @@
 
 <style>
   body {
-    font-family: Arial;
+    font-family: Arial, "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
     background: linear-gradient(180deg, #e8f1ff, #f7f7f7);
     padding: 20px;
   }
@@ -111,15 +111,15 @@
 
   <!-- KHỐI THÔNG TIN KHÁCH -->
   <div class="customer-box">
-    <label>Tên khách</label>
+    <label>👤 Tên khách</label>
     <input id="tenkhach" oninput="refreshResult()">
 
-    <label>Địa chỉ</label>
+    <label>📍 Địa chỉ</label>
     <input id="diachi" oninput="refreshResult()">
   </div>
 
   <!-- THÊM HÀNG -->
-  <h3>Thêm hàng hóa</h3>
+  <h3>Thông tin hàng hóa</h3>
 
   <label>Tên hàng</label>
   <input id="tenhang">
@@ -130,21 +130,21 @@
   <label>NCC</label>
   <input id="ncc">
 
-  <label>Giá</label>
+  <label>Giá nhập - Giá bán</label>
   <input id="gia">
 
-  <button id="addProductBtn" onclick="addProduct()">+ Thêm hàng hóa</button>
+  <button id="addProductBtn" onclick="addProduct()">➕ Thêm hàng hóa</button>
 
   <!-- THÔNG TIN CUỐI -->
-  <h3>Thông tin thêm</h3>
+  <h3>📝 Thông tin thêm</h3>
 
-  <label>Cước</label>
+  <label>🚚 Cước</label>
   <input id="cuoc" oninput="refreshResult()">
 
   <label>👉 Ghi chú</label>
   <textarea id="ghichu" rows="3" oninput="refreshResult()"></textarea>
 
-  <label>NV Sale</label>
+  <label>👨‍💼 NV Sale</label>
   <input id="nhanvien" oninput="refreshResult()">
 
   <!-- KẾT QUẢ -->
@@ -182,8 +182,8 @@ function addProduct() {
 function refreshResult() {
   let text = "";
 
-  text += "Tên khách: " + document.getElementById("tenkhach").value + "\n";
-  text += "Địa chỉ: " + document.getElementById("diachi").value + "\n\n";
+  text += "👤 Tên khách: " + document.getElementById("tenkhach").value + "\n";
+  text += "📍 Địa chỉ: " + document.getElementById("diachi").value + "\n\n";
 
   if (products.length > 0) {
     text += "Danh sách hàng hóa:\n";
@@ -195,9 +195,9 @@ function refreshResult() {
     });
   }
 
-  text += "Cước: " + document.getElementById("cuoc").value + "\n";
+  text += "🚚 Cước: " + document.getElementById("cuoc").value + "\n";
   text += "👉 Ghi chú: " + document.getElementById("ghichu").value + "\n";
-  text += "NV Sale: " + document.getElementById("nhanvien").value;
+  text += "👨‍💼 NV Sale: " + document.getElementById("nhanvien").value;
 
   document.getElementById("resultBox").textContent = text;
 }
