@@ -186,12 +186,12 @@ function refreshResult() {
   text += "📍 Địa chỉ: " + document.getElementById("diachi").value + "\n\n";
 
   if (products.length > 0) {
-    text += "🛒 Danh sách hàng hóa:\n";
+    text += "Danh sách hàng hóa:\n";
     products.forEach((p, i) => {
-      text += (i + 1) + ". 📦 Tên hàng: " + p.tenhang + "\n";
-      text += "   🔢 Số lượng: " + p.soluong + "\n";
-      text += "   🏭 NCC: " + p.ncc + "\n";
-      text += "   💲 Giá: " + p.gia + "\n\n";
+      text += (i + 1) + ". Tên hàng: " + p.tenhang + "\n";
+      text += "   Số lượng: " + p.soluong + "\n";
+      text += "   NCC: " + p.ncc + "\n";
+      text += "   Giá: " + p.gia + "\n\n";
     });
   }
 
