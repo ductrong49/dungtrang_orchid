@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-
 <html lang="vi">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>BÁO GIÁ - Hoa lan Hồ Điệp Dũng Trang Đà Lạt</title>
+
 <style>
   :root{
     --bg:#f3f4f6;
@@ -12,7 +12,10 @@
     --accent:#0b74da;
     --muted:#6b7280;
   }
-  body{font-family:Inter, system-ui, Arial, Helvetica, sans-serif; background:var(--bg); margin:0; padding:24px; color:#111}
+  body{
+    font-family:Inter, system-ui, Arial, Helvetica, sans-serif;
+    background:var(--bg); margin:0; padding:24px; color:#111
+  }
   .wrap{max-width:980px; margin:0 auto; display:grid; gap:18px; grid-template-columns:1fr 420px;}
   header{grid-column:1/-1; text-align:center; margin-bottom:20px;}
   h1{margin:0; font-size:32px; color:#0b74da;}
@@ -26,7 +29,15 @@
   .small{font-size:13px; color:var(--muted);}
   button{background:var(--accent); color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer;}
   button.secondary{background:#374151;}
-  canvas{width:100%; height:auto; border-radius:8px; background:#fff; display:block;}
+  
+  /* ⭐ FIX lỗi không up được ảnh — dùng max-width */
+  canvas{
+    max-width:100%;
+    display:block;
+    border-radius:8px;
+    background:#fff;
+  }
+
   .controls{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;}
   .right-col{display:flex; flex-direction:column; gap:12px;}
   .info-inline{display:flex; gap:8px;}
@@ -36,69 +47,72 @@
   }
 </style>
 </head>
+
 <body>
 <div class="wrap">
-  <header>
-    <h1>BÁO GIÁ</h1>
-    <div class="shop-info">
-      HOA LAN HỒ ĐIỆP DŨNG TRANG – ĐÀ LẠT<br>
-      ĐT / Zalo: 0918.60.42.60<br>
-      Địa chỉ: 08 Lý Thường Kiệt, Đức Trọng, Lâm Đồng
-    </div>
-  </header>
 
-  <div class="card">
-    <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;">
-      <div><strong>Preview ảnh</strong><div class="small muted">Xem trước & điều chỉnh</div></div>
-      <div class="info-inline">
-        <label class="small muted" style="align-self:center;margin:0 6px 0 0">Định dạng</label>
-        <select id="exportFormat" title="Chọn định dạng">
-          <option value="image/png">PNG (khuyến nghị)</option>
-          <option value="image/jpeg">JPEG</option>
-        </select>
-      </div>
-    </div>
+<header>
+  <h1>BÁO GIÁ</h1>
+  <div class="shop-info">
+    HOA LAN HỒ ĐIỆP DŨNG TRANG – ĐÀ LẠT<br>
+    ĐT / Zalo: 0918.60.42.60<br>
+    Địa chỉ: 08 Lý Thường Kiệt, Đức Trọng, Lâm Đồng
+  </div>
+</header>
 
-```
-<div style="margin-top:12px;">
-  <canvas id="canvas"></canvas>
-  <div class="controls">
-    <button id="downloadBtn">Tải ảnh xuống</button>
-    <button id="downloadJpeg" class="secondary">Tải JPEG (quality 0.9)</button>
-    <button id="downloadImmediate" class="secondary">Tạo & Tải nhanh</button>
-    <button id="shareBtn" style="background:#2fa5e0;">Chia sẻ</button>
-    <button id="resetBtn" class="secondary">Xoá & bắt đầu lại</button>
-    <label class="small muted" style="align-self:center;margin-left:12px">Ảnh xử lý ở trình duyệt — không lưu server</label>
+<!-- LEFT COLUMN -->
+<div class="card">
+  <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;">
+    <div><strong>Preview ảnh</strong><div class="small muted">Xem trước & điều chỉnh</div></div>
+    <div class="info-inline">
+      <label class="small muted" style="align-self:center;margin:0 6px 0 0">Định dạng</label>
+      <select id="exportFormat">
+        <option value="image/png">PNG (khuyến nghị)</option>
+        <option value="image/jpeg">JPEG</option>
+      </select>
+    </div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <canvas id="canvas"></canvas>
+    <div class="controls">
+      <button id="downloadBtn">Tải ảnh xuống</button>
+      <button id="downloadJpeg" class="secondary">Tải JPEG (quality 0.9)</button>
+      <button id="downloadImmediate" class="secondary">Tạo & Tải nhanh</button>
+      <button id="shareBtn" style="background:#2fa5e0;">Chia sẻ</button>
+      <button id="resetBtn" class="secondary">Xoá & bắt đầu lại</button>
+      <label class="small muted" style="align-self:center;margin-left:12px">Ảnh xử lý ở trình duyệt — không lưu server</label>
+    </div>
   </div>
 </div>
-```
 
-  </div>
+<!-- RIGHT COLUMN -->
+<aside class="right-col">
 
-  <aside class="right-col">
-    <div class="card">
-      <h3 style="margin:0 0 8px 0">Upload & thông tin ảnh</h3>
-      <form id="dataForm" onsubmit="return false;">
-        <div>
-          <label for="imageInput">Chọn ảnh sản phẩm</label>
-          <input id="imageInput" type="file" accept="image/*" />
-        </div>
+<div class="card">
+  <h3 style="margin:0 0 8px 0">Upload & thông tin ảnh</h3>
 
-```
+  <form id="dataForm" onsubmit="return false;">
+    <div>
+      <label for="imageInput">Chọn ảnh sản phẩm</label>
+      <input id="imageInput" type="file" accept="image/*" />
+    </div>
+
     <div style="margin-top:10px;">
       <label for="productName">Tên sản phẩm</label>
       <input id="productName" type="text" placeholder="Ví dụ: Hoa lan Hồ Điệp" />
     </div>
 
     <div style="margin-top:10px;">
-      <label for="size">Kích thước / Chi tiết</label>
+      <label for="size">Kích thước / Chi tiết (Mô tả SP)</label>
       <input id="size" type="text" placeholder="Ví dụ: 1 cây, cao 60-70cm" />
     </div>
 
+    <!-- ⭐ SỐ LƯỢNG MẶC ĐỊNH RỖNG -->
     <div class="row">
       <div style="flex:1">
         <label for="qty">Số lượng</label>
-        <input id="qty" type="number" min="0" value="1" />
+        <input id="qty" type="number" min="0" value="" placeholder="VD: 5" />
       </div>
       <div style="width:130px">
         <label for="unit">Đơn vị</label>
@@ -107,11 +121,6 @@
           <option value="cành">cành</option>
         </select>
       </div>
-    </div>
-
-    <div style="margin-top:8px;">
-      <label for="price">Giá</label>
-      <input id="price" type="text" value="11x K" />
     </div>
 
     <div style="margin-top:8px;">
@@ -124,18 +133,20 @@
         <label for="quoteDate">Ngày báo giá</label>
         <input id="quoteDate" type="date" />
       </div>
+
       <div style="width:120px">
         <label for="fontSize">Kích chữ</label>
-        <input id="fontSize" type="number" min="12" max="72" value="24" />
+        <input id="fontSize" type="number" min="12" max="72" value="50" />
       </div>
     </div>
 
+    <!-- ⭐ MẶC ĐỊNH GIỮA ẢNH -->
     <div style="margin-top:8px;">
       <label for="overlayPosition">Vị trí thông tin trên ảnh</label>
       <select id="overlayPosition">
+        <option value="center">Giữa ảnh</option>
         <option value="bottom">Dưới cùng</option>
         <option value="top">Trên cùng</option>
-        <option value="center">Giữa ảnh</option>
       </select>
     </div>
 
@@ -153,18 +164,19 @@
     <label style="margin:0">Màu nền khung</label>
     <input id="boxColor" type="color" value="#000000" />
   </div>
+
   <div style="margin-top:8px;">
     <label class="small">Độ mờ khung (0-1)</label>
     <input id="boxOpacity" type="number" min="0" max="1" step="0.05" value="0.6" />
   </div>
+
   <div style="margin-top:8px;">
     <label class="small">Bo góc khung (px)</label>
     <input id="boxRadius" type="number" min="0" max="60" value="12" />
   </div>
 </div>
-```
 
-  </aside>
+</aside>
 </div>
 
 <script>
@@ -177,7 +189,6 @@ const productName = document.getElementById('productName');
 const sizeInput = document.getElementById('size');
 const qtyInput = document.getElementById('qty');
 const unitInput = document.getElementById('unit');
-const priceInput = document.getElementById('price');
 const phoneInput = document.getElementById('phone');
 const quoteDate = document.getElementById('quoteDate');
 const fontSizeInput = document.getElementById('fontSize');
@@ -217,6 +228,7 @@ imageInput.addEventListener('change', e => {
   reader.readAsDataURL(f);
 });
 
+/* Vẽ thông tin */
 function drawOverlay(){
   if (!imgLoaded){ alert('Chưa chọn ảnh sản phẩm!'); return; }
 
@@ -238,23 +250,22 @@ function drawOverlay(){
   const size = sizeInput.value.trim(); if(size) lines.push('Mô tả SP: '+size);
   const qty = qtyInput.value; const unit = unitInput.value;
   if(qty) lines.push('Số lượng: '+qty+' '+unit);
-  const price = priceInput.value.trim(); if(price) lines.push('Giá: '+price);
   const phone = phoneInput.value.trim(); if(phone) lines.push('ĐT: '+phone);
   const date = quoteDate.value;
-  if(date){ const p=date.split('-'); if(p.length===3) lines.push(`Ngày: ${p[2]}/${p[1]}/${p[0]}`); else lines.push('Ngày: '+date); }
+  if(date){ const p=date.split('-'); lines.push(`Ngày: ${p[2]}/${p[1]}/${p[0]}`); }
 
-  const fs = Math.max(14, Number(fontSizeInput.value)||20);
+  const fs = Math.max(14, Number(fontSizeInput.value)||50);
   ctx.font = `${fs}px sans-serif`;
   let maxW = 0;
-  lines.forEach(l=>{const w=ctx.measureText(l).width;if(w>maxW) maxW=w;});
+  lines.forEach(l=>{const w=ctx.measureText(l).width;if(w>maxW)maxW=w;});
   const padding = Math.round(fs*0.6);
-  const boxW = Math.min(canvas.width-40,maxW+padding*2);
   const lineHeight = Math.round(fs*1.4);
+  const boxW = Math.min(canvas.width-40,maxW+padding*2);
   const boxH = lines.length*lineHeight+padding*2;
 
   let x=20, y=20;
   if(overlayPosition.value==='bottom') y=canvas.height-boxH-20;
-  else if(overlayPosition.value==='center'){ x=Math.round((canvas.width-boxW)/2); y=Math.round((canvas.height-boxH)/2); }
+  else if(overlayPosition.value==='center'){ x=(canvas.width-boxW)/2; y=(canvas.height-boxH)/2; }
 
   ctx.save();
   ctx.globalAlpha = parseFloat(boxOpacity.value)||0.6;
@@ -263,7 +274,7 @@ function drawOverlay(){
   ctx.restore();
 
   ctx.fillStyle = textColor.value||'#fff';
-  ctx.textBaseline = 'top';
+  ctx.textBaseline='top';
   let ty=y+padding;
   ctx.textAlign='left';
   lines.forEach(l=>{
@@ -275,9 +286,10 @@ function drawOverlay(){
 
 renderBtn.addEventListener('click', drawOverlay);
 
+/* Download */
 downloadBtn.addEventListener('click', ()=>{
   if(!imgLoaded) return;
-  const mime = exportFormat.value||'image/png';
+  const mime = exportFormat.value;
   const a=document.createElement('a');
   a.href=canvas.toDataURL(mime);
   a.download='baogia.png';
@@ -305,20 +317,37 @@ resetBtn.addEventListener('click', ()=>{
   ctx.clearRect(0,0,canvas.width,canvas.height);
 });
 
+/* Chia sẻ */
 shareBtn.addEventListener('click', async ()=>{
   drawOverlay();
   canvas.toBlob(async blob=>{
     const file = new File([blob],'baogia.png',{type:'image/png'});
+    const lines = [];
+
+    const name = productName.value.trim();
+    if(name) lines.push("Sản phẩm: " + name);
+
+    const size = sizeInput.value.trim();
+    if(size) lines.push("Mô tả SP: " + size);
+
+    const shareText = lines.join("\n") || "Thông tin sản phẩm";
+
     if(navigator.canShare && navigator.canShare({files:[file]})){
       try{
-        await navigator.share({files:[file], title:'Báo giá hoa lan', text:'Báo giá hoa lan Dũng Trang'});
-      }catch(err){ alert('Chia sẻ thất bại: '+err); }
+        await navigator.share({
+          files:[file],
+          title: productName.value || "Báo giá sản phẩm",
+          text: shareText
+        });
+      }catch(err){
+        alert("Chia sẻ thất bại: " + err);
+      }
     }else{
-      const a=document.createElement('a');
-      a.href=URL.createObjectURL(blob);
-      a.download='baogia.png';
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "baogia.png";
       a.click();
-      alert('Trình duyệt không hỗ trợ chia sẻ trực tiếp. Ảnh đã tải về.');
+      alert("Trình duyệt không hỗ trợ chia sẻ. Ảnh đã tải về.");
     }
   });
 });
