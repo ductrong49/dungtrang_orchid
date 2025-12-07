@@ -114,8 +114,6 @@
       </div>
     </div>
 
-    <!-- ĐÃ BỎ MỤC GIÁ -->
-
     <div style="margin-top:8px;">
       <label for="phone">Số điện thoại</label>
       <input id="phone" type="tel" value="0918.604260" />
@@ -126,9 +124,11 @@
         <label for="quoteDate">Ngày báo giá</label>
         <input id="quoteDate" type="date" />
       </div>
+
+      <!-- ⭐ KÍCH CHỮ MẶC ĐỊNH = 50 -->
       <div style="width:120px">
         <label for="fontSize">Kích chữ</label>
-        <input id="fontSize" type="number" min="12" max="72" value="24" />
+        <input id="fontSize" type="number" min="12" max="72" value="50" />
       </div>
     </div>
 
@@ -219,6 +219,9 @@ imageInput.addEventListener('change', e => {
   reader.readAsDataURL(f);
 });
 
+/* --------------------------------------------------------------------------------
+   ⭐ VẼ NỘI DUNG LÊN ẢNH
+----------------------------------------------------------------------------------*/
 function drawOverlay(){
   if (!imgLoaded){ alert('Chưa chọn ảnh sản phẩm!'); return; }
 
@@ -245,7 +248,7 @@ function drawOverlay(){
   const date = quoteDate.value;
   if(date){ const p=date.split('-'); lines.push(`Ngày: ${p[2]}/${p[1]}/${p[0]}`); }
 
-  const fs = Math.max(14, Number(fontSizeInput.value)||20);
+  const fs = Math.max(14, Number(fontSizeInput.value)||50);
   ctx.font = `${fs}px sans-serif`;
   let maxW = 0;
   lines.forEach(l=>{const w=ctx.measureText(l).width;if(w>maxW) maxW=w;});
@@ -308,30 +311,42 @@ resetBtn.addEventListener('click', ()=>{
   ctx.clearRect(0,0,canvas.width,canvas.height);
 });
 
-/* ⭐ CHIA SẺ – lấy mô tả SP làm nội dung */
+
+/* ------------------------------------------------------------------------------
+   ⭐ CHIA SẺ – nội dung = toàn bộ mô tả sản phẩm trên ảnh
+------------------------------------------------------------------------------ */
 shareBtn.addEventListener('click', async ()=>{
   drawOverlay();
   canvas.toBlob(async blob=>{
     const file = new File([blob],'baogia.png',{type:'image/png'});
 
-    const desc = sizeInput.value.trim() || 'Thông tin sản phẩm';
+    const lines = [];
+    const name = productName.value.trim(); if(name) lines.push("Sản phẩm: "+name);
+    const size = sizeInput.value.trim(); if(size) lines.push("Mô tả SP: "+size);
+    const qty = qtyInput.value; const unit = unitInput.value;
+    if(qty) lines.push("Số lượng: "+qty+" "+unit);
+    const phone = phoneInput.value.trim(); if(phone) lines.push("ĐT: "+phone);
+    const date = quoteDate.value;
+    if(date){ const p = date.split('-'); lines.push(`Ngày: ${p[2]}/${p[1]}/${p[0]}`); }
+
+    const shareText = lines.join("\n") || "Thông tin sản phẩm";
 
     if(navigator.canShare && navigator.canShare({files:[file]})){
       try{
         await navigator.share({
           files:[file],
-          title: productName.value || 'Báo giá sản phẩm',
-          text: desc
+          title: productName.value || "Báo giá sản phẩm",
+          text: shareText
         });
       }catch(err){
-        alert('Chia sẻ thất bại: '+err);
+        alert("Chia sẻ thất bại: " + err);
       }
     }else{
-      const a=document.createElement('a');
-      a.href=URL.createObjectURL(blob);
-      a.download='baogia.png';
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "baogia.png";
       a.click();
-      alert('Trình duyệt không hỗ trợ chia sẻ trực tiếp. Ảnh đã tải về.');
+      alert("Trình duyệt không hỗ trợ chia sẻ trực tiếp. Ảnh đã tải về.");
     }
   });
 });
