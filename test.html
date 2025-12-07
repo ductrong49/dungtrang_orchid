@@ -125,7 +125,6 @@
         <input id="quoteDate" type="date" />
       </div>
 
-      <!-- ⭐ KÍCH CHỮ MẶC ĐỊNH = 50 -->
       <div style="width:120px">
         <label for="fontSize">Kích chữ</label>
         <input id="fontSize" type="number" min="12" max="72" value="50" />
@@ -281,6 +280,7 @@ function drawOverlay(){
 
 renderBtn.addEventListener('click', drawOverlay);
 
+/* Download */
 downloadBtn.addEventListener('click', ()=>{
   if(!imgLoaded) return;
   const mime = exportFormat.value||'image/png';
@@ -313,7 +313,7 @@ resetBtn.addEventListener('click', ()=>{
 
 
 /* ------------------------------------------------------------------------------
-   ⭐ CHIA SẺ – nội dung = toàn bộ mô tả sản phẩm trên ảnh
+   ⭐ CHIA SẺ – CHỈ TÊN SP + MÔ TẢ SP (KHÔNG gồm SĐT, SỐ LƯỢNG, NGÀY)
 ------------------------------------------------------------------------------ */
 shareBtn.addEventListener('click', async ()=>{
   drawOverlay();
@@ -321,13 +321,11 @@ shareBtn.addEventListener('click', async ()=>{
     const file = new File([blob],'baogia.png',{type:'image/png'});
 
     const lines = [];
-    const name = productName.value.trim(); if(name) lines.push("Sản phẩm: "+name);
-    const size = sizeInput.value.trim(); if(size) lines.push("Mô tả SP: "+size);
-    const qty = qtyInput.value; const unit = unitInput.value;
-    if(qty) lines.push("Số lượng: "+qty+" "+unit);
-    const phone = phoneInput.value.trim(); if(phone) lines.push("ĐT: "+phone);
-    const date = quoteDate.value;
-    if(date){ const p = date.split('-'); lines.push(`Ngày: ${p[2]}/${p[1]}/${p[0]}`); }
+    const name = productName.value.trim(); 
+    if(name) lines.push("Sản phẩm: " + name);
+
+    const size = sizeInput.value.trim(); 
+    if(size) lines.push("Mô tả SP: " + size);
 
     const shareText = lines.join("\n") || "Thông tin sản phẩm";
 
