@@ -1,1 +1,105 @@
-test
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THỐNG KÊ KHO HÀNG</title>
+<style>
+  body{
+    font-family: Arial, sans-serif;
+    margin:0;
+    background:#f5faff;
+    color:#222;
+  }
+  header{
+    text-align:center;
+    padding:24px 12px;
+    background:linear-gradient(135deg,#4facfe,#00f2fe);
+    color:white;
+    font-size:28px;
+    font-weight:800;
+    letter-spacing:1px;
+    text-shadow:0 2px 4px rgba(0,0,0,0.25);
+  }
+  .wrap{
+    max-width:1100px;
+    margin:20px auto;
+    padding:12px;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 4px 14px rgba(0,0,0,0.1);
+  }
+  th,td{
+    padding:10px 12px;
+    border-bottom:1px solid #eef2ff;
+  }
+  tr:nth-child(1) td,
+  tr:nth-child(2) td{
+    font-weight:bold;
+    color:#0b57d0;
+    background:#eaf2ff;
+  }
+  th{
+    background:#d9ecff;
+    color:#003f91;
+    font-size:15px;
+    font-weight:700;
+    border-bottom:2px solid #b6d7ff;
+  }
+</style>
+</head>
+<body>
+<header>THỐNG KÊ KHO HÀNG</header>
+<div class="wrap">
+  <div id="tableWrap">Đang tải dữ liệu...</div>
+</div>
+
+<script>
+  const SHEET_ID = "1p2ymdDNkIw_WXa9oFkXm4_YJG5FL1gzgwTvq_9GyOEw";
+  const SHEET_NAME = "ton";
+  const RANGE = "B2:G500";
+
+  const tableWrap = document.getElementById("tableWrap");
+
+  async function loadSheet(){
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE}`;
+    try{
+      const res = await fetch(url);
+      let text = await res.text();
+      text = text.replace(/^[^\(]*\(/, '').replace(/\);?$/, '');
+      const json = JSON.parse(text);
+      const table = json.table;
+
+      const cols = table.cols.map(c => c.label || "");
+      const rows = table.rows.map(r => r.c.map(c => c ? c.v : ""));
+
+      const html = [];
+
+      html.push("<table><thead><tr>");
+      cols.forEach(c => html.push(`<th>${c}</th>`));
+      html.push("</tr></thead><tbody>");
+
+      rows.forEach(r =>{
+        html.push("<tr>");
+        r.forEach(c => html.push(`<td>${c}</td>`));
+        html.push("</tr>");
+      });
+
+      html.push("</tbody></table>");
+
+      tableWrap.innerHTML = html.join("");
+    }
+    catch(e){
+      tableWrap.innerHTML = "Lỗi tải dữ liệu — hãy kiểm tra quyền chia sẻ Google Sheet.";
+    }
+  }
+
+  loadSheet();
+</script>
+</body>
+</html>
