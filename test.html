@@ -6,84 +6,57 @@
 <title>THỐNG KÊ KHO HÀNG</title>
 
 <style>
-/* ===== RESET ===== */
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-/* ===== BODY ===== */
 body{
+  margin:0;
   font-family:Arial, sans-serif;
   background:#f5faff;
-  color:#222;
 }
 
-/* ===== HEADER ===== */
 header{
   text-align:center;
-  padding:24px 12px;
+  padding:22px;
   background:linear-gradient(135deg,#4facfe,#00f2fe);
   color:#fff;
   font-size:28px;
   font-weight:800;
-  letter-spacing:1px;
-  text-shadow:0 2px 4px rgba(0,0,0,.25);
 }
 
-/* ===== SUB ===== */
 .sub{
   text-align:center;
-  margin:12px 0 20px;
-  font-size:16px;
+  margin:12px 0;
   font-weight:700;
   color:#0b57d0;
 }
 
-/* ===== WRAP ===== */
 .wrap{
   max-width:1100px;
-  margin:0 auto 24px;
+  margin:0 auto;
   padding:12px;
 }
 
-/* ===== TABLE ===== */
 table{
   width:100%;
   border-collapse:collapse;
   background:#fff;
+  box-shadow:0 4px 14px rgba(0,0,0,.1);
   border-radius:10px;
   overflow:hidden;
-  box-shadow:0 4px 14px rgba(0,0,0,.1);
 }
 
-/* ===== HEADER CELL ===== */
+th,td{
+  border:1px solid #dbe5ff;
+  padding:8px 10px;
+  font-size:12px;
+  color:#000;
+  background:#fff;
+}
+
+/* HEADER = B3 */
 thead th{
-  padding:8px 10px;
-  font-size:13px;
-  font-weight:700;
-  color:#003f91;
   background:#d9ecff;
-  border:1px solid #b6d7ff;
-  border-bottom:2px solid #b6d7ff;
-}
-
-/* ===== DATA CELL – MẶC ĐỊNH B4+ ===== */
-tbody td{
-  padding:8px 10px;
-  font-size:10px;
-  font-weight:400;
-  color:#000000 !important;
-  background:#ffffff !important;
-  border:1px solid #e0e6f5;
-}
-
-/* ===== B3 (DÒNG ĐẦU TIÊN DATA) ===== */
-tbody tr.row-top td{
-  font-weight:700 !important;
-  color:#0b57d0 !important;
-  background:#eaf2ff !important;
+  color:#003f91;
+  font-weight:700;
+  border-bottom:3px solid #8bbcff;
 }
 </style>
 </head>
@@ -98,50 +71,39 @@ tbody tr.row-top td{
 </div>
 
 <script>
-const SHEET_ID   = "1p2ymdDNkIw_WXa9oFkXm4_YJG5FL1gzgwTvq_9GyOEw";
+const SHEET_ID = "1p2ymdDNkIw_WXa9oFkXm4_YJG5FL1gzgwTvq_9GyOEw";
 const SHEET_NAME = "ton";
-const RANGE      = "B3:G1000";
-
-const tableWrap = document.getElementById("tableWrap");
-const tonKhoEl  = document.getElementById("tonKho");
+const RANGE = "B3:G1000";
 
 async function loadSheet(){
-  const url =
-    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq` +
-    `?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE}`;
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE}`;
+  const res = await fetch(url);
+  let text = await res.text();
+  text = text.replace(/^[^(]*\(/,'').replace(/\);?$/,'');
+  const json = JSON.parse(text);
+  const rows = json.table.rows.map(r => r.c.map(c => c ? c.v : ""));
 
-  try{
-    const res  = await fetch(url);
-    let text   = await res.text();
-    text       = text.replace(/^[^\(]*\(/, "").replace(/\);?$/, "");
-    const json = JSON.parse(text);
-    const tbl  = json.table;
+  // B3
+  const headers = rows[0];
+  // B4+
+  const data = rows.slice(1);
 
-    const cols = tbl.cols.map(c => c.label || "");
-    const rows = tbl.rows.map(r => r.c.map(c => c ? c.v : ""));
+  document.getElementById("tonKho").innerHTML =
+    `Tồn kho hiện tại: ${data[0]?.[2] || ""}`;
 
-    /* D3 = cột thứ 3 (B,C,D) */
-    tonKhoEl.textContent = `Tồn kho hiện tại: ${rows[0]?.[2] || ""}`;
+  let html = `<table><thead><tr>`;
+  headers.forEach(h => html += `<th>${h}</th>`);
+  html += `</tr></thead><tbody>`;
 
-    let html = "<table><thead><tr>";
-    cols.forEach(c => html += `<th>${c}</th>`);
-    html += "</tr></thead><tbody>";
+  data.forEach(r=>{
+    if(r.every(c=>c==="")) return;
+    html += `<tr>`;
+    r.forEach(c=>html += `<td>${c}</td>`);
+    html += `</tr>`;
+  });
 
-    rows.forEach((row, index) => {
-      if(row.every(v => v === "" || v === " ")) return;
-
-      html += `<tr${index === 0 ? ' class="row-top"' : ""}>`;
-      row.forEach(v => html += `<td>${v}</td>`);
-      html += "</tr>";
-    });
-
-    html += "</tbody></table>";
-    tableWrap.innerHTML = html;
-
-  }catch(e){
-    tableWrap.textContent =
-      "Lỗi tải dữ liệu — hãy kiểm tra quyền chia sẻ Google Sheet.";
-  }
+  html += `</tbody></table>`;
+  document.getElementById("tableWrap").innerHTML = html;
 }
 
 loadSheet();
