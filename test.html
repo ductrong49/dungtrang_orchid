@@ -6,11 +6,11 @@
 <title>THỐNG KÊ KHO HÀNG</title>
 
 <style>
-/* ===== RESET NHẸ ===== */
+/* ===== RESET ===== */
 *{
-  box-sizing:border-box;
   margin:0;
   padding:0;
+  box-sizing:border-box;
 }
 
 /* ===== BODY ===== */
@@ -32,7 +32,7 @@ header{
   text-shadow:0 2px 4px rgba(0,0,0,.25);
 }
 
-/* ===== SUB TITLE ===== */
+/* ===== SUB ===== */
 .sub{
   text-align:center;
   margin:12px 0 20px;
@@ -41,7 +41,7 @@ header{
   color:#0b57d0;
 }
 
-/* ===== WRAPPER ===== */
+/* ===== WRAP ===== */
 .wrap{
   max-width:1100px;
   margin:0 auto 24px;
@@ -58,7 +58,7 @@ table{
   box-shadow:0 4px 14px rgba(0,0,0,.1);
 }
 
-/* HEADER CELL */
+/* ===== HEADER CELL ===== */
 thead th{
   padding:8px 10px;
   font-size:13px;
@@ -69,19 +69,19 @@ thead th{
   border-bottom:2px solid #b6d7ff;
 }
 
-/* DATA CELL – ÉP TUYỆT ĐỐI */
+/* ===== DATA CELL – MẶC ĐỊNH B4+ ===== */
 tbody td{
   padding:8px 10px;
   font-size:10px;
   font-weight:400;
-  color:#000 !important;
-  background:#fff !important;
+  color:#000000 !important;
+  background:#ffffff !important;
   border:1px solid #e0e6f5;
 }
 
-/* CHỈ HÀNG ĐẦU TIÊN */
+/* ===== B3 (DÒNG ĐẦU TIÊN DATA) ===== */
 tbody tr.row-top td{
-  font-weight:700;
+  font-weight:700 !important;
   color:#0b57d0 !important;
   background:#eaf2ff !important;
 }
@@ -106,7 +106,9 @@ const tableWrap = document.getElementById("tableWrap");
 const tonKhoEl  = document.getElementById("tonKho");
 
 async function loadSheet(){
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE}`;
+  const url =
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq` +
+    `?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE}`;
 
   try{
     const res  = await fetch(url);
@@ -118,27 +120,27 @@ async function loadSheet(){
     const cols = tbl.cols.map(c => c.label || "");
     const rows = tbl.rows.map(r => r.c.map(c => c ? c.v : ""));
 
-    // D3 = cột thứ 3 (B,C,D)
+    /* D3 = cột thứ 3 (B,C,D) */
     tonKhoEl.textContent = `Tồn kho hiện tại: ${rows[0]?.[2] || ""}`;
 
     let html = "<table><thead><tr>";
     cols.forEach(c => html += `<th>${c}</th>`);
     html += "</tr></thead><tbody>";
 
-    rows.forEach((r, i) => {
-      // bỏ dòng rỗng
-      if(r.every(v => v === "" || v === " ")) return;
+    rows.forEach((row, index) => {
+      if(row.every(v => v === "" || v === " ")) return;
 
-      html += `<tr${i === 0 ? ' class="row-top"' : ""}>`;
-      r.forEach(v => html += `<td>${v}</td>`);
+      html += `<tr${index === 0 ? ' class="row-top"' : ""}>`;
+      row.forEach(v => html += `<td>${v}</td>`);
       html += "</tr>";
     });
 
     html += "</tbody></table>";
     tableWrap.innerHTML = html;
 
-  }catch(err){
-    tableWrap.textContent = "Lỗi tải dữ liệu — hãy kiểm tra quyền chia sẻ Google Sheet.";
+  }catch(e){
+    tableWrap.textContent =
+      "Lỗi tải dữ liệu — hãy kiểm tra quyền chia sẻ Google Sheet.";
   }
 }
 
