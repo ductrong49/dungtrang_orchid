@@ -54,7 +54,6 @@ th,td{
   border:1px solid #dbe5ff;
   padding:8px 10px;
   font-size:12px;
-  color:#000;
 }
 
 thead th{
@@ -69,7 +68,6 @@ td.num{
 }
 
 td.warn{
-  background:#fff;
   color:#c00000;
   font-weight:700;
   text-align:center;
@@ -88,68 +86,56 @@ td.warn{
 </div>
 
 <script>
-const SHEET_ID = "1p2ymdDNkIw_WXa9oFkXm4_YJG5FL1gzgwTvq_9GyOEw";
+const SHEET_ID   = "1p2ymdDNkIw_WXa9oFkXm4_YJG5FL1gzgwTvq_9GyOEw";
 const SHEET_NAME = "ton";
 
-/* Lấy tồn kho từ D2 */
-const RANGE_TON = "D2";
+const RANGE_TON  = "D2";
+const RANGE_DATA = "A4:I1000";
 
-/* Dữ liệu bảng */
-const RANGE_DATA = "B4:G100";
-
-/* Format số có dấu chấm */
+/* format số */
 function formatNumber(v){
-  if(v === "" || isNaN(v)) return v;
+  if(v === "" || v === null || isNaN(v)) return "";
   return Number(v).toLocaleString("vi-VN");
 }
 
-/* Âm lịch Việt Nam (rút gọn, đủ dùng hiển thị) */
-function getLunarDate(){
-  const today = new Date();
-  return today.toLocaleDateString("vi-VN-u-ca-chinese", {
-    day: "numeric",
-    month: "numeric",
-    year: "numeric"
-  });
-}
-
-/* Ngày dương */
+/* ngày */
 function getSolarDate(){
-  const d = new Date();
-  return d.toLocaleDateString("vi-VN");
+  return new Date().toLocaleDateString("vi-VN");
+}
+function getLunarDate(){
+  return new Date().toLocaleDateString("vi-VN-u-ca-chinese");
 }
 
 async function loadSheet(){
 
-  /* ===== LẤY TỒN KHO D2 ===== */
-  const urlTon = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_TON}`;
-  const resTon = await fetch(urlTon);
-  let textTon = await resTon.text();
-  textTon = textTon.replace(/^[^(]*\(/,'').replace(/\);?$/,'');
-  const jsonTon = JSON.parse(textTon);
-  const tonValue = jsonTon.table.rows[0]?.c[0]?.v || "";
+  /* ===== TỒN KHO ===== */
+  const tonUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_TON}`;
+  let tonText = await (await fetch(tonUrl)).text();
+  tonText = tonText.replace(/^[^(]*\(/,'').replace(/\);?$/,'');
+  const tonJson = JSON.parse(tonText);
+  const tonVal = tonJson.table.rows[0]?.c[0]?.v || "";
 
   document.getElementById("tonKho").innerHTML =
-    `Tồn kho hiện tại: ${formatNumber(tonValue)}`;
+    `Tồn kho hiện tại: ${formatNumber(tonVal)}`;
 
-  /* ===== HIỂN THỊ NGÀY ===== */
   document.getElementById("ngay").innerHTML =
-    `📅 ${getSolarDate()} &nbsp; | &nbsp; 🌙 ÂL: ${getLunarDate()}`;
+    `📅 ${getSolarDate()} | 🌙 ÂL: ${getLunarDate()}`;
 
-  /* ===== LẤY DỮ LIỆU BẢNG ===== */
-  const urlData = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_DATA}`;
-  const res = await fetch(urlData);
-  let text = await res.text();
+  /* ===== DỮ LIỆU BẢNG ===== */
+  const dataUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_DATA}`;
+  let text = await (await fetch(dataUrl)).text();
   text = text.replace(/^[^(]*\(/,'').replace(/\);?$/,'');
   const json = JSON.parse(text);
 
-  const data = json.table.rows.map(r =>
+  const rows = json.table.rows.map(r =>
     r.c.map(c => c ? c.v : "")
   );
 
   const headers = [
     "Tên hàng",
     "NCC",
+    "BL",
+    "TL",
     "Tồn Thùng",
     "Tồn cây",
     "Đơn giá",
@@ -160,18 +146,26 @@ async function loadSheet(){
   headers.forEach(h => html += `<th>${h}</th>`);
   html += `</tr></thead><tbody>`;
 
-  data.forEach(row=>{
-    if(row.every(c=>c==="")) return;
+  rows.forEach(row => {
+
+    /* ❌ ẨN DÒNG RỖNG:
+       - Tên hàng (cột A) trống
+       - HOẶC cả dòng rỗng */
+    if(!row[0] || row.every(c => c === "")) return;
 
     html += `<tr>`;
 
-    row.forEach((c,i)=>{
-      /* Cột D,E,F -> format số */
-      if(i === 2 || i === 3 || i === 4){
+    row.forEach((c,i) => {
+
+      /* bỏ cột I */
+      if(i === 8) return;
+
+      /* cột số */
+      if([2,3,4,5,6].includes(i)){
         html += `<td class="num">${formatNumber(c)}</td>`;
       }
-      /* Cột cảnh báo */
-      else if(i === 5 && c !== ""){
+      /* cảnh báo */
+      else if(i === 7 && c !== ""){
         html += `<td class="warn">${c}</td>`;
       }
       else{
