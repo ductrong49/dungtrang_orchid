@@ -21,6 +21,13 @@
     letter-spacing:1px;
     text-shadow:0 2px 4px rgba(0,0,0,0.25);
   }
+  .sub{
+    text-align:center;
+    font-size:16px;
+    font-weight:700;
+    margin:10px 0 20px;
+    color:#0b57d0;
+  }
   .wrap{
     max-width:1100px;
     margin:20px auto;
@@ -35,15 +42,20 @@
     box-shadow:0 4px 14px rgba(0,0,0,0.1);
   }
   th,td{
-    padding:10px 12px;
+    padding:8px 10px;
     border:1px solid #e0e6f5;
     font-size:10px;
+    color:#000;
   }
-  tr:nth-child(1) td,
-  tr:nth-child(2) td{
+  /* Dòng 3 (B3:G3) */
+  tr.row-top td{
     font-weight:bold;
     color:#0b57d0;
     background:#eaf2ff;
+  }
+  /* Dòng có giá trị cột G */
+  tr.bold td{
+    font-weight:bold;
   }
   th{
     background:#d9ecff;
@@ -55,7 +67,10 @@
 </style>
 </head>
 <body>
+
 <header>THỐNG KÊ KHO HÀNG</header>
+<div class="sub" id="tonKho">Tồn kho hiện tại: ...</div>
+
 <div class="wrap">
   <div id="tableWrap">Đang tải dữ liệu...</div>
 </div>
@@ -66,6 +81,7 @@
   const RANGE = "B3:G1000";
 
   const tableWrap = document.getElementById("tableWrap");
+  const tonKhoEl = document.getElementById("tonKho");
 
   async function loadSheet(){
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE}`;
@@ -79,20 +95,28 @@
       const cols = table.cols.map(c => c.label || "");
       const rows = table.rows.map(r => r.c.map(c => c ? c.v : ""));
 
-      const html = [];
+      // 👉 Lấy D3 (tức cột D = index 2 trong B:G)
+      tonKhoEl.innerHTML = `Tồn kho hiện tại: ${rows[0][2] || ""}`;
 
+      const html = [];
       html.push("<table><thead><tr>");
       cols.forEach(c => html.push(`<th>${c}</th>`));
       html.push("</tr></thead><tbody>");
 
-      rows.forEach(r =>{
-        html.push("<tr>");
+      rows.forEach((r, i) => {
+        // bỏ dòng rỗng
+        if(r.every(c => c === "" || c === " ")) return;
+
+        let cls = "";
+        if(i === 0) cls = "row-top";        // dòng 3
+        if(r[5] !== "" && r[5] !== " ") cls += " bold"; // cột G
+
+        html.push(`<tr class="${cls.trim()}">`);
         r.forEach(c => html.push(`<td>${c}</td>`));
         html.push("</tr>");
       });
 
       html.push("</tbody></table>");
-
       tableWrap.innerHTML = html.join("");
     }
     catch(e){
