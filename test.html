@@ -23,9 +23,16 @@ header{
 
 .sub{
   text-align:center;
-  margin:12px 0;
+  margin:10px 0;
   font-weight:700;
   color:#0b57d0;
+}
+
+.date{
+  text-align:center;
+  font-size:13px;
+  color:#333;
+  margin-bottom:12px;
 }
 
 .wrap{
@@ -48,15 +55,24 @@ th,td{
   padding:8px 10px;
   font-size:12px;
   color:#000;
-  background:#fff;
 }
 
-/* HEADER = B3 */
 thead th{
   background:#d9ecff;
   color:#003f91;
   font-weight:700;
   border-bottom:3px solid #8bbcff;
+}
+
+td.num{
+  text-align:right;
+}
+
+td.warn{
+  background:#ffe5e5;
+  color:#c00000;
+  font-weight:700;
+  text-align:center;
 }
 </style>
 </head>
@@ -65,6 +81,7 @@ thead th{
 
 <header>THỐNG KÊ KHO HÀNG</header>
 <div class="sub" id="tonKho">Tồn kho hiện tại: ...</div>
+<div class="date" id="ngay"></div>
 
 <div class="wrap">
   <div id="tableWrap">Đang tải dữ liệu...</div>
@@ -73,32 +90,95 @@ thead th{
 <script>
 const SHEET_ID = "1p2ymdDNkIw_WXa9oFkXm4_YJG5FL1gzgwTvq_9GyOEw";
 const SHEET_NAME = "ton";
-const RANGE = "B3:G100";
+
+/* Lấy tồn kho từ D2 */
+const RANGE_TON = "D2";
+
+/* Dữ liệu bảng */
+const RANGE_DATA = "B4:G100";
+
+/* Format số có dấu chấm */
+function formatNumber(v){
+  if(v === "" || isNaN(v)) return v;
+  return Number(v).toLocaleString("vi-VN");
+}
+
+/* Âm lịch Việt Nam (rút gọn, đủ dùng hiển thị) */
+function getLunarDate(){
+  const today = new Date();
+  return today.toLocaleDateString("vi-VN-u-ca-chinese", {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric"
+  });
+}
+
+/* Ngày dương */
+function getSolarDate(){
+  const d = new Date();
+  return d.toLocaleDateString("vi-VN");
+}
 
 async function loadSheet(){
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE}`;
-  const res = await fetch(url);
+
+  /* ===== LẤY TỒN KHO D2 ===== */
+  const urlTon = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_TON}`;
+  const resTon = await fetch(urlTon);
+  let textTon = await resTon.text();
+  textTon = textTon.replace(/^[^(]*\(/,'').replace(/\);?$/,'');
+  const jsonTon = JSON.parse(textTon);
+  const tonValue = jsonTon.table.rows[0]?.c[0]?.v || "";
+
+  document.getElementById("tonKho").innerHTML =
+    `Tồn kho hiện tại: ${formatNumber(tonValue)}`;
+
+  /* ===== HIỂN THỊ NGÀY ===== */
+  document.getElementById("ngay").innerHTML =
+    `📅 ${getSolarDate()} &nbsp; | &nbsp; 🌙 ÂL: ${getLunarDate()}`;
+
+  /* ===== LẤY DỮ LIỆU BẢNG ===== */
+  const urlData = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_DATA}`;
+  const res = await fetch(urlData);
   let text = await res.text();
   text = text.replace(/^[^(]*\(/,'').replace(/\);?$/,'');
   const json = JSON.parse(text);
-  const rows = json.table.rows.map(r => r.c.map(c => c ? c.v : ""));
 
-  // B3
-  const headers = rows[0];
-  // B4+
-  const data = rows.slice(1);
+  const data = json.table.rows.map(r =>
+    r.c.map(c => c ? c.v : "")
+  );
 
-  document.getElementById("tonKho").innerHTML =
-    `Tồn kho hiện tại: ${data[0]?.[2] || ""}`;
+  const headers = [
+    "Tên hàng",
+    "NCC",
+    "Tồn Thùng",
+    "Tồn cây",
+    "Đơn giá",
+    "Cảnh báo"
+  ];
 
   let html = `<table><thead><tr>`;
   headers.forEach(h => html += `<th>${h}</th>`);
   html += `</tr></thead><tbody>`;
 
-  data.forEach(r=>{
-    if(r.every(c=>c==="")) return;
+  data.forEach(row=>{
+    if(row.every(c=>c==="")) return;
+
     html += `<tr>`;
-    r.forEach(c=>html += `<td>${c}</td>`);
+
+    row.forEach((c,i)=>{
+      /* Cột D,E,F -> format số */
+      if(i === 2 || i === 3 || i === 4){
+        html += `<td class="num">${formatNumber(c)}</td>`;
+      }
+      /* Cột cảnh báo */
+      else if(i === 5 && c !== ""){
+        html += `<td class="warn">${c}</td>`;
+      }
+      else{
+        html += `<td>${c}</td>`;
+      }
+    });
+
     html += `</tr>`;
   });
 
