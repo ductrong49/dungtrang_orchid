@@ -4,102 +4,190 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THỐNG KÊ KHO HÀNG</title>
+
 <style>
-  body{
-    font-family: Arial, sans-serif;
-    margin:0;
-    background:#f5faff;
-    color:#222;
-  }
-  header{
-    text-align:center;
-    padding:24px 12px;
-    background:linear-gradient(135deg,#4facfe,#00f2fe);
-    color:white;
-    font-size:28px;
-    font-weight:800;
-    letter-spacing:1px;
-    text-shadow:0 2px 4px rgba(0,0,0,0.25);
-  }
-  .wrap{
-    max-width:1100px;
-    margin:20px auto;
-    padding:12px;
-  }
-  table{
-    width:100%;
-    border-collapse:collapse;
-    background:white;
-    border-radius:10px;
-    overflow:hidden;
-    box-shadow:0 4px 14px rgba(0,0,0,0.1);
-  }
-  th,td{
-    padding:10px 12px;
-    border:1px solid #e0e6f5;
-  }
-  tr:nth-child(1) td,
-  tr:nth-child(2) td{
-    font-weight:bold;
-    color:#0b57d0;
-    background:#eaf2ff;
-  }
-  th{
-    background:#d9ecff;
-    color:#003f91;
-    font-size:15px;
-    font-weight:700;
-    border-bottom:2px solid #b6d7ff;
-  }
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#f5faff;
+}
+
+header{
+  text-align:center;
+  padding:22px;
+  background:linear-gradient(135deg,#4facfe,#00f2fe);
+  color:#fff;
+  font-size:28px;
+  font-weight:800;
+}
+
+.sub{
+  text-align:center;
+  margin:10px 0;
+  font-weight:700;
+  color:#0b57d0;
+}
+
+.date{
+  text-align:center;
+  font-size:13px;
+  color:#333;
+  margin-bottom:12px;
+}
+
+.wrap{
+  max-width:1100px;
+  margin:0 auto;
+  padding:12px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  box-shadow:0 4px 14px rgba(0,0,0,.1);
+  border-radius:10px;
+  overflow:hidden;
+}
+
+th,td{
+  border:1px solid #dbe5ff;
+  padding:8px 10px;
+  font-size:12px;
+  color:#000;
+}
+
+thead th{
+  background:#d9ecff;
+  color:#003f91;
+  font-weight:700;
+  border-bottom:3px solid #8bbcff;
+}
+
+td.num{
+  text-align:right;
+}
+
+td.warn{
+  background:#fff;
+  color:#c00000;
+  font-weight:700;
+  text-align:center;
+}
 </style>
 </head>
+
 <body>
+
 <header>THỐNG KÊ KHO HÀNG</header>
+<div class="sub" id="tonKho">Tồn kho hiện tại: ...</div>
+<div class="date" id="ngay"></div>
+
 <div class="wrap">
   <div id="tableWrap">Đang tải dữ liệu...</div>
 </div>
 
 <script>
-  const SHEET_ID = "1p2ymdDNkIw_WXa9oFkXm4_YJG5FL1gzgwTvq_9GyOEw";
-  const SHEET_NAME = "ton";
-  const RANGE = "B1:G1000";
+const SHEET_ID = "1p2ymdDNkIw_WXa9oFkXm4_YJG5FL1gzgwTvq_9GyOEw";
+const SHEET_NAME = "ton";
 
-  const tableWrap = document.getElementById("tableWrap");
+/* Lấy tồn kho từ D2 */
+const RANGE_TON = "D2";
 
-  async function loadSheet(){
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE}`;
-    try{
-      const res = await fetch(url);
-      let text = await res.text();
-      text = text.replace(/^[^\(]*\(/, '').replace(/\);?$/, '');
-      const json = JSON.parse(text);
-      const table = json.table;
+/* Dữ liệu bảng */
+const RANGE_DATA = "B4:G100";
 
-      const cols = table.cols.map(c => c.label || "");
-      const rows = table.rows.map(r => r.c.map(c => c ? c.v : ""));
+/* Format số có dấu chấm */
+function formatNumber(v){
+  if(v === "" || isNaN(v)) return v;
+  return Number(v).toLocaleString("vi-VN");
+}
 
-      const html = [];
+/* Âm lịch Việt Nam (rút gọn, đủ dùng hiển thị) */
+function getLunarDate(){
+  const today = new Date();
+  return today.toLocaleDateString("vi-VN-u-ca-chinese", {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric"
+  });
+}
 
-      html.push("<table><thead><tr>");
-      cols.forEach(c => html.push(`<th>${c}</th>`));
-      html.push("</tr></thead><tbody>");
+/* Ngày dương */
+function getSolarDate(){
+  const d = new Date();
+  return d.toLocaleDateString("vi-VN");
+}
 
-      rows.forEach(r =>{
-        html.push("<tr>");
-        r.forEach(c => html.push(`<td>${c}</td>`));
-        html.push("</tr>");
-      });
+async function loadSheet(){
 
-      html.push("</tbody></table>");
+  /* ===== LẤY TỒN KHO D2 ===== */
+  const urlTon = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_TON}`;
+  const resTon = await fetch(urlTon);
+  let textTon = await resTon.text();
+  textTon = textTon.replace(/^[^(]*\(/,'').replace(/\);?$/,'');
+  const jsonTon = JSON.parse(textTon);
+  const tonValue = jsonTon.table.rows[0]?.c[0]?.v || "";
 
-      tableWrap.innerHTML = html.join("");
-    }
-    catch(e){
-      tableWrap.innerHTML = "Lỗi tải dữ liệu — hãy kiểm tra quyền chia sẻ Google Sheet.";
-    }
-  }
+  document.getElementById("tonKho").innerHTML =
+    `Tồn kho hiện tại: ${formatNumber(tonValue)}`;
 
-  loadSheet();
+  /* ===== HIỂN THỊ NGÀY ===== */
+  document.getElementById("ngay").innerHTML =
+    `📅 ${getSolarDate()} &nbsp; | &nbsp; 🌙 ÂL: ${getLunarDate()}`;
+
+  /* ===== LẤY DỮ LIỆU BẢNG ===== */
+  const urlData = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_DATA}`;
+  const res = await fetch(urlData);
+  let text = await res.text();
+  text = text.replace(/^[^(]*\(/,'').replace(/\);?$/,'');
+  const json = JSON.parse(text);
+
+  const data = json.table.rows.map(r =>
+    r.c.map(c => c ? c.v : "")
+  );
+
+  const headers = [
+    "Tên hàng",
+    "NCC",
+    "Tồn Thùng",
+    "Tồn cây",
+    "Đơn giá",
+    "Cảnh báo"
+  ];
+
+  let html = `<table><thead><tr>`;
+  headers.forEach(h => html += `<th>${h}</th>`);
+  html += `</tr></thead><tbody>`;
+
+  data.forEach(row=>{
+    if(row.every(c=>c==="")) return;
+
+    html += `<tr>`;
+
+    row.forEach((c,i)=>{
+      /* Cột D,E,F -> format số */
+      if(i === 2 || i === 3 || i === 4){
+        html += `<td class="num">${formatNumber(c)}</td>`;
+      }
+      /* Cột cảnh báo */
+      else if(i === 5 && c !== ""){
+        html += `<td class="warn">${c}</td>`;
+      }
+      else{
+        html += `<td>${c}</td>`;
+      }
+    });
+
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table>`;
+  document.getElementById("tableWrap").innerHTML = html;
+}
+
+loadSheet();
 </script>
+
 </body>
 </html>
