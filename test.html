@@ -1,357 +1,105 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>BÁO GIÁ - Hoa lan Hồ Điệp Dũng Trang Đà Lạt</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THỐNG KÊ KHO HÀNG</title>
 <style>
-  :root{
-    --bg:#f3f4f6;
-    --card:#ffffff;
-    --accent:#0b74da;
-    --muted:#6b7280;
-  }
   body{
-    font-family:Inter, system-ui, Arial, Helvetica, sans-serif;
-    background:var(--bg); margin:0; padding:24px; color:#111
+    font-family: Arial, sans-serif;
+    margin:0;
+    background:#f5faff;
+    color:#222;
   }
-  .wrap{max-width:980px; margin:0 auto; display:grid; gap:18px; grid-template-columns:1fr 420px;}
-  header{grid-column:1/-1; text-align:center; margin-bottom:20px;}
-  h1{margin:0; font-size:32px; color:#0b74da;}
-  .shop-info{margin-top:6px; font-size:14px; color:#444; line-height:1.4;}
-  .card{background:var(--card); border-radius:10px; padding:14px; box-shadow:0 6px 18px rgba(12,12,12,0.06);}
-  form .row{display:flex; gap:8px; margin-bottom:10px;}
-  label{font-size:13px; color:var(--muted); display:block; margin-bottom:6px}
-  input[type="text"], input[type="file"], input[type="number"], input[type="tel"], input[type="date"], select, textarea {
-    width:100%; padding:8px 10px; border-radius:8px; border:1px solid #e5e7eb; font-size:14px; box-sizing:border-box;
+  header{
+    text-align:center;
+    padding:24px 12px;
+    background:linear-gradient(135deg,#4facfe,#00f2fe);
+    color:white;
+    font-size:28px;
+    font-weight:800;
+    letter-spacing:1px;
+    text-shadow:0 2px 4px rgba(0,0,0,0.25);
   }
-  .small{font-size:13px; color:var(--muted);}
-  button{background:var(--accent); color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer;}
-  button.secondary{background:#374151;}
-  
-  /* ⭐ FIX lỗi không up được ảnh — dùng max-width */
-  canvas{
-    max-width:100%;
-    display:block;
-    border-radius:8px;
-    background:#fff;
+  .wrap{
+    max-width:1100px;
+    margin:20px auto;
+    padding:12px;
   }
-
-  .controls{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;}
-  .right-col{display:flex; flex-direction:column; gap:12px;}
-  .info-inline{display:flex; gap:8px;}
-  .muted{color:var(--muted)}
-  @media (max-width:980px){
-    .wrap{grid-template-columns:1fr; padding-bottom:60px;}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 4px 14px rgba(0,0,0,0.1);
+  }
+  th,td{
+    padding:10px 12px;
+    border:1px solid #e0e6f5;
+  }
+  tr:nth-child(1) td,
+  tr:nth-child(2) td{
+    font-weight:bold;
+    color:#0b57d0;
+    background:#eaf2ff;
+  }
+  th{
+    background:#d9ecff;
+    color:#003f91;
+    font-size:15px;
+    font-weight:700;
+    border-bottom:2px solid #b6d7ff;
   }
 </style>
 </head>
-
 <body>
+<header>THỐNG KÊ KHO HÀNG</header>
 <div class="wrap">
-
-<header>
-  <h1>BÁO GIÁ</h1>
-  <div class="shop-info">
-    HOA LAN HỒ ĐIỆP DŨNG TRANG – ĐÀ LẠT<br>
-    ĐT / Zalo: 0918.60.42.60<br>
-    Địa chỉ: 08 Lý Thường Kiệt, Đức Trọng, Lâm Đồng
-  </div>
-</header>
-
-<!-- LEFT COLUMN -->
-<div class="card">
-  <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;">
-    <div><strong>Preview ảnh</strong><div class="small muted">Xem trước & điều chỉnh</div></div>
-    <div class="info-inline">
-      <label class="small muted" style="align-self:center;margin:0 6px 0 0">Định dạng</label>
-      <select id="exportFormat">
-        <option value="image/png">PNG (khuyến nghị)</option>
-        <option value="image/jpeg">JPEG</option>
-      </select>
-    </div>
-  </div>
-
-  <div style="margin-top:12px;">
-    <canvas id="canvas"></canvas>
-    <div class="controls">
-      <button id="downloadBtn">Tải ảnh xuống</button>
-      <button id="downloadJpeg" class="secondary">Tải JPEG (quality 0.9)</button>
-      <button id="downloadImmediate" class="secondary">Tạo & Tải nhanh</button>
-      <button id="shareBtn" style="background:#2fa5e0;">Chia sẻ</button>
-      <button id="resetBtn" class="secondary">Xoá & bắt đầu lại</button>
-      <label class="small muted" style="align-self:center;margin-left:12px">Ảnh xử lý ở trình duyệt — không lưu server</label>
-    </div>
-  </div>
-</div>
-
-<!-- RIGHT COLUMN -->
-<aside class="right-col">
-
-<div class="card">
-  <h3 style="margin:0 0 8px 0">Upload & thông tin ảnh</h3>
-
-  <form id="dataForm" onsubmit="return false;">
-    <div>
-      <label for="imageInput">Chọn ảnh sản phẩm</label>
-      <input id="imageInput" type="file" accept="image/*" />
-    </div>
-
-    <div style="margin-top:10px;">
-      <label for="productName">Tên sản phẩm</label>
-      <input id="productName" type="text" placeholder="Ví dụ: Hoa lan Hồ Điệp" />
-    </div>
-
-    <div style="margin-top:10px;">
-      <label for="size">Kích thước / Chi tiết (Mô tả SP)</label>
-      <input id="size" type="text" placeholder="Ví dụ: 1 cây, cao 60-70cm" />
-    </div>
-
-    <!-- ⭐ SỐ LƯỢNG MẶC ĐỊNH RỖNG -->
-    <div class="row">
-      <div style="flex:1">
-        <label for="qty">Số lượng</label>
-        <input id="qty" type="number" min="0" value="" placeholder="VD: 5" />
-      </div>
-      <div style="width:130px">
-        <label for="unit">Đơn vị</label>
-        <select id="unit">
-          <option value="cây">cây</option>
-          <option value="cành">cành</option>
-        </select>
-      </div>
-    </div>
-
-    <div style="margin-top:8px;">
-      <label for="phone">Số điện thoại</label>
-      <input id="phone" type="tel" value="0918.604260" />
-    </div>
-
-    <div class="row" style="margin-top:8px">
-      <div style="flex:1">
-        <label for="quoteDate">Ngày báo giá</label>
-        <input id="quoteDate" type="date" />
-      </div>
-
-      <div style="width:120px">
-        <label for="fontSize">Kích chữ</label>
-        <input id="fontSize" type="number" min="12" max="72" value="50" />
-      </div>
-    </div>
-
-    <!-- ⭐ MẶC ĐỊNH GIỮA ẢNH -->
-    <div style="margin-top:8px;">
-      <label for="overlayPosition">Vị trí thông tin trên ảnh</label>
-      <select id="overlayPosition">
-        <option value="center">Giữa ảnh</option>
-        <option value="bottom">Dưới cùng</option>
-        <option value="top">Trên cùng</option>
-      </select>
-    </div>
-
-    <div style="margin-top:10px; display:flex; gap:8px;">
-      <button id="renderBtn">Tạo ảnh (gắn thông tin)</button>
-    </div>
-  </form>
-</div>
-
-<div class="card">
-  <h3 style="margin:0 0 8px 0">Tùy chọn hiển thị</h3>
-  <div style="display:flex; gap:8px; align-items:center;">
-    <label style="margin:0">Màu chữ</label>
-    <input id="textColor" type="color" value="#ffffff" />
-    <label style="margin:0">Màu nền khung</label>
-    <input id="boxColor" type="color" value="#000000" />
-  </div>
-
-  <div style="margin-top:8px;">
-    <label class="small">Độ mờ khung (0-1)</label>
-    <input id="boxOpacity" type="number" min="0" max="1" step="0.05" value="0.6" />
-  </div>
-
-  <div style="margin-top:8px;">
-    <label class="small">Bo góc khung (px)</label>
-    <input id="boxRadius" type="number" min="0" max="60" value="12" />
-  </div>
-</div>
-
-</aside>
+  <div id="tableWrap">Đang tải dữ liệu...</div>
 </div>
 
 <script>
-const imageInput = document.getElementById('imageInput');
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-let img = new Image(), imgLoaded = false;
+  const SHEET_ID = "1p2ymdDNkIw_WXa9oFkXm4_YJG5FL1gzgwTvq_9GyOEw";
+  const SHEET_NAME = "ton";
+  const RANGE = "B1:G1000";
 
-const productName = document.getElementById('productName');
-const sizeInput = document.getElementById('size');
-const qtyInput = document.getElementById('qty');
-const unitInput = document.getElementById('unit');
-const phoneInput = document.getElementById('phone');
-const quoteDate = document.getElementById('quoteDate');
-const fontSizeInput = document.getElementById('fontSize');
-const overlayPosition = document.getElementById('overlayPosition');
-const textColor = document.getElementById('textColor');
-const boxColor = document.getElementById('boxColor');
-const boxOpacity = document.getElementById('boxOpacity');
+  const tableWrap = document.getElementById("tableWrap");
 
-const renderBtn = document.getElementById('renderBtn');
-const downloadBtn = document.getElementById('downloadBtn');
-const downloadJpeg = document.getElementById('downloadJpeg');
-const downloadImmediate = document.getElementById('downloadImmediate');
-const shareBtn = document.getElementById('shareBtn');
-const resetBtn = document.getElementById('resetBtn');
-const exportFormat = document.getElementById('exportFormat');
+  async function loadSheet(){
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE}`;
+    try{
+      const res = await fetch(url);
+      let text = await res.text();
+      text = text.replace(/^[^\(]*\(/, '').replace(/\);?$/, '');
+      const json = JSON.parse(text);
+      const table = json.table;
 
-// default date
-(function(){
-  const d = new Date();
-  quoteDate.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-})();
+      const cols = table.cols.map(c => c.label || "");
+      const rows = table.rows.map(r => r.c.map(c => c ? c.v : ""));
 
-imageInput.addEventListener('change', e => {
-  const f = e.target.files?.[0];
-  if (!f) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    img = new Image();
-    img.onload = () => {
-      imgLoaded = true;
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img,0,0,canvas.width,canvas.height);
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(f);
-});
+      const html = [];
 
-/* Vẽ thông tin */
-function drawOverlay(){
-  if (!imgLoaded){ alert('Chưa chọn ảnh sản phẩm!'); return; }
+      html.push("<table><thead><tr>");
+      cols.forEach(c => html.push(`<th>${c}</th>`));
+      html.push("</tr></thead><tbody>");
 
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      rows.forEach(r =>{
+        html.push("<tr>");
+        r.forEach(c => html.push(`<td>${c}</td>`));
+        html.push("</tr>");
+      });
 
-  const headerText = 'HOA LAN HỒ ĐIỆP DŨNG TRANG - ĐÀ LẠT';
-  const headerFont = Math.round(canvas.width * 0.02);
-  ctx.save();
-  ctx.font = `bold ${headerFont}px sans-serif`;
-  ctx.fillStyle = 'rgba(255,255,255,0.8)';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  ctx.fillText(headerText, canvas.width/2, 35);
-  ctx.restore();
+      html.push("</tbody></table>");
 
-  const lines = [];
-  const name = productName.value.trim(); if(name) lines.push(name);
-  const size = sizeInput.value.trim(); if(size) lines.push('Mô tả SP: '+size);
-  const qty = qtyInput.value; const unit = unitInput.value;
-  if(qty) lines.push('Số lượng: '+qty+' '+unit);
-  const phone = phoneInput.value.trim(); if(phone) lines.push('ĐT: '+phone);
-  const date = quoteDate.value;
-  if(date){ const p=date.split('-'); lines.push(`Ngày: ${p[2]}/${p[1]}/${p[0]}`); }
-
-  const fs = Math.max(14, Number(fontSizeInput.value)||50);
-  ctx.font = `${fs}px sans-serif`;
-  let maxW = 0;
-  lines.forEach(l=>{const w=ctx.measureText(l).width;if(w>maxW)maxW=w;});
-  const padding = Math.round(fs*0.6);
-  const lineHeight = Math.round(fs*1.4);
-  const boxW = Math.min(canvas.width-40,maxW+padding*2);
-  const boxH = lines.length*lineHeight+padding*2;
-
-  let x=20, y=20;
-  if(overlayPosition.value==='bottom') y=canvas.height-boxH-20;
-  else if(overlayPosition.value==='center'){ x=(canvas.width-boxW)/2; y=(canvas.height-boxH)/2; }
-
-  ctx.save();
-  ctx.globalAlpha = parseFloat(boxOpacity.value)||0.6;
-  ctx.fillStyle = boxColor.value||'#000';
-  ctx.fillRect(x,y,boxW,boxH);
-  ctx.restore();
-
-  ctx.fillStyle = textColor.value||'#fff';
-  ctx.textBaseline='top';
-  let ty=y+padding;
-  ctx.textAlign='left';
-  lines.forEach(l=>{
-    ctx.font = `${fs}px sans-serif`;
-    ctx.fillText(l, x+padding, ty);
-    ty+=lineHeight;
-  });
-}
-
-renderBtn.addEventListener('click', drawOverlay);
-
-/* Download */
-downloadBtn.addEventListener('click', ()=>{
-  if(!imgLoaded) return;
-  const mime = exportFormat.value;
-  const a=document.createElement('a');
-  a.href=canvas.toDataURL(mime);
-  a.download='baogia.png';
-  a.click();
-});
-
-downloadJpeg.addEventListener('click', ()=>{
-  if(!imgLoaded) return;
-  const a=document.createElement('a');
-  a.href=canvas.toDataURL('image/jpeg',0.9);
-  a.download='baogia.jpg';
-  a.click();
-});
-
-downloadImmediate.addEventListener('click', ()=>{
-  drawOverlay();
-  const a=document.createElement('a');
-  a.href=canvas.toDataURL('image/png');
-  a.download='baogia.png';
-  a.click();
-});
-
-resetBtn.addEventListener('click', ()=>{
-  imgLoaded=false;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-});
-
-/* Chia sẻ */
-shareBtn.addEventListener('click', async ()=>{
-  drawOverlay();
-  canvas.toBlob(async blob=>{
-    const file = new File([blob],'baogia.png',{type:'image/png'});
-    const lines = [];
-
-    const name = productName.value.trim();
-    if(name) lines.push("Sản phẩm: " + name);
-
-    const size = sizeInput.value.trim();
-    if(size) lines.push("Mô tả SP: " + size);
-
-    const shareText = lines.join("\n") || "Thông tin sản phẩm";
-
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      try{
-        await navigator.share({
-          files:[file],
-          title: productName.value || "Báo giá sản phẩm",
-          text: shareText
-        });
-      }catch(err){
-        alert("Chia sẻ thất bại: " + err);
-      }
-    }else{
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "baogia.png";
-      a.click();
-      alert("Trình duyệt không hỗ trợ chia sẻ. Ảnh đã tải về.");
+      tableWrap.innerHTML = html.join("");
     }
-  });
-});
-</script>
+    catch(e){
+      tableWrap.innerHTML = "Lỗi tải dữ liệu — hãy kiểm tra quyền chia sẻ Google Sheet.";
+    }
+  }
 
+  loadSheet();
+</script>
 </body>
 </html>
