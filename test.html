@@ -4,68 +4,90 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THỐNG KÊ KHO HÀNG</title>
+
 <style>
-  body{
-    font-family: Arial, sans-serif;
-    margin:0;
-    background:#f5faff;
-    color:#222;
-  }
-  header{
-    text-align:center;
-    padding:24px 12px;
-    background:linear-gradient(135deg,#4facfe,#00f2fe);
-    color:white;
-    font-size:28px;
-    font-weight:800;
-    letter-spacing:1px;
-    text-shadow:0 2px 4px rgba(0,0,0,0.25);
-  }
-  .sub{
-    text-align:center;
-    font-size:16px;
-    font-weight:700;
-    margin:10px 0 20px;
-    color:#0b57d0;
-  }
-  .wrap{
-    max-width:1100px;
-    margin:20px auto;
-    padding:12px;
-  }
-  table{
-    width:100%;
-    border-collapse:collapse;
-    background:white;
-    border-radius:10px;
-    overflow:hidden;
-    box-shadow:0 4px 14px rgba(0,0,0,0.1);
-  }
-  th,td{
-    padding:8px 10px;
-    border:1px solid #e0e6f5;
-    font-size:10px;
-    color:#000;              /* tất cả dữ liệu chữ đen */
-    background:white;        /* không nền */
-    font-weight:400;
-  }
+/* ===== RESET NHẸ ===== */
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
-  /* CHỈ HÀNG ĐẦU TIÊN */
-  tr.row-top td{
-    font-weight:700;
-    color:#0b57d0;
-    background:#eaf2ff;
-  }
+/* ===== BODY ===== */
+body{
+  font-family:Arial, sans-serif;
+  background:#f5faff;
+  color:#222;
+}
 
-  th{
-    background:#d9ecff;
-    color:#003f91;
-    font-size:13px;
-    font-weight:700;
-    border-bottom:2px solid #b6d7ff;
-  }
+/* ===== HEADER ===== */
+header{
+  text-align:center;
+  padding:24px 12px;
+  background:linear-gradient(135deg,#4facfe,#00f2fe);
+  color:#fff;
+  font-size:28px;
+  font-weight:800;
+  letter-spacing:1px;
+  text-shadow:0 2px 4px rgba(0,0,0,.25);
+}
+
+/* ===== SUB TITLE ===== */
+.sub{
+  text-align:center;
+  margin:12px 0 20px;
+  font-size:16px;
+  font-weight:700;
+  color:#0b57d0;
+}
+
+/* ===== WRAPPER ===== */
+.wrap{
+  max-width:1100px;
+  margin:0 auto 24px;
+  padding:12px;
+}
+
+/* ===== TABLE ===== */
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:0 4px 14px rgba(0,0,0,.1);
+}
+
+/* HEADER CELL */
+thead th{
+  padding:8px 10px;
+  font-size:13px;
+  font-weight:700;
+  color:#003f91;
+  background:#d9ecff;
+  border:1px solid #b6d7ff;
+  border-bottom:2px solid #b6d7ff;
+}
+
+/* DATA CELL – ÉP TUYỆT ĐỐI */
+tbody td{
+  padding:8px 10px;
+  font-size:10px;
+  font-weight:400;
+  color:#000 !important;
+  background:#fff !important;
+  border:1px solid #e0e6f5;
+}
+
+/* CHỈ HÀNG ĐẦU TIÊN */
+tbody tr.row-top td{
+  font-weight:700;
+  color:#0b57d0 !important;
+  background:#eaf2ff !important;
+}
 </style>
 </head>
+
 <body>
 
 <header>THỐNG KÊ KHO HÀNG</header>
@@ -76,52 +98,52 @@
 </div>
 
 <script>
-  const SHEET_ID = "1p2ymdDNkIw_WXa9oFkXm4_YJG5FL1gzgwTvq_9GyOEw";
-  const SHEET_NAME = "ton";
-  const RANGE = "B3:G1000";
+const SHEET_ID   = "1p2ymdDNkIw_WXa9oFkXm4_YJG5FL1gzgwTvq_9GyOEw";
+const SHEET_NAME = "ton";
+const RANGE      = "B3:G1000";
 
-  const tableWrap = document.getElementById("tableWrap");
-  const tonKhoEl = document.getElementById("tonKho");
+const tableWrap = document.getElementById("tableWrap");
+const tonKhoEl  = document.getElementById("tonKho");
 
-  async function loadSheet(){
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE}`;
-    try{
-      const res = await fetch(url);
-      let text = await res.text();
-      text = text.replace(/^[^\(]*\(/, '').replace(/\);?$/, '');
-      const json = JSON.parse(text);
-      const table = json.table;
+async function loadSheet(){
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE}`;
 
-      const cols = table.cols.map(c => c.label || "");
-      const rows = table.rows.map(r => r.c.map(c => c ? c.v : ""));
+  try{
+    const res  = await fetch(url);
+    let text   = await res.text();
+    text       = text.replace(/^[^\(]*\(/, "").replace(/\);?$/, "");
+    const json = JSON.parse(text);
+    const tbl  = json.table;
 
-      // Lấy D3
-      tonKhoEl.innerHTML = `Tồn kho hiện tại: ${rows[0][2] || ""}`;
+    const cols = tbl.cols.map(c => c.label || "");
+    const rows = tbl.rows.map(r => r.c.map(c => c ? c.v : ""));
 
-      const html = [];
-      html.push("<table><thead><tr>");
-      cols.forEach(c => html.push(`<th>${c}</th>`));
-      html.push("</tr></thead><tbody>");
+    // D3 = cột thứ 3 (B,C,D)
+    tonKhoEl.textContent = `Tồn kho hiện tại: ${rows[0]?.[2] || ""}`;
 
-      rows.forEach((r, i) => {
-        // bỏ dòng rỗng
-        if(r.every(c => c === "" || c === " ")) return;
+    let html = "<table><thead><tr>";
+    cols.forEach(c => html += `<th>${c}</th>`);
+    html += "</tr></thead><tbody>";
 
-        const cls = (i === 0) ? "row-top" : "";
-        html.push(`<tr class="${cls}">`);
-        r.forEach(c => html.push(`<td>${c}</td>`));
-        html.push("</tr>");
-      });
+    rows.forEach((r, i) => {
+      // bỏ dòng rỗng
+      if(r.every(v => v === "" || v === " ")) return;
 
-      html.push("</tbody></table>");
-      tableWrap.innerHTML = html.join("");
-    }
-    catch(e){
-      tableWrap.innerHTML = "Lỗi tải dữ liệu — hãy kiểm tra quyền chia sẻ Google Sheet.";
-    }
+      html += `<tr${i === 0 ? ' class="row-top"' : ""}>`;
+      r.forEach(v => html += `<td>${v}</td>`);
+      html += "</tr>";
+    });
+
+    html += "</tbody></table>";
+    tableWrap.innerHTML = html;
+
+  }catch(err){
+    tableWrap.textContent = "Lỗi tải dữ liệu — hãy kiểm tra quyền chia sẻ Google Sheet.";
   }
+}
 
-  loadSheet();
+loadSheet();
 </script>
+
 </body>
 </html>
