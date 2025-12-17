@@ -11,7 +11,6 @@ body{
   font-family:Arial, sans-serif;
   background:#f5faff;
 }
-
 header{
   text-align:center;
   padding:22px;
@@ -20,27 +19,23 @@ header{
   font-size:28px;
   font-weight:800;
 }
-
 .sub{
   text-align:center;
   margin:10px 0;
   font-weight:700;
   color:#0b57d0;
 }
-
 .date{
   text-align:center;
   font-size:13px;
   color:#333;
   margin-bottom:12px;
 }
-
 .wrap{
   max-width:1100px;
   margin:0 auto;
   padding:12px;
 }
-
 table{
   width:100%;
   border-collapse:collapse;
@@ -49,29 +44,24 @@ table{
   border-radius:10px;
   overflow:hidden;
 }
-
 th,td{
   border:1px solid #dbe5ff;
   padding:8px 10px;
   font-size:12px;
 }
-
 thead th{
   background:#d9ecff;
   color:#003f91;
   font-weight:700;
   border-bottom:3px solid #8bbcff;
 }
-
-td.num{
-  text-align:right;
-}
-
+td.num{ text-align:right; }
 td.warn{
   color:#c00000;
   font-weight:700;
   text-align:center;
 }
+td.date{ text-align:center; }
 </style>
 </head>
 
@@ -90,7 +80,7 @@ const SHEET_ID   = "1p2ymdDNkIw_WXa9oFkXm4_YJG5FL1gzgwTvq_9GyOEw";
 const SHEET_NAME = "ton";
 
 const RANGE_TON  = "D2";
-const RANGE_DATA = "b4:j1000";
+const RANGE_DATA = "B4:J500";
 
 /* format số */
 function formatNumber(v){
@@ -98,18 +88,18 @@ function formatNumber(v){
   return Number(v).toLocaleString("vi-VN");
 }
 
-/* ngày */
-function getSolarDate(){
-  return new Date().toLocaleDateString("vi-VN");
-}
-function getLunarDate(){
-  return new Date().toLocaleDateString("vi-VN-u-ca-chinese");
+/* format ngày dd/mm/yyyy */
+function formatDate(v){
+  if(!v || isNaN(v)) return "";
+  const d = new Date(Math.round((v - 25569) * 86400 * 1000));
+  return d.toLocaleDateString("vi-VN");
 }
 
 async function loadSheet(){
 
   /* ===== TỒN KHO ===== */
-  const tonUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_TON}`;
+  const tonUrl =
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_TON}`;
   let tonText = await (await fetch(tonUrl)).text();
   tonText = tonText.replace(/^[^(]*\(/,'').replace(/\);?$/,'');
   const tonJson = JSON.parse(tonText);
@@ -119,10 +109,11 @@ async function loadSheet(){
     `Tồn kho hiện tại: ${formatNumber(tonVal)}`;
 
   document.getElementById("ngay").innerHTML =
-    `📅 ${getSolarDate()} | 🌙 ÂL: ${getLunarDate()}`;
+    `📅 ${new Date().toLocaleDateString("vi-VN")}`;
 
   /* ===== DỮ LIỆU BẢNG ===== */
-  const dataUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_DATA}`;
+  const dataUrl =
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_DATA}`;
   let text = await (await fetch(dataUrl)).text();
   text = text.replace(/^[^(]*\(/,'').replace(/\);?$/,'');
   const json = JSON.parse(text);
@@ -132,15 +123,8 @@ async function loadSheet(){
   );
 
   const headers = [
-    "Ngày",
-    "Tên hàng",
-    "NCC",
-    "BL",
-    "TL",
-    "Tồn Thùng",
-    "Tồn cây",
-    "Đơn giá",
-    "Cảnh báo"
+    "Ngày","Tên hàng","NCC","BL","TL",
+    "Tồn Thùng","Tồn cây","Đơn giá","Cảnh báo"
   ];
 
   let html = `<table><thead><tr>`;
@@ -149,24 +133,23 @@ async function loadSheet(){
 
   rows.forEach(row => {
 
-    /* ❌ ẨN DÒNG RỖNG:
-       - Tên hàng (cột A) trống
-       - HOẶC cả dòng rỗng */
-    if(!row[0] || row.every(c => c === "")) return;
+    /* ẨN DÒNG RỖNG – Tên hàng trống hoặc cả dòng rỗng */
+    if(!row[1] || row.every(c => c === "")) return;
 
     html += `<tr>`;
 
     row.forEach((c,i) => {
 
-      /* bỏ cột I */
-      if(i === 8) return;
-
-      /* cột số */
-      if([2,3,4,5,6].includes(i)){
+      /* Ngày */
+      if(i === 0){
+        html += `<td class="date">${formatDate(c)}</td>`;
+      }
+      /* Cột số */
+      else if([3,4,5,6,7].includes(i)){
         html += `<td class="num">${formatNumber(c)}</td>`;
       }
-      /* cảnh báo */
-      else if(i === 7 && c !== ""){
+      /* Cảnh báo */
+      else if(i === 8 && c !== ""){
         html += `<td class="warn">${c}</td>`;
       }
       else{
