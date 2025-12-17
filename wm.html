@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Watermark hàng loạt – Dũng Trang</title>
+
+<style>
+body{
+  font-family:Inter,Arial,sans-serif;
+  background:#f3f4f6;
+  margin:0;padding:20px;
+}
+.wrap{max-width:1100px;margin:auto;display:grid;grid-template-columns:1fr 420px;gap:16px}
+.card{background:#fff;border-radius:10px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
+h1{margin:0 0 10px;text-align:center;color:#0b74da}
+canvas{max-width:100%;border-radius:8px}
+button{background:#0b74da;color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
+button.secondary{background:#374151}
+.row{display:flex;gap:8px}
+label{font-size:13px;color:#555}
+input,select{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd}
+.small{font-size:12px;color:#777}
+</style>
+</head>
+
+<body>
+<h1>WATERMARK ẢNH HÀNG LOẠT</h1>
+
+<div class="wrap">
+
+<!-- PREVIEW -->
+<div class="card">
+  <strong>Preview ảnh đầu tiên</strong>
+  <canvas id="canvas"></canvas>
+  <div class="row" style="margin-top:10px">
+    <button id="renderBtn">Xem watermark</button>
+    <button id="downloadAll" class="secondary">Tải tất cả ảnh</button>
+  </div>
+  <div class="small" style="margin-top:6px">
+    ✔ Xử lý 100% trên trình duyệt – không upload server
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="card">
+<form onsubmit="return false">
+
+<label>Chọn nhiều ảnh</label>
+<input id="imageInput" type="file" accept="image/*" multiple>
+
+<label style="margin-top:8px">Nội dung watermark</label>
+<input id="productName" placeholder="Hoa lan Hồ Điệp Dũng Trang">
+
+<label style="margin-top:8px">Mô tả</label>
+<input id="size" placeholder="1 cây – cao 60-70cm">
+
+<div class="row" style="margin-top:8px">
+  <input id="qty" type="number" placeholder="Số lượng">
+  <select id="unit">
+    <option>cây</option>
+    <option>chậu</option>
+  </select>
+</div>
+
+<label style="margin-top:8px">SĐT</label>
+<input id="phone" value="0918.604260">
+
+<div class="row" style="margin-top:8px">
+  <input id="fontSize" type="number" value="48">
+  <select id="overlayPosition">
+    <option value="center">Giữa ảnh</option>
+    <option value="bottom">Dưới</option>
+    <option value="top">Trên</option>
+  </select>
+</div>
+
+<div class="row" style="margin-top:8px">
+  <input id="textColor" type="color" value="#ffffff">
+  <input id="boxColor" type="color" value="#000000">
+</div>
+
+<label class="small">Độ mờ khung</label>
+<input id="boxOpacity" type="number" step="0.05" value="0.6">
+
+</form>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let imageFiles = [];
+let previewImg = new Image();
+
+/* INPUT */
+imageInput.onchange = e=>{
+  imageFiles = [...e.target.files];
+  if(!imageFiles.length) return;
+  loadPreview(imageFiles[0]);
+};
+
+function loadPreview(file){
+  const r=new FileReader();
+  r.onload=e=>{
+    previewImg=new Image();
+    previewImg.onload=()=>{
+      canvas.width=previewImg.width;
+      canvas.height=previewImg.height;
+      ctx.drawImage(previewImg,0,0);
+    };
+    previewImg.src=e.target.result;
+  };
+  r.readAsDataURL(file);
+}
+
+/* DRAW */
+function draw(img){
+  canvas.width=img.width;
+  canvas.height=img.height;
+  ctx.drawImage(img,0,0);
+
+  const lines=[];
+  if(productName.value) lines.push(productName.value);
+  if(size.value) lines.push("Mô tả: "+size.value);
+  if(qty.value) lines.push("SL: "+qty.value+" "+unit.value);
+  if(phone.value) lines.push("ĐT: "+phone.value);
+
+  const fs=+fontSize.value||40;
+  ctx.font=fs+"px sans-serif";
+  let maxW=0;
+  lines.forEach(l=>maxW=Math.max(maxW,ctx.measureText(l).width));
+
+  const pad=fs*0.6;
+  const lh=fs*1.4;
+  const boxW=maxW+pad*2;
+  const boxH=lines.length*lh+pad*2;
+
+  let x=20,y=20;
+  if(overlayPosition.value==="bottom") y=canvas.height-boxH-20;
+  if(overlayPosition.value==="center"){x=(canvas.width-boxW)/2;y=(canvas.height-boxH)/2}
+
+  ctx.globalAlpha=boxOpacity.value;
+  ctx.fillStyle=boxColor.value;
+  ctx.fillRect(x,y,boxW,boxH);
+  ctx.globalAlpha=1;
+
+  ctx.fillStyle=textColor.value;
+  let ty=y+pad;
+  lines.forEach(l=>{
+    ctx.fillText(l,x+pad,ty);
+    ty+=lh;
+  });
+}
+
+/* PREVIEW */
+renderBtn.onclick=()=>draw(previewImg);
+
+/* BATCH DOWNLOAD */
+downloadAll.onclick=async()=>{
+  if(!imageFiles.length){alert("Chưa chọn ảnh");return;}
+  const zip=new JSZip();
+  for(const f of imageFiles){
+    const img=await loadImage(f);
+    draw(img);
+    const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
+    zip.file("wm_"+f.name,blob);
+  }
+  const zipBlob=await zip.generateAsync({type:"blob"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(zipBlob);
+  a.download="watermark_images.zip";
+  a.click();
+};
+
+function loadImage(file){
+  return new Promise(res=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      const i=new Image();
+      i.onload=()=>res(i);
+      i.src=e.target.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+</script>
+
+</body>
+</html>
