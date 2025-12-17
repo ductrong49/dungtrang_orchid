@@ -50,7 +50,7 @@ input,select{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd}
 <input id="imageInput" type="file" accept="image/*" multiple>
 
 <label style="margin-top:8px">Nội dung watermark</label>
-<input id="productName" placeholder="Hoa lan Hồ Điệp Dũng Trang">
+<input id="productName" value="Hoa lan Hồ Điệp Dũng Trang">
 
 <label style="margin-top:8px">Mô tả</label>
 <input id="size" placeholder="1 cây – cao 60-70cm">
@@ -65,6 +65,9 @@ input,select{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd}
 
 <label style="margin-top:8px">SĐT</label>
 <input id="phone" value="0918.604260">
+
+<label style="margin-top:8px">Ngày</label>
+<input id="dateInput" type="date">
 
 <div class="row" style="margin-top:8px">
   <input id="fontSize" type="number" value="48">
@@ -96,6 +99,12 @@ const ctx = canvas.getContext('2d');
 let imageFiles = [];
 let previewImg = new Image();
 
+/* Set ngày mặc định là hôm nay */
+(function(){
+  const d = new Date();
+  dateInput.value = d.toISOString().slice(0,10);
+})();
+
 /* INPUT */
 imageInput.onchange = e=>{
   imageFiles = [...e.target.files];
@@ -125,9 +134,15 @@ function draw(img){
 
   const lines=[];
   if(productName.value) lines.push(productName.value);
-  if(size.value) lines.push("Mô tả: "+size.value);
-  if(qty.value) lines.push("SL: "+qty.value+" "+unit.value);
-  if(phone.value) lines.push("ĐT: "+phone.value);
+  if(size.value) lines.push("Mô tả: " + size.value);
+  if(qty.value) lines.push("SL: " + qty.value + " " + unit.value);
+  if(phone.value) lines.push("ĐT: " + phone.value);
+
+  /* ⭐ NGÀY LUÔN DƯỚI DÒNG ĐIỆN THOẠI */
+  if(dateInput.value){
+    const p = dateInput.value.split("-");
+    lines.push("Ngày: " + p[2] + "/" + p[1] + "/" + p[0]);
+  }
 
   const fs=+fontSize.value||40;
   ctx.font=fs+"px sans-serif";
