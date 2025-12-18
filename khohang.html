@@ -24,7 +24,6 @@ header .title{
 header .date{
   font-size:12px;
   margin-top:4px;
-  opacity:.95;
 }
 .sub{
   text-align:center;
@@ -34,8 +33,6 @@ header .date{
   font-size:14px;
 }
 .wrap{
-  max-width:100%;
-  margin:0 auto;
   padding:8px;
   overflow-x:auto;
 }
@@ -47,7 +44,7 @@ table{
 }
 th,td{
   border:1px solid #dbe5ff;
-  padding:6px 6px;
+  padding:6px;
   white-space:nowrap;
 }
 thead th{
@@ -56,14 +53,12 @@ thead th{
   font-weight:700;
 }
 td.num{ text-align:right; }
+td.center{ text-align:center; }
 td.warn{
   color:#c00000;
   font-weight:700;
   text-align:center;
 }
-td.center{ text-align:center; }
-
-/* mobile tối ưu */
 @media (max-width:600px){
   table{ font-size:10px; }
   th,td{ padding:5px 4px; }
@@ -91,24 +86,43 @@ const SHEET_NAME = "ton";
 const RANGE_TON  = "D2";
 const RANGE_DATA = "B4:J500";
 
-/* format số */
+/* ===== FORMAT SỐ DẤU . ===== */
 function formatNumber(v){
-  if(v === "" || v === null || isNaN(v)) return "";
-  return Number(v).toLocaleString("vi-VN");
+  if(v === "" || v === null) return "";
+  const n = Number(String(v).replace(/\./g,"").replace(/,/g,"."));
+  if(isNaN(n)) return v;
+  return n.toLocaleString("vi-VN");
 }
 
-/* ===== TÍNH NGÀY ÂM (ngắn gọn – đủ dùng hiển thị) ===== */
-function getLunarDate(d){
-  const lunar = new Intl.DateTimeFormat("vi-VN-u-ca-chinese", {
-    day: "numeric",
-    month: "numeric"
-  }).format(d);
-  return lunar;
+/* ===== CAN CHI ===== */
+function getLunarYearName(year){
+  const can = ["Giáp","Ất","Bính","Đinh","Mậu","Kỷ","Canh","Tân","Nhâm","Quý"];
+  const chi = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"];
+  return can[(year + 6) % 10] + " " + chi[(year + 8) % 12];
+}
+
+/* ===== NGÀY ÂM dd/mm/yyyy ===== */
+function getLunarDateFormatted(d){
+  const parts = new Intl.DateTimeFormat(
+    "vi-VN-u-ca-chinese",
+    { day:"numeric", month:"numeric", year:"numeric" }
+  ).formatToParts(d);
+
+  const day   = parts.find(p => p.type === "day")?.value;
+  const month = parts.find(p => p.type === "month")?.value;
+  const year  = parts.find(p => p.type === "year")?.value;
+
+  return `${day}/${month}`;
+}
+
+/* ===== NGÀY ÂM ĐẦY ĐỦ ===== */
+function getLunarDateFull(d){
+  return `${getLunarDateFormatted(d)} (${getLunarYearName(d.getFullYear())})`;
 }
 
 async function loadSheet(){
 
-  /* ===== TỒN KHO ===== */
+  /* ===== TỒN KHO (TEXT) ===== */
   const tonUrl =
     `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_TON}`;
   let tonText = await (await fetch(tonUrl)).text();
@@ -117,14 +131,14 @@ async function loadSheet(){
   const tonVal = tonJson.table.rows[0]?.c[0]?.v || "";
 
   document.getElementById("tonKho").innerHTML =
-    `Tồn kho hiện tại: ${formatNumber(tonVal)}`;
+    `Tồn kho hiện tại: ${tonVal}`;
 
   /* ===== NGÀY ===== */
   const now = new Date();
   document.getElementById("ngay").innerHTML =
-    `📅 ${now.toLocaleDateString("vi-VN")} • Âm lịch: ${getLunarDate(now)}`;
+    `📅 ${now.toLocaleDateString("vi-VN")} • Âm lịch: ${getLunarDateFull(now)}`;
 
-  /* ===== DỮ LIỆU BẢNG ===== */
+  /* ===== BẢNG ===== */
   const dataUrl =
     `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_DATA}`;
   let text = await (await fetch(dataUrl)).text();
@@ -145,23 +159,19 @@ async function loadSheet(){
   html += `</tr></thead><tbody>`;
 
   rows.forEach(row => {
-
-    /* Tên hàng trống thì ẩn */
     if(!row[1]) return;
 
-    html += `<tr>`;
-
-    html += `<td class="center">${row[0]}</td>`;      // STT
-    html += `<td>${row[1]}</td>`;                     // Tên hàng
-    html += `<td>${row[2]}</td>`;                     // NCC
-    html += `<td class="num">${row[3]}</td>`;         // BL
-    html += `<td class="num">${row[4]}</td>`;         // TL
-    html += `<td class="num">${row[5]}</td>`;         // Tồn thùng
-    html += `<td class="num">${row[6]}</td>`;         // Tồn cây
-    html += `<td class="num">${row[7]}</td>`;         // Đơn giá
-    html += `<td class="warn">${row[8]}</td>`;        // Cảnh báo
-
-    html += `</tr>`;
+    html += `<tr>
+      <td class="center">${row[0]}</td>
+      <td>${row[1]}</td>
+      <td>${row[2]}</td>
+      <td class="num">${formatNumber(row[3])}</td>
+      <td class="num">${formatNumber(row[4])}</td>
+      <td class="num">${formatNumber(row[5])}</td>
+      <td class="num">${formatNumber(row[6])}</td>
+      <td class="num">${formatNumber(row[7])}</td>
+      <td class="warn">${row[8]}</td>
+    </tr>`;
   });
 
   html += `</tbody></table>`;
