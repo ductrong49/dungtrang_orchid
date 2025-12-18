@@ -50,6 +50,7 @@ th,td{
 thead th{
   background:#d9ecff;
   color:#003f91;
+  font-weight:700;
 }
 td.num{ text-align:right; }
 td.center{ text-align:center; }
@@ -85,7 +86,7 @@ const SHEET_NAME = "ton";
 const RANGE_TON  = "D2";
 const RANGE_DATA = "B4:J500";
 
-/* format số có dấu . */
+/* ===== FORMAT SỐ DẤU . ===== */
 function formatNumber(v){
   if(v === "" || v === null) return "";
   const n = Number(String(v).replace(/\./g,"").replace(/,/g,"."));
@@ -93,21 +94,30 @@ function formatNumber(v){
   return n.toLocaleString("vi-VN");
 }
 
-/* CAN CHI */
+/* ===== CAN CHI ===== */
 function getLunarYearName(year){
   const can = ["Giáp","Ất","Bính","Đinh","Mậu","Kỷ","Canh","Tân","Nhâm","Quý"];
   const chi = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"];
   return can[(year + 6) % 10] + " " + chi[(year + 8) % 12];
 }
 
-/* Ngày âm */
+/* ===== NGÀY ÂM dd/mm/yyyy ===== */
+function getLunarDateFormatted(d){
+  const parts = new Intl.DateTimeFormat(
+    "vi-VN-u-ca-chinese",
+    { day:"numeric", month:"numeric", year:"numeric" }
+  ).formatToParts(d);
+
+  const day   = parts.find(p => p.type === "day")?.value;
+  const month = parts.find(p => p.type === "month")?.value;
+  const year  = parts.find(p => p.type === "year")?.value;
+
+  return `${day}/${month}/${year}`;
+}
+
+/* ===== NGÀY ÂM ĐẦY ĐỦ ===== */
 function getLunarDateFull(d){
-  const lunar = new Intl.DateTimeFormat("vi-VN-u-ca-chinese", {
-    day: "numeric",
-    month: "numeric",
-    year: "numeric"
-  }).format(d);
-  return `${lunar} (${getLunarYearName(d.getFullYear())})`;
+  return `${getLunarDateFormatted(d)} (${getLunarYearName(d.getFullYear())})`;
 }
 
 async function loadSheet(){
