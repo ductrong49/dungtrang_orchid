@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>THỐNG KÊ KHO HÀNG</title>
 
 <style>
@@ -13,63 +13,66 @@ body{
 }
 header{
   text-align:center;
-  padding:22px;
+  padding:18px 10px;
   background:linear-gradient(135deg,#4facfe,#00f2fe);
   color:#fff;
-  font-size:28px;
+}
+header .title{
+  font-size:22px;
   font-weight:800;
+}
+header .date{
+  font-size:12px;
+  margin-top:4px;
 }
 .sub{
   text-align:center;
-  margin:10px 0;
+  margin:8px 0;
   font-weight:700;
   color:#0b57d0;
-}
-.date{
-  text-align:center;
-  font-size:13px;
-  color:#333;
-  margin-bottom:12px;
+  font-size:14px;
 }
 .wrap{
-  max-width:1100px;
-  margin:0 auto;
-  padding:12px;
+  padding:8px;
+  overflow-x:auto;
 }
 table{
   width:100%;
   border-collapse:collapse;
   background:#fff;
-  box-shadow:0 4px 14px rgba(0,0,0,.1);
-  border-radius:10px;
-  overflow:hidden;
+  font-size:11px;
 }
 th,td{
   border:1px solid #dbe5ff;
-  padding:8px 10px;
-  font-size:12px;
+  padding:6px;
+  white-space:nowrap;
 }
 thead th{
   background:#d9ecff;
   color:#003f91;
-  font-weight:700;
-  border-bottom:3px solid #8bbcff;
 }
 td.num{ text-align:right; }
+td.center{ text-align:center; }
 td.warn{
   color:#c00000;
   font-weight:700;
   text-align:center;
 }
-td.date{ text-align:center; }
+@media (max-width:600px){
+  table{ font-size:10px; }
+  th,td{ padding:5px 4px; }
+}
 </style>
 </head>
 
 <body>
 
-<header>THỐNG KÊ KHO HÀNG</header>
+<header>
+  <div class="title">THỐNG KÊ KHO HÀNG</div>
+  <div class="date" id="ngay"></div>
+</header>
+
 <div class="sub" id="tonKho">Tồn kho hiện tại: ...</div>
-<div class="date" id="ngay"></div>
 
 <div class="wrap">
   <div id="tableWrap">Đang tải dữ liệu...</div>
@@ -82,22 +85,34 @@ const SHEET_NAME = "ton";
 const RANGE_TON  = "D2";
 const RANGE_DATA = "B4:J500";
 
-/* format số */
+/* format số có dấu . */
 function formatNumber(v){
-  if(v === "" || v === null || isNaN(v)) return "";
-  return Number(v).toLocaleString("vi-VN");
+  if(v === "" || v === null) return "";
+  const n = Number(String(v).replace(/\./g,"").replace(/,/g,"."));
+  if(isNaN(n)) return v;
+  return n.toLocaleString("vi-VN");
 }
 
-/* format ngày dd/mm/yyyy */
-function formatDate(v){
-  if(!v || isNaN(v)) return "";
-  const d = new Date(Math.round((v - 25569) * 86400 * 1000));
-  return d.toLocaleDateString("vi-VN");
+/* CAN CHI */
+function getLunarYearName(year){
+  const can = ["Giáp","Ất","Bính","Đinh","Mậu","Kỷ","Canh","Tân","Nhâm","Quý"];
+  const chi = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"];
+  return can[(year + 6) % 10] + " " + chi[(year + 8) % 12];
+}
+
+/* Ngày âm */
+function getLunarDateFull(d){
+  const lunar = new Intl.DateTimeFormat("vi-VN-u-ca-chinese", {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric"
+  }).format(d);
+  return `${lunar} (${getLunarYearName(d.getFullYear())})`;
 }
 
 async function loadSheet(){
 
-  /* ===== TỒN KHO ===== */
+  /* ===== TỒN KHO (TEXT) ===== */
   const tonUrl =
     `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_TON}`;
   let tonText = await (await fetch(tonUrl)).text();
@@ -106,12 +121,14 @@ async function loadSheet(){
   const tonVal = tonJson.table.rows[0]?.c[0]?.v || "";
 
   document.getElementById("tonKho").innerHTML =
-    `Tồn kho hiện tại: ${formatNumber(tonVal)}`;
+    `Tồn kho hiện tại: ${tonVal}`;
 
+  /* ===== NGÀY ===== */
+  const now = new Date();
   document.getElementById("ngay").innerHTML =
-    `📅 ${new Date().toLocaleDateString("vi-VN")}`;
+    `📅 ${now.toLocaleDateString("vi-VN")} • Âm lịch: ${getLunarDateFull(now)}`;
 
-  /* ===== DỮ LIỆU BẢNG ===== */
+  /* ===== BẢNG ===== */
   const dataUrl =
     `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_DATA}`;
   let text = await (await fetch(dataUrl)).text();
@@ -119,11 +136,11 @@ async function loadSheet(){
   const json = JSON.parse(text);
 
   const rows = json.table.rows.map(r =>
-  r.c.map(c => c ? (c.f ?? c.v) : "")
+    r.c.map(c => c ? (c.f ?? c.v) : "")
   );
 
   const headers = [
-    "STT","Tên hàng","NCC","BL","TL",
+    "STT","Tên hàng","Nhà cung cấp","BL","TL",
     "Tồn Thùng","Tồn cây","Đơn giá","Cảnh báo"
   ];
 
@@ -132,32 +149,19 @@ async function loadSheet(){
   html += `</tr></thead><tbody>`;
 
   rows.forEach(row => {
+    if(!row[1]) return;
 
-    /* ẨN DÒNG RỖNG – Tên hàng trống hoặc cả dòng rỗng */
-    if(!row[1] || row.every(c => c === "")) return;
-
-    html += `<tr>`;
-
-    row.forEach((c,i) => {
-
-      /* Ngày */
-      if(i === 0){
-        html += `<td class="date">${formatDate(c)}</td>`;
-      }
-      /* Cột số */
-      else if([3,4,5,6,7].includes(i)){
-        html += `<td class="num">${c}</td>`;
-      }
-      /* Cảnh báo */
-      else if(i === 8 && c !== ""){
-        html += `<td class="warn">${c}</td>`;
-      }
-      else{
-        html += `<td>${c}</td>`;
-      }
-    });
-
-    html += `</tr>`;
+    html += `<tr>
+      <td class="center">${row[0]}</td>
+      <td>${row[1]}</td>
+      <td>${row[2]}</td>
+      <td class="num">${formatNumber(row[3])}</td>
+      <td class="num">${formatNumber(row[4])}</td>
+      <td class="num">${formatNumber(row[5])}</td>
+      <td class="num">${formatNumber(row[6])}</td>
+      <td class="num">${formatNumber(row[7])}</td>
+      <td class="warn">${row[8]}</td>
+    </tr>`;
   });
 
   html += `</tbody></table>`;
