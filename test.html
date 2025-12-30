@@ -1,184 +1,231 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>THỐNG KÊ KHO HÀNG</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Watermark – Dũng Trang</title>
 
 <style>
 body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#f5faff;
+  font-family:Inter,Arial,sans-serif;
+  background:#f3f4f6;
+  margin:0;padding:20px;
 }
-header{
-  text-align:center;
-  padding:18px 10px;
-  background:linear-gradient(135deg,#4facfe,#00f2fe);
-  color:#fff;
-}
-header .title{
-  font-size:22px;
-  font-weight:800;
-}
-header .date{
-  font-size:12px;
-  margin-top:4px;
-}
-.sub{
-  text-align:center;
-  margin:8px 0;
-  font-weight:700;
-  color:#0b57d0;
-  font-size:14px;
-}
-.wrap{
-  padding:8px;
-  overflow-x:auto;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  background:#fff;
-  font-size:11px;
-}
-th,td{
-  border:1px solid #dbe5ff;
-  padding:6px;
-  white-space:nowrap;
-}
-thead th{
-  background:#d9ecff;
-  color:#003f91;
-  font-weight:700;
-}
-td.num{ text-align:right; }
-td.center{ text-align:center; }
-td.warn{
-  color:#c00000;
-  font-weight:700;
-  text-align:center;
-}
-@media (max-width:600px){
-  table{ font-size:10px; }
-  th,td{ padding:5px 4px; }
-}
+.wrap{max-width:1100px;margin:auto;display:grid;grid-template-columns:1fr 420px;gap:16px}
+.card{background:#fff;border-radius:10px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
+h1{margin:0 0 10px;text-align:center;color:#0b74da}
+canvas{max-width:100%;border-radius:8px}
+button{background:#0b74da;color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
+button.secondary{background:#374151}
+.row{display:flex;gap:8px}
+label{font-size:13px;color:#555}
+input,select{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd}
+.small{font-size:12px;color:#777}
 </style>
 </head>
 
 <body>
-
-<header>
-  <div class="title">THỐNG KÊ KHO HÀNG</div>
-  <div class="date" id="ngay"></div>
-</header>
-
-<div class="sub" id="tonKho">Tồn kho hiện tại: ...</div>
+<h1>WATERMARK ẢNH HÀNG LOẠT</h1>
 
 <div class="wrap">
-  <div id="tableWrap">Đang tải dữ liệu...</div>
+
+<!-- PREVIEW -->
+<div class="card">
+  <strong>Preview ảnh đầu tiên</strong>
+  <canvas id="canvas"></canvas>
+  <div class="row" style="margin-top:10px">
+    <button id="renderBtn">Xem watermark</button>
+    <button id="downloadAll" class="secondary">Tải tất cả ảnh</button>
+  </div>
+  <div class="small" style="margin-top:6px">
+    ✔ Xử lý 100% trên trình duyệt – không upload server
+  </div>
 </div>
 
+<!-- CONTROLS -->
+<div class="card">
+<form onsubmit="return false">
+
+<label>Chọn nhiều ảnh</label>
+<input id="imageInput" type="file" accept="image/*" multiple>
+
+<label style="margin-top:8px">Nội dung watermark</label>
+<input id="productName" value="Hoa lan Hồ Điệp Dũng Trang DALAT">
+
+<label style="margin-top:8px">Mô tả</label>
+<input id="size" placeholder="1 cây – cao 60-70cm">
+
+<div class="row" style="margin-top:8px">
+  <input id="qty" type="number" placeholder="Số lượng">
+  <select id="unit">
+    <option>cây</option>
+    <option>chậu</option>
+  </select>
+</div>
+
+<label style="margin-top:8px">SĐT</label>
+<input id="phone" value="0918.60.42.60">
+
+<label style="margin-top:8px">Ngày</label>
+<input id="dateInput" type="date">
+
+<!-- ⭐ Ô ĐẶT TÊN FILE ZIP -->
+<label style="margin-top:8px">Tên file ZIP</label>
+<input id="zipName" placeholder="Nếu để trống sẽ dùng: mau_YYYY-MM-DD">
+<span class="small">Không cần nhập .zip</span>
+
+<div class="row" style="margin-top:8px">
+  <input id="fontSize" type="number" value="48">
+  <select id="overlayPosition">
+    <option value="bottom">Dưới</option>
+    <option value="top">Trên</option>
+    <option value="center">Giữa ảnh</option>
+  </select>
+</div>
+
+<div class="row" style="margin-top:8px">
+  <input id="textColor" type="color" value="#ffffff">
+  <input id="boxColor" type="color" value="#000000">
+</div>
+
+<label class="small">Độ mờ khung</label>
+<input id="boxOpacity" type="number" step="0.05" value="0.6">
+
+</form>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
 <script>
-const SHEET_ID   = "1p2ymdDNkIw_WXa9oFkXm4_YJG5FL1gzgwTvq_9GyOEw";
-const SHEET_NAME = "ton";
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 
-const RANGE_TON  = "D2";
-const RANGE_DATA = "B4:J500";
+let imageFiles = [];
+let previewImg = new Image();
 
-/* ===== FORMAT SỐ DẤU . ===== */
-function formatNumber(v){
-  if(v === "" || v === null) return "";
-  const n = Number(String(v).replace(/\./g,"").replace(/,/g,"."));
-  if(isNaN(n)) return v;
-  return n.toLocaleString("vi-VN");
+/* Set ngày mặc định là hôm nay */
+(function(){
+  const d = new Date();
+  dateInput.value = d.toISOString().slice(0,10);
+})();
+
+/* INPUT */
+imageInput.onchange = e=>{
+  imageFiles = [...e.target.files];
+  if(!imageFiles.length) return;
+  loadPreview(imageFiles[0]);
+};
+
+function loadPreview(file){
+  const r=new FileReader();
+  r.onload=e=>{
+    previewImg=new Image();
+    previewImg.onload=()=>{
+      canvas.width=previewImg.width;
+      canvas.height=previewImg.height;
+      ctx.drawImage(previewImg,0,0);
+    };
+    previewImg.src=e.target.result;
+  };
+  r.readAsDataURL(file);
 }
 
-/* ===== CAN CHI ===== */
-function getLunarYearName(year){
-  const can = ["Giáp","Ất","Bính","Đinh","Mậu","Kỷ","Canh","Tân","Nhâm","Quý"];
-  const chi = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"];
-  return can[(year + 6) % 10] + " " + chi[(year + 8) % 12];
-}
+/* DRAW */
+function draw(img){
+  canvas.width=img.width;
+  canvas.height=img.height;
+  ctx.drawImage(img,0,0);
 
-/* ===== NGÀY ÂM dd/mm/yyyy ===== */
-function getLunarDateFormatted(d){
-  const parts = new Intl.DateTimeFormat(
-    "vi-VN-u-ca-chinese",
-    { day:"numeric", month:"numeric", year:"numeric" }
-  ).formatToParts(d);
+  const lines=[];
+  if(productName.value) lines.push(productName.value);
+  if(size.value) lines.push("Mô tả: " + size.value);
+  if(qty.value) lines.push("SL: " + qty.value + " " + unit.value);
+  if(phone.value) lines.push("ĐT: " + phone.value);
 
-  const day   = parts.find(p => p.type === "day")?.value;
-  const month = parts.find(p => p.type === "month")?.value;
-  const year  = parts.find(p => p.type === "year")?.value;
+  if(dateInput.value){
+    const p = dateInput.value.split("-");
+    lines.push("Ngày: " + p[2] + "/" + p[1] + "/" + p[0]);
+  }
 
-  return `${day}/${month}`;
-}
+  const fs=+fontSize.value||40;
+  ctx.font=fs+"px sans-serif";
+  let maxW=0;
+  lines.forEach(l=>maxW=Math.max(maxW,ctx.measureText(l).width));
 
-/* ===== NGÀY ÂM ĐẦY ĐỦ ===== */
-function getLunarDateFull(d){
-  return `${getLunarDateFormatted(d)} (${getLunarYearName(d.getFullYear())})`;
-}
+  const pad=fs*1;
+  const lh=fs*1.4;
+  const boxW=maxW+pad*2;
+  const boxH=lines.length*lh+pad*2;
 
-async function loadSheet(){
+  let x=20,y=15;
+  if(overlayPosition.value==="bottom") y=canvas.height-boxH-15;
+  if(overlayPosition.value==="center"){
+    x=(canvas.width-boxW)/2;
+    y=(canvas.height-boxH)/2;
+  }
 
-  /* ===== TỒN KHO (TEXT) ===== */
-  const tonUrl =
-    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_TON}`;
-  let tonText = await (await fetch(tonUrl)).text();
-  tonText = tonText.replace(/^[^(]*\(/,'').replace(/\);?$/,'');
-  const tonJson = JSON.parse(tonText);
-  const tonVal = tonJson.table.rows[0]?.c[0]?.v || "";
+  ctx.globalAlpha=boxOpacity.value;
+  ctx.fillStyle=boxColor.value;
+  ctx.fillRect(x,y,boxW,boxH);
+  ctx.globalAlpha=1;
 
-  document.getElementById("tonKho").innerHTML =
-    `Tồn kho hiện tại: ${tonVal}`;
-
-  /* ===== NGÀY ===== */
-  const now = new Date();
-  document.getElementById("ngay").innerHTML =
-    `📅 ${now.toLocaleDateString("vi-VN")} • Âm lịch: ${getLunarDateFull(now)}`;
-
-  /* ===== BẢNG ===== */
-  const dataUrl =
-    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${RANGE_DATA}`;
-  let text = await (await fetch(dataUrl)).text();
-  text = text.replace(/^[^(]*\(/,'').replace(/\);?$/,'');
-  const json = JSON.parse(text);
-
-  const rows = json.table.rows.map(r =>
-    r.c.map(c => c ? (c.f ?? c.v) : "")
-  );
-
-  const headers = [
-    "STT","Tên hàng","Nhà cung cấp","BL","TL",
-    "Tồn Thùng","Tồn cây","Đơn giá","Cảnh báo"
-  ];
-
-  let html = `<table><thead><tr>`;
-  headers.forEach(h => html += `<th>${h}</th>`);
-  html += `</tr></thead><tbody>`;
-
-  rows.forEach(row => {
-    if(!row[1]) return;
-
-    html += `<tr>
-      <td class="center">${row[0]}</td>
-      <td>${row[1]}</td>
-      <td>${row[2]}</td>
-      <td class="num">${formatNumber(row[3])}</td>
-      <td class="num">${formatNumber(row[4])}</td>
-      <td class="num">${formatNumber(row[5])}</td>
-      <td class="num">${formatNumber(row[6])}</td>
-      <td class="num">${formatNumber(row[7])}</td>
-      <td class="warn">${row[8]}</td>
-    </tr>`;
+  ctx.fillStyle=textColor.value;
+  let ty=y+pad;
+  lines.forEach(l=>{
+    ctx.fillText(l,x+pad,ty);
+    ty+=lh;
   });
-
-  html += `</tbody></table>`;
-  document.getElementById("tableWrap").innerHTML = html;
 }
 
-loadSheet();
+/* PREVIEW */
+renderBtn.onclick=()=>draw(previewImg);
+
+/* BATCH DOWNLOAD */
+downloadAll.onclick=async()=>{
+  if(!imageFiles.length){
+    alert("Chưa chọn ảnh");
+    return;
+  }
+
+  const zip=new JSZip();
+
+  for(const f of imageFiles){
+    const img=await loadImage(f);
+    draw(img);
+    const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
+    zip.file("wm_" + f.name, blob);
+  }
+
+  const zipBlob=await zip.generateAsync({type:"blob"});
+
+  // ⭐ TÊN FILE ZIP
+  let name = zipName.value.trim();
+
+  if(!name){
+    const d = dateInput.value || new Date().toISOString().slice(0,10);
+    name = "mau_" + d;
+  }
+
+  name = name.replace(/[^a-zA-Z0-9_-]/g,"_") + ".zip";
+
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(zipBlob);
+  a.download=name;
+  a.click();
+};
+
+function loadImage(file){
+  return new Promise(res=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      const i=new Image();
+      i.onload=()=>res(i);
+      i.src=e.target.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
 </script>
 
 </body>
