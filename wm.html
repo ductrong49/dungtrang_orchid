@@ -69,13 +69,17 @@ input,select{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd}
 <label style="margin-top:8px">Ngày</label>
 <input id="dateInput" type="date">
 
+<!-- ⭐ Ô ĐẶT TÊN FILE ZIP -->
+<label style="margin-top:8px">Tên file ZIP</label>
+<input id="zipName" placeholder="Nếu để trống sẽ dùng: mau_YYYY-MM-DD">
+<span class="small">Không cần nhập .zip</span>
+
 <div class="row" style="margin-top:8px">
   <input id="fontSize" type="number" value="48">
   <select id="overlayPosition">
     <option value="bottom">Dưới</option>
     <option value="top">Trên</option>
     <option value="center">Giữa ảnh</option>
-    
   </select>
 </div>
 
@@ -139,7 +143,6 @@ function draw(img){
   if(qty.value) lines.push("SL: " + qty.value + " " + unit.value);
   if(phone.value) lines.push("ĐT: " + phone.value);
 
-  /* ⭐ NGÀY LUÔN DƯỚI DÒNG ĐIỆN THOẠI */
   if(dateInput.value){
     const p = dateInput.value.split("-");
     lines.push("Ngày: " + p[2] + "/" + p[1] + "/" + p[0]);
@@ -157,7 +160,10 @@ function draw(img){
 
   let x=20,y=15;
   if(overlayPosition.value==="bottom") y=canvas.height-boxH-15;
-  if(overlayPosition.value==="center"){x=(canvas.width-boxW)/2;y=(canvas.height-boxH)/2}
+  if(overlayPosition.value==="center"){
+    x=(canvas.width-boxW)/2;
+    y=(canvas.height-boxH)/2;
+  }
 
   ctx.globalAlpha=boxOpacity.value;
   ctx.fillStyle=boxColor.value;
@@ -177,18 +183,35 @@ renderBtn.onclick=()=>draw(previewImg);
 
 /* BATCH DOWNLOAD */
 downloadAll.onclick=async()=>{
-  if(!imageFiles.length){alert("Chưa chọn ảnh");return;}
+  if(!imageFiles.length){
+    alert("Chưa chọn ảnh");
+    return;
+  }
+
   const zip=new JSZip();
+
   for(const f of imageFiles){
     const img=await loadImage(f);
     draw(img);
     const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
-    zip.file("wm_"+f.name,blob);
+    zip.file("wm_" + f.name, blob);
   }
+
   const zipBlob=await zip.generateAsync({type:"blob"});
+
+  // ⭐ TÊN FILE ZIP
+  let name = zipName.value.trim();
+
+  if(!name){
+    const d = dateInput.value || new Date().toISOString().slice(0,10);
+    name = "mau_" + d;
+  }
+
+  name = name.replace(/[^a-zA-Z0-9_-]/g,"_") + ".zip";
+
   const a=document.createElement("a");
   a.href=URL.createObjectURL(zipBlob);
-  a.download="watermark_images.zip";
+  a.download=name;
   a.click();
 };
 
