@@ -62,6 +62,7 @@ input,select{
   font-size:12px;
   color:#777
 }
+hr{margin:12px 0}
 </style>
 </head>
 
@@ -114,17 +115,17 @@ input,select{
 <label style="margin-top:8px">Tên file ZIP</label>
 <input id="zipName" placeholder="Nếu để trống sẽ dùng: mau_YYYY-MM-DD">
 
-<hr style="margin:12px 0">
+<hr>
 
 <label>Tiền tố mã mẫu</label>
-<input id="prefixCode" placeholder="VD: DT">
+<input id="prefixCode" value="DT">
 
 <label style="margin-top:8px">Số bắt đầu</label>
 <input id="startNumber" type="number" value="1">
 
 <span class="small">Ví dụ: DT + 050 → DT050, DT051...</span>
 
-<hr style="margin:12px 0">
+<hr>
 
 <div class="row">
   <input id="fontSize" type="number" value="48">
@@ -224,9 +225,17 @@ function draw(img, code=""){
   ctx.fillRect(x,y,boxW,boxH);
   ctx.globalAlpha=1;
 
-  ctx.fillStyle=textColor.value;
   let ty=y+pad;
-  lines.forEach(l=>{
+
+  lines.forEach((l,index)=>{
+    if(index===1 && code){
+      ctx.fillStyle="#ff0000"; // dòng mã mẫu màu đỏ
+      ctx.font="bold "+fs+"px sans-serif";
+    }else{
+      ctx.fillStyle=textColor.value;
+      ctx.font=fs+"px sans-serif";
+    }
+
     ctx.fillText(l,x+pad,ty);
     ty+=lh;
   });
@@ -235,7 +244,7 @@ function draw(img, code=""){
 /* PREVIEW */
 renderBtn.onclick=()=>{
   const start = parseInt(startNumber.value)||1;
-  const prefix = prefixCode.value.trim();
+  const prefix = prefixCode.value.trim() || "DT";
   const code = prefix + String(start).padStart(3,'0');
   draw(previewImg, code);
 };
@@ -247,7 +256,7 @@ downloadAll.onclick=async()=>{
     return;
   }
 
-  const prefix = prefixCode.value.trim();
+  const prefix = prefixCode.value.trim() || "DT";
   let start = parseInt(startNumber.value)||1;
 
   const zip=new JSZip();
