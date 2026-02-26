@@ -11,20 +11,63 @@ body{
   background:#f3f4f6;
   margin:0;padding:20px;
 }
-.wrap{max-width:1100px;margin:auto;display:grid;grid-template-columns:1fr 420px;gap:16px}
-.card{background:#fff;border-radius:10px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
-h1{margin:0 0 10px;text-align:center;color:#0b74da}
-canvas{max-width:100%;border-radius:8px}
-button{background:#0b74da;color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
-button.secondary{background:#374151}
-.row{display:flex;gap:8px}
-label{font-size:13px;color:#555}
-input,select{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd}
-.small{font-size:12px;color:#777}
+.wrap{
+  max-width:1100px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:1fr 420px;
+  gap:16px
+}
+.card{
+  background:#fff;
+  border-radius:10px;
+  padding:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,.08)
+}
+h1{
+  margin:0 0 10px;
+  text-align:center;
+  color:#0b74da
+}
+canvas{
+  max-width:100%;
+  border-radius:8px
+}
+button{
+  background:#0b74da;
+  color:#fff;
+  border:none;
+  padding:10px 14px;
+  border-radius:8px;
+  cursor:pointer
+}
+button.secondary{
+  background:#374151
+}
+.row{
+  display:flex;
+  gap:8px
+}
+label{
+  font-size:13px;
+  color:#555
+}
+input,select{
+  width:100%;
+  padding:8px;
+  border-radius:8px;
+  border:1px solid #ddd
+}
+.small{
+  font-size:12px;
+  color:#777
+}
+hr{margin:12px 0}
 </style>
 </head>
 
 <body>
+
 <h1>WATERMARK ẢNH HÀNG LOẠT</h1>
 
 <div class="wrap">
@@ -69,12 +112,22 @@ input,select{width:100%;padding:8px;border-radius:8px;border:1px solid #ddd}
 <label style="margin-top:8px">Ngày</label>
 <input id="dateInput" type="date">
 
-<!-- ⭐ Ô ĐẶT TÊN FILE ZIP -->
 <label style="margin-top:8px">Tên file ZIP</label>
 <input id="zipName" placeholder="Nếu để trống sẽ dùng: mau_YYYY-MM-DD">
-<span class="small">Không cần nhập .zip</span>
 
-<div class="row" style="margin-top:8px">
+<hr>
+
+<label>Tiền tố mã mẫu</label>
+<input id="prefixCode" value="DT">
+
+<label style="margin-top:8px">Số bắt đầu</label>
+<input id="startNumber" type="number" value="1">
+
+<span class="small">Ví dụ: DT + 050 → DT050, DT051...</span>
+
+<hr>
+
+<div class="row">
   <input id="fontSize" type="number" value="48">
   <select id="overlayPosition">
     <option value="bottom">Dưới</option>
@@ -104,7 +157,7 @@ const ctx = canvas.getContext('2d');
 let imageFiles = [];
 let previewImg = new Image();
 
-/* Set ngày mặc định là hôm nay */
+/* Set ngày mặc định */
 (function(){
   const d = new Date();
   dateInput.value = d.toISOString().slice(0,10);
@@ -132,13 +185,14 @@ function loadPreview(file){
 }
 
 /* DRAW */
-function draw(img){
+function draw(img, code=""){
   canvas.width=img.width;
   canvas.height=img.height;
   ctx.drawImage(img,0,0);
 
   const lines=[];
   if(productName.value) lines.push(productName.value);
+  if(code) lines.push("Mã mẫu: " + code);
   if(size.value) lines.push("Mô tả: " + size.value);
   if(qty.value) lines.push("SL: " + qty.value + " " + unit.value);
   if(phone.value) lines.push("ĐT: " + phone.value);
@@ -150,10 +204,11 @@ function draw(img){
 
   const fs=+fontSize.value||40;
   ctx.font=fs+"px sans-serif";
+
   let maxW=0;
   lines.forEach(l=>maxW=Math.max(maxW,ctx.measureText(l).width));
 
-  const pad=fs*1;
+  const pad=fs;
   const lh=fs*1.4;
   const boxW=maxW+pad*2;
   const boxH=lines.length*lh+pad*2;
@@ -170,38 +225,58 @@ function draw(img){
   ctx.fillRect(x,y,boxW,boxH);
   ctx.globalAlpha=1;
 
-  ctx.fillStyle=textColor.value;
   let ty=y+pad;
-  lines.forEach(l=>{
+
+  lines.forEach((l,index)=>{
+    if(index===1 && code){
+      ctx.fillStyle="#ff0000"; // dòng mã mẫu màu đỏ
+      ctx.font="bold "+fs+"px sans-serif";
+    }else{
+      ctx.fillStyle=textColor.value;
+      ctx.font=fs+"px sans-serif";
+    }
+
     ctx.fillText(l,x+pad,ty);
     ty+=lh;
   });
 }
 
 /* PREVIEW */
-renderBtn.onclick=()=>draw(previewImg);
+renderBtn.onclick=()=>{
+  const start = parseInt(startNumber.value)||1;
+  const prefix = prefixCode.value.trim() || "DT";
+  const code = prefix + String(start).padStart(3,'0');
+  draw(previewImg, code);
+};
 
-/* BATCH DOWNLOAD */
+/* DOWNLOAD ALL */
 downloadAll.onclick=async()=>{
   if(!imageFiles.length){
     alert("Chưa chọn ảnh");
     return;
   }
 
+  const prefix = prefixCode.value.trim() || "DT";
+  let start = parseInt(startNumber.value)||1;
+
   const zip=new JSZip();
 
-  for(const f of imageFiles){
+  for(let i=0;i<imageFiles.length;i++){
+    const f=imageFiles[i];
     const img=await loadImage(f);
-    draw(img);
+
+    const number = String(start + i).padStart(3,'0');
+    const code = prefix + number;
+
+    draw(img, code);
+
     const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
-    zip.file("wm_" + f.name, blob);
+    zip.file(code + ".png", blob);
   }
 
   const zipBlob=await zip.generateAsync({type:"blob"});
 
-  // ⭐ TÊN FILE ZIP
   let name = zipName.value.trim();
-
   if(!name){
     const d = dateInput.value || new Date().toISOString().slice(0,10);
     name = "mau_" + d;
