@@ -72,7 +72,6 @@ hr{margin:12px 0}
 
 <div class="wrap">
 
-<!-- PREVIEW -->
 <div class="card">
   <strong>Preview ảnh đầu tiên</strong>
   <canvas id="canvas"></canvas>
@@ -85,7 +84,6 @@ hr{margin:12px 0}
   </div>
 </div>
 
-<!-- CONTROLS -->
 <div class="card">
 <form onsubmit="return false">
 
@@ -123,8 +121,6 @@ hr{margin:12px 0}
 <label style="margin-top:8px">Số bắt đầu</label>
 <input id="startNumber" type="number" value="1">
 
-<span class="small">Ví dụ: DT + 050 → DT050, DT051...</span>
-
 <hr>
 
 <div class="row">
@@ -157,13 +153,11 @@ const ctx = canvas.getContext('2d');
 let imageFiles = [];
 let previewImg = new Image();
 
-/* Set ngày mặc định */
 (function(){
   const d = new Date();
   dateInput.value = d.toISOString().slice(0,10);
 })();
 
-/* INPUT */
 imageInput.onchange = e=>{
   imageFiles = [...e.target.files];
   if(!imageFiles.length) return;
@@ -184,7 +178,6 @@ function loadPreview(file){
   r.readAsDataURL(file);
 }
 
-/* DRAW */
 function draw(img, code=""){
   canvas.width=img.width;
   canvas.height=img.height;
@@ -192,10 +185,11 @@ function draw(img, code=""){
 
   const lines=[];
   if(productName.value) lines.push(productName.value);
-  if(code) lines.push("Mã mẫu: " + code);
   if(size.value) lines.push("Mô tả: " + size.value);
   if(qty.value) lines.push("SL: " + qty.value + " " + unit.value);
   if(phone.value) lines.push("ĐT: " + phone.value);
+
+  if(code) lines.push("Mã mẫu: " + code); // ⭐ chuyển xuống dưới SĐT
 
   if(dateInput.value){
     const p = dateInput.value.split("-");
@@ -227,9 +221,9 @@ function draw(img, code=""){
 
   let ty=y+pad;
 
-  lines.forEach((l,index)=>{
-    if(index===1 && code){
-      ctx.fillStyle="#ff0000"; // dòng mã mẫu màu đỏ
+  lines.forEach(l=>{
+    if(l.startsWith("Mã mẫu:")){
+      ctx.fillStyle="#ff0000";
       ctx.font="bold "+fs+"px sans-serif";
     }else{
       ctx.fillStyle=textColor.value;
@@ -241,7 +235,6 @@ function draw(img, code=""){
   });
 }
 
-/* PREVIEW */
 renderBtn.onclick=()=>{
   const start = parseInt(startNumber.value)||1;
   const prefix = prefixCode.value.trim() || "DT";
@@ -249,7 +242,6 @@ renderBtn.onclick=()=>{
   draw(previewImg, code);
 };
 
-/* DOWNLOAD ALL */
 downloadAll.onclick=async()=>{
   if(!imageFiles.length){
     alert("Chưa chọn ảnh");
