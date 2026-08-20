@@ -2,146 +2,310 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Watermark – Dũng Trang</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Watermark – Dũng Trang Orchid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-body{
-  font-family:Inter,Arial,sans-serif;
-  background:#f3f4f6;
-  margin:0;padding:20px;
+:root {
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --secondary: #334155;
+  --secondary-hover: #1e293b;
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --radius: 12px;
 }
-.wrap{
-  max-width:1100px;
-  margin:auto;
-  display:grid;
-  grid-template-columns:1fr 420px;
-  gap:16px
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text-main);
+  margin: 0;
+  padding: 24px;
+  line-height: 1.5;
 }
-.card{
-  background:#fff;
-  border-radius:10px;
-  padding:14px;
-  box-shadow:0 6px 18px rgba(0,0,0,.08)
+
+.wrap {
+  max-width: 1200px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+  align-items: start;
 }
-h1{
-  margin:0 0 10px;
-  text-align:center;
-  color:#0b74da
+
+@media (max-width: 900px) {
+  .wrap { grid-template-columns: 1fr; }
 }
-canvas{
-  max-width:100%;
-  border-radius:8px
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--border);
 }
-button{
-  background:#0b74da;
-  color:#fff;
-  border:none;
-  padding:10px 14px;
-  border-radius:8px;
-  cursor:pointer
+
+header {
+  text-align: center;
+  margin-bottom: 24px;
+  grid-column: 1 / -1;
 }
-button.secondary{
-  background:#374151
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.5px;
 }
-.row{
-  display:flex;
-  gap:8px
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-top: 4px;
 }
-label{
-  font-size:13px;
-  color:#555
+
+canvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #f1f5f9;
+  display: block;
 }
-input,select{
-  width:100%;
-  padding:8px;
-  border-radius:8px;
-  border:1px solid #ddd
+
+.form-group {
+  margin-bottom: 16px;
 }
-.small{
-  font-size:12px;
-  color:#777
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 6px;
 }
-hr{margin:12px 0}
+
+input, select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s;
+  background: #fff;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+input[type="color"] {
+  padding: 4px;
+  height: 42px;
+  cursor: pointer;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.row > * {
+  flex: 1;
+}
+
+button {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.2s, transform 0.1s;
+  width: 100%;
+}
+
+button:hover {
+  background: var(--primary-hover);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button.secondary {
+  background: var(--secondary);
+}
+
+button.secondary:hover {
+  background: var(--secondary-hover);
+}
+
+.section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 20px 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.section-title:first-child { margin-top: 0; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #059669;
+  background: #ecfdf5;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-top: 12px;
+  font-weight: 500;
+}
 </style>
 </head>
 
 <body>
 
-<h1>WATERMARK ẢNH HÀNG LOẠT</h1>
+<header>
+  <h1>WATERMARK - DŨNG TRANG ORCHID</h1>
+  <div class="subtitle">Công cụ đóng dấu ảnh chuyên nghiệp, xử lý 100% trên trình duyệt</div>
+</header>
 
 <div class="wrap">
 
-<div class="card">
-  <strong>Preview ảnh đầu tiên</strong>
-  <canvas id="canvas"></canvas>
-  <div class="row" style="margin-top:10px">
-    <button id="renderBtn">Xem watermark</button>
-    <button id="downloadAll" class="secondary">Tải tất cả ảnh</button>
+  <!-- Cột trái: Xem trước -->
+  <div class="card">
+    <label style="font-size: 15px; margin-bottom: 12px;">👁️ Xem trước ảnh đầu tiên</label>
+    <canvas id="canvas"></canvas>
+    
+    <div class="row" style="margin-top: 20px;">
+      <button id="renderBtn">🔄 Cập nhật xem trước</button>
+      <button id="downloadAll" class="secondary">📦 Tải tất cả ảnh (ZIP)</button>
+    </div>
+    
+    <div class="badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      Xử lý cục bộ, không tải ảnh lên server
+    </div>
   </div>
-  <div class="small" style="margin-top:6px">
-    ✔ Xử lý 100% trên trình duyệt – không upload server
+
+  <!-- Cột phải: Điều khiển -->
+  <div class="card">
+    <form onsubmit="return false">
+      
+      <div class="section-title">1. Tệp ảnh</div>
+      <div class="form-group">
+        <label for="imageInput">Chọn nhiều ảnh</label>
+        <input id="imageInput" type="file" accept="image/*" multiple>
+      </div>
+
+      <div class="section-title">2. Nội dung Watermark</div>
+      <div class="form-group">
+        <label for="productName">Tên sản phẩm</label>
+        <input id="productName" value="Hoa lan Hồ Điệp Dũng Trang DALAT">
+      </div>
+      
+      <div class="form-group">
+        <label for="size">Mô tả chi tiết</label>
+        <input id="size" placeholder="Ví dụ: 1 cây – cao 60-70cm">
+      </div>
+
+      <div class="row form-group">
+        <div>
+          <label for="qty">Số lượng</label>
+          <input id="qty" type="number" placeholder="SL">
+        </div>
+        <div>
+          <label for="unit">Đơn vị</label>
+          <select id="unit">
+            <option>cây</option>
+            <option>chậu</option>
+            <option>giỏ</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row form-group">
+        <div>
+          <label for="phone">Số điện thoại</label>
+          <input id="phone" value="0918.60.42.60">
+        </div>
+        <div>
+          <label for="dateInput">Ngày</label>
+          <input id="dateInput" type="date">
+        </div>
+      </div>
+
+      <div class="section-title">3. Mã & Số thứ tự</div>
+      <div class="row form-group">
+        <div>
+          <label for="prefixCode">Tiền tố mã</label>
+          <input id="prefixCode" value="DT">
+        </div>
+        <div>
+          <label for="startNumber">Bắt đầu từ</label>
+          <input id="startNumber" type="number" value="1" min="1">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="zipName">Tên file ZIP tải về</label>
+        <input id="zipName" placeholder="Để trống: mau_YYYY-MM-DD">
+      </div>
+
+      <div class="section-title">4. Tùy chỉnh giao diện</div>
+      <div class="row form-group">
+        <div>
+          <label for="fontSize">Cỡ chữ (px)</label>
+          <input id="fontSize" type="number" value="30" min="10" max="150">
+        </div>
+        <div>
+          <label for="overlayPosition">Vị trí</label>
+          <select id="overlayPosition">
+            <option value="bottom">Góc dưới</option>
+            <option value="top">Góc trên</option>
+            <option value="center">Giữa ảnh</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row form-group">
+        <div>
+          <label for="textColor">Màu chữ</label>
+          <input id="textColor" type="color" value="#ffffff">
+        </div>
+        <div>
+          <label for="boxColor">Màu nền khung</label>
+          <input id="boxColor" type="color" value="#000000">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="boxOpacity">Độ mờ khung nền: <span id="opacityValue">0.6</span></label>
+        <input id="boxOpacity" type="range" min="0" max="1" step="0.05" value="0.6" style="padding: 0; height: 6px;">
+      </div>
+
+    </form>
   </div>
-</div>
-
-<div class="card">
-<form onsubmit="return false">
-
-<label>Chọn nhiều ảnh</label>
-<input id="imageInput" type="file" accept="image/*" multiple>
-
-<label style="margin-top:8px">Nội dung watermark</label>
-<input id="productName" value="Hoa lan Hồ Điệp Dũng Trang DALAT">
-
-<label style="margin-top:8px">Mô tả</label>
-<input id="size" placeholder="1 cây – cao 60-70cm">
-
-<div class="row" style="margin-top:8px">
-  <input id="qty" type="number" placeholder="Số lượng">
-  <select id="unit">
-    <option>cây</option>
-    <option>chậu</option>
-  </select>
-</div>
-
-<label style="margin-top:8px">SĐT</label>
-<input id="phone" value="0918.60.42.60">
-
-<label style="margin-top:8px">Ngày</label>
-<input id="dateInput" type="date">
-
-<label style="margin-top:8px">Tên file ZIP</label>
-<input id="zipName" placeholder="Nếu để trống sẽ dùng: mau_YYYY-MM-DD">
-
-<hr>
-
-<label>Tiền tố mã mẫu</label>
-<input id="prefixCode" value="DT">
-
-<label style="margin-top:8px">Số bắt đầu</label>
-<input id="startNumber" type="number" value="1">
-
-<hr>
-
-<div class="row">
-  <input id="fontSize" type="number" value="48">
-  <select id="overlayPosition">
-    <option value="bottom">Dưới</option>
-    <option value="top">Trên</option>
-    <option value="center">Giữa ảnh</option>
-  </select>
-</div>
-
-<div class="row" style="margin-top:8px">
-  <input id="textColor" type="color" value="#ffffff">
-  <input id="boxColor" type="color" value="#000000">
-</div>
-
-<label class="small">Độ mờ khung</label>
-<input id="boxOpacity" type="number" step="0.05" value="0.6">
-
-</form>
-</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -149,146 +313,195 @@ hr{margin:12px 0}
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+const boxOpacityInput = document.getElementById('boxOpacity');
+const opacityValueDisplay = document.getElementById('opacityValue');
+
+// Cập nhật hiển thị giá trị opacity khi kéo thanh trượt
+boxOpacityInput.addEventListener('input', (e) => {
+  opacityValueDisplay.textContent = e.target.value;
+});
 
 let imageFiles = [];
 let previewImg = new Image();
 
 (function(){
   const d = new Date();
-  dateInput.value = d.toISOString().slice(0,10);
+  document.getElementById('dateInput').value = d.toISOString().slice(0,10);
 })();
 
-imageInput.onchange = e=>{
+document.getElementById('imageInput').onchange = e => {
   imageFiles = [...e.target.files];
   if(!imageFiles.length) return;
   loadPreview(imageFiles[0]);
 };
 
 function loadPreview(file){
-  const r=new FileReader();
-  r.onload=e=>{
-    previewImg=new Image();
-    previewImg.onload=()=>{
-      canvas.width=previewImg.width;
-      canvas.height=previewImg.height;
-      ctx.drawImage(previewImg,0,0);
+  const r = new FileReader();
+  r.onload = e => {
+    previewImg = new Image();
+    previewImg.onload = () => {
+      // Giới hạn kích thước canvas hiển thị để không bị quá lớn trên màn hình, nhưng vẫn giữ tỉ lệ gốc
+      canvas.width = previewImg.width;
+      canvas.height = previewImg.height;
+      ctx.drawImage(previewImg, 0, 0);
+      // Tự động render watermark khi tải ảnh xong
+      renderBtn.click();
     };
-    previewImg.src=e.target.result;
+    previewImg.src = e.target.result;
   };
   r.readAsDataURL(file);
 }
 
-function draw(img, code=""){
-  canvas.width=img.width;
-  canvas.height=img.height;
-  ctx.drawImage(img,0,0);
+function draw(img, code = ""){
+  canvas.width = img.width;
+  canvas.height = img.height;
+  ctx.drawImage(img, 0, 0);
 
-  const lines=[];
-  if(productName.value) lines.push(productName.value);
-  if(size.value) lines.push("Mô tả: " + size.value);
-  if(qty.value) lines.push("SL: " + qty.value + " " + unit.value);
-  if(phone.value) lines.push("ĐT: " + phone.value);
+  const lines = [];
+  const productName = document.getElementById('productName').value;
+  const size = document.getElementById('size').value;
+  const qty = document.getElementById('qty').value;
+  const unit = document.getElementById('unit').value;
+  const phone = document.getElementById('phone').value;
+  const dateInput = document.getElementById('dateInput').value;
+  
+  if(productName) lines.push(productName);
+  if(size) lines.push("Mô tả: " + size);
+  if(qty) lines.push("SL: " + qty + " " + unit);
+  if(phone) lines.push("ĐT: " + phone);
+  if(code) lines.push("Mã mẫu: " + code); 
 
-  if(code) lines.push("Mã mẫu: " + code); // ⭐ chuyển xuống dưới SĐT
-
-  if(dateInput.value){
-    const p = dateInput.value.split("-");
+  if(dateInput){
+    const p = dateInput.split("-");
     lines.push("Ngày: " + p[2] + "/" + p[1] + "/" + p[0]);
   }
 
-  const fs=+fontSize.value||40;
-  ctx.font=fs+"px sans-serif";
+  const fs = parseInt(document.getElementById('fontSize').value) || 30;
+  // Sử dụng font Inter đồng bộ với web, fallback về Arial/sans-serif
+  ctx.font = fs + "px 'Inter', Arial, sans-serif";
 
-  let maxW=0;
-  lines.forEach(l=>maxW=Math.max(maxW,ctx.measureText(l).width));
+  let maxW = 0;
+  lines.forEach(l => maxW = Math.max(maxW, ctx.measureText(l).width));
 
-  const pad=fs;
-  const lh=fs*1.4;
-  const boxW=maxW+pad*2;
-  const boxH=lines.length*lh+pad*2;
+  const pad = fs * 0.8; // Padding tỉ lệ với cỡ chữ
+  const lh = fs * 1.5;  // Line height tỉ lệ
+  const boxW = maxW + pad * 2;
+  const boxH = lines.length * lh + pad * 1.5;
 
-  let x=20,y=15;
-  if(overlayPosition.value==="bottom") y=canvas.height-boxH-15;
-  if(overlayPosition.value==="center"){
-    x=(canvas.width-boxW)/2;
-    y=(canvas.height-boxH)/2;
+  let x = 20, y = 15;
+  const pos = document.getElementById('overlayPosition').value;
+  
+  if(pos === "bottom") {
+    y = canvas.height - boxH - 20;
+    x = 20;
+  } else if(pos === "center"){
+    x = (canvas.width - boxW) / 2;
+    y = (canvas.height - boxH) / 2;
+  } else if(pos === "top") {
+    x = 20;
+    y = 20;
   }
 
-  ctx.globalAlpha=boxOpacity.value;
-  ctx.fillStyle=boxColor.value;
-  ctx.fillRect(x,y,boxW,boxH);
-  ctx.globalAlpha=1;
+  // Vẽ khung nền
+  ctx.globalAlpha = parseFloat(document.getElementById('boxOpacity').value);
+  ctx.fillStyle = document.getElementById('boxColor').value;
+  
+  // Bo góc cho khung nền (nâng cao thẩm mỹ)
+  const radius = 8;
+  ctx.beginPath();
+  ctx.roundRect(x, y, boxW, boxH, radius);
+  ctx.fill();
+  
+  ctx.globalAlpha = 1;
 
-  let ty=y+pad;
+  let ty = y + pad + (fs * 0.1); // Điều chỉnh baseline cho cân đối
 
-  lines.forEach(l=>{
+  lines.forEach(l => {
     if(l.startsWith("Mã mẫu:")){
-      ctx.fillStyle="#ff0000";
-      ctx.font="bold "+fs+"px sans-serif";
-    }else{
-      ctx.fillStyle=textColor.value;
-      ctx.font=fs+"px sans-serif";
+      ctx.fillStyle = "#ff4444"; // Màu đỏ nổi bật hơn một chút
+      ctx.font = "bold " + fs + "px 'Inter', Arial, sans-serif";
+    } else {
+      ctx.fillStyle = document.getElementById('textColor').value;
+      ctx.font = fs + "px 'Inter', Arial, sans-serif";
     }
-
-    ctx.fillText(l,x+pad,ty);
-    ty+=lh;
+    ctx.fillText(l, x + pad, ty);
+    ty += lh;
   });
 }
 
-renderBtn.onclick=()=>{
-  const start = parseInt(startNumber.value)||1;
-  const prefix = prefixCode.value.trim() || "DT";
-  const code = prefix + String(start).padStart(3,'0');
+document.getElementById('renderBtn').onclick = () => {
+  if(!previewImg.src) {
+    alert("Vui lòng chọn ảnh trước!");
+    return;
+  }
+  const start = parseInt(document.getElementById('startNumber').value) || 1;
+  const prefix = document.getElementById('prefixCode').value.trim() || "DT";
+  const code = prefix + String(start).padStart(3, '0');
   draw(previewImg, code);
 };
 
-downloadAll.onclick=async()=>{
+document.getElementById('downloadAll').onclick = async () => {
   if(!imageFiles.length){
-    alert("Chưa chọn ảnh");
+    alert("Chưa chọn ảnh nào để xử lý!");
     return;
   }
 
-  const prefix = prefixCode.value.trim() || "DT";
-  let start = parseInt(startNumber.value)||1;
+  const prefix = document.getElementById('prefixCode').value.trim() || "DT";
+  let start = parseInt(document.getElementById('startNumber').value) || 1;
 
-  const zip=new JSZip();
+  const zip = new JSZip();
+  const btn = document.getElementById('downloadAll');
+  const originalText = btn.innerText;
+  btn.innerText = "⏳ Đang xử lý...";
+  btn.disabled = true;
 
-  for(let i=0;i<imageFiles.length;i++){
-    const f=imageFiles[i];
-    const img=await loadImage(f);
+  try {
+    for(let i = 0; i < imageFiles.length; i++){
+      const f = imageFiles[i];
+      const img = await loadImage(f);
 
-    const number = String(start + i).padStart(3,'0');
-    const code = prefix + number;
+      const number = String(start + i).padStart(3, '0');
+      const code = prefix + number;
 
-    draw(img, code);
+      draw(img, code);
 
-    const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
-    zip.file(code + ".png", blob);
+      const blob = await new Promise(r => canvas.toBlob(r, "image/png", 0.95));
+      zip.file(code + ".png", blob);
+    }
+
+    const zipBlob = await zip.generateAsync({type: "blob"});
+
+    let name = document.getElementById('zipName').value.trim();
+    if(!name){
+      const d = document.getElementById('dateInput').value || new Date().toISOString().slice(0,10);
+      name = "mau_" + d;
+    }
+    name = name.replace(/[^a-zA-Z0-9_-]/g, "_") + ".zip";
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(zipBlob);
+    a.download = name;
+    a.click();
+    
+    // Tự động tăng số bắt đầu sau khi tải xong để tiện cho lần sau
+    document.getElementById('startNumber').value = start + imageFiles.length;
+    
+  } catch(err) {
+    console.error(err);
+    alert("Có lỗi xảy ra khi tạo file ZIP!");
+  } finally {
+    btn.innerText = originalText;
+    btn.disabled = false;
   }
-
-  const zipBlob=await zip.generateAsync({type:"blob"});
-
-  let name = zipName.value.trim();
-  if(!name){
-    const d = dateInput.value || new Date().toISOString().slice(0,10);
-    name = "mau_" + d;
-  }
-
-  name = name.replace(/[^a-zA-Z0-9_-]/g,"_") + ".zip";
-
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(zipBlob);
-  a.download=name;
-  a.click();
 };
 
 function loadImage(file){
-  return new Promise(res=>{
-    const r=new FileReader();
-    r.onload=e=>{
-      const i=new Image();
-      i.onload=()=>res(i);
-      i.src=e.target.result;
+  return new Promise(res => {
+    const r = new FileReader();
+    r.onload = e => {
+      const i = new Image();
+      i.onload = () => res(i);
+      i.src = e.target.result;
     };
     r.readAsDataURL(file);
   });
