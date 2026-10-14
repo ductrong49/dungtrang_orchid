@@ -1,512 +1,666 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Watermark – Dũng Trang Orchid</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+<meta charset="UTF-8">
+<title>Xoá Label AI — Đa Màu Nền & Chữ</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-:root {
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --secondary: #334155;
-  --secondary-hover: #1e293b;
-  --bg: #f8fafc;
-  --card-bg: #ffffff;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  --radius: 12px;
-}
-
-* { box-sizing: border-box; }
-
-body {
-  font-family: 'Inter', Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text-main);
-  margin: 0;
-  padding: 24px;
-  line-height: 1.5;
-}
-
-.wrap {
-  max-width: 1200px;
-  margin: auto;
-  display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 24px;
-  align-items: start;
-}
-
-@media (max-width: 900px) {
-  .wrap { grid-template-columns: 1fr; }
-}
-
-.card {
-  background: var(--card-bg);
-  border-radius: var(--radius);
-  padding: 24px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  border: 1px solid var(--border);
-}
-
-header {
-  text-align: center;
-  margin-bottom: 24px;
-  grid-column: 1 / -1;
-}
-
-h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--primary);
-  letter-spacing: -0.5px;
-}
-
-.subtitle {
-  color: var(--text-muted);
-  font-size: 14px;
-  margin-top: 4px;
-}
-
-canvas {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: #f1f5f9;
-  display: block;
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-main);
-  margin-bottom: 6px;
-}
-
-input, select {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  font-size: 14px;
-  font-family: inherit;
-  transition: all 0.2s;
-  background: #fff;
-}
-
-input:focus, select:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-}
-
-input[type="color"] {
-  padding: 4px;
-  height: 42px;
-  cursor: pointer;
-}
-
-.row {
-  display: flex;
-  gap: 12px;
-}
-
-.row > * {
-  flex: 1;
-}
-
-button {
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  padding: 12px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  transition: background 0.2s, transform 0.1s;
-  width: 100%;
-}
-
-button:hover {
-  background: var(--primary-hover);
-}
-
-button:active {
-  transform: translateY(1px);
-}
-
-button.secondary {
-  background: var(--secondary);
-}
-
-button.secondary:hover {
-  background: var(--secondary-hover);
-}
-
-.section-title {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-  font-weight: 700;
-  margin: 20px 0 12px 0;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--border);
-}
-.section-title:first-child { margin-top: 0; }
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: #059669;
-  background: #ecfdf5;
-  padding: 6px 10px;
-  border-radius: 6px;
-  margin-top: 12px;
-  font-weight: 500;
-}
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0a0f;
+    color: #e4e4e7;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  h1 {
+    text-align: center;
+    background: linear-gradient(90deg, #f472b6, #a78bfa, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .subtitle { text-align: center; color: #a1a1aa; margin-bottom: 20px; font-size: 13px; }
+  .panel {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .panel h3 {
+    font-size: 14px;
+    color: #a78bfa;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .upload-zone {
+    border: 2px dashed #6366f1;
+    border-radius: 12px;
+    padding: 28px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    background: rgba(99,102,241,0.1);
+    border-color: #a78bfa;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+  }
+  button {
+    padding: 9px 16px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.secondary { background: #3f3f46; }
+  button.success { background: linear-gradient(135deg, #10b981, #059669); }
+  button.ai { background: linear-gradient(135deg, #ec4899, #f472b6); }
+  input[type=text], input[type=password], select {
+    padding: 7px 10px;
+    border-radius: 7px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: #1a1a24;
+    color: #e4e4e7;
+    font-size: 13px;
+  }
+  input[type=range] { accent-color: #a78bfa; }
+  .slider-group { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #d4d4d8; }
+  .slider-group input[type=range] { width: 90px; }
+  .slider-group span { min-width: 28px; color: #a78bfa; }
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .card-images {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #000;
+  }
+  .card-images img { width: 100%; height: auto; display: block; }
+  .card-body { padding: 10px; }
+  .card-name {
+    font-size: 12px;
+    color: #a1a1aa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 6px;
+  }
+  .card-actions { display: flex; gap: 5px; flex-wrap: wrap; }
+  .card-actions button { padding: 5px 9px; font-size: 11px; }
+  .status { font-size: 12px; color: #a78bfa; margin-left: 6px; }
+  .hint {
+    background: rgba(167,139,250,0.08);
+    border-left: 3px solid #a78bfa;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #d4d4d8;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .api-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .api-row label { font-size: 12px; color: #a1a1aa; }
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .badge-ai { background: #ec4899; color: white; }
+  .badge-classic { background: #64748b; color: white; }
+  .badge-none { background: #ef4444; color: white; }
+  .toggle-group { display: flex; gap: 4px; }
+  .toggle-group button { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+  .toggle-group button.active { box-shadow: 0 0 0 2px #fff; }
+  details { margin-top: 8px; }
+  summary { cursor: pointer; font-size: 12px; color: #a1a1aa; }
+  .method-desc { font-size: 11px; color: #71717a; margin-top: 4px; }
 </style>
 </head>
-
 <body>
 
-<header>
-  <h1>WATERMARK - DŨNG TRANG ORCHID</h1>
-  <div class="subtitle">Công cụ đóng dấu ảnh chuyên nghiệp, xử lý 100% trên trình duyệt</div>
-</header>
+<h1>🤖 Xoá Label Chữ Số — AI Inpainting</h1>
+<p class="subtitle">Tự động phát hiện label đa màu nền/chữ · AI inpainting · Xử lý hàng loạt</p>
 
-<div class="wrap">
+<div class="hint">
+  <b> Phát hiện thông minh:</b> Tìm vùng chữ nhật có <b>background đồng nhất + chữ có độ tương phản cao</b> — hoạt động với nền trắng/đen/xám/màu và chữ đen/trắng/màu.<br>
+  <b>🧠 AI Inpainting (tùy chọn):</b> Dùng Stability AI / Replicate / HuggingFace để xoá sạch sẽ như chưa từng có. Nhập API key để kích hoạt.<br>
+  <b>⚙️ Fallback cổ điển:</b> Thuật toán Telea cải tiến — fill từ biên vào trong, không cần API.
+</div>
 
-  <!-- Cột trái: Xem trước -->
-  <div class="card">
-    <label style="font-size: 15px; margin-bottom: 12px;">👁️ Xem trước ảnh đầu tiên</label>
-    <canvas id="canvas"></canvas>
-    
-    <div class="row" style="margin-top: 20px;">
-      <button id="renderBtn">🔄 Cập nhật xem trước</button>
-      <button id="downloadAll" class="secondary">📦 Tải tất cả ảnh (ZIP)</button>
-    </div>
-    
-    <div class="badge">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-      Xử lý cục bộ, không tải ảnh lên server
-    </div>
+<!-- API CONFIG -->
+<div class="panel">
+  <h3>🔑 Cấu hình AI API (tùy chọn — bỏ trống để dùng fallback cổ điển)</h3>
+  <div class="api-row">
+    <label>Provider:</label>
+    <select id="apiProvider">
+      <option value="">— Không dùng AI (chỉ cổ điển) —</option>
+      <option value="stability">Stability AI (stable-diffusion-inpainting)</option>
+      <option value="replicate">Replicate (prodia-sd-inpainting)</option>
+      <option value="huggingface">Hugging Face (runwayml/stable-diffusion-inpainting)</option>
+    </select>
+    <label>API Key:</label>
+    <input type="password" id="apiKey" placeholder="sk-..." style="width: 260px;">
+    <label>Model:</label>
+    <input type="text" id="modelName" placeholder="auto" style="width: 180px;">
   </div>
-
-  <!-- Cột phải: Điều khiển -->
-  <div class="card">
-    <form onsubmit="return false">
-      
-      <div class="section-title">1. Tệp ảnh</div>
-      <div class="form-group">
-        <label for="imageInput">Chọn nhiều ảnh</label>
-        <input id="imageInput" type="file" accept="image/*" multiple>
-      </div>
-
-      <div class="section-title">2. Nội dung Watermark</div>
-      <div class="form-group">
-        <label for="productName">Tên sản phẩm</label>
-        <input id="productName" value="Hoa lan Hồ Điệp Dũng Trang DALAT">
-      </div>
-      
-      <div class="form-group">
-        <label for="size">Mô tả chi tiết</label>
-        <input id="size" placeholder="Ví dụ: 1 cây – cao 60-70cm">
-      </div>
-
-      <div class="row form-group">
-        <div>
-          <label for="qty">Số lượng</label>
-          <input id="qty" type="number" placeholder="SL">
-        </div>
-        <div>
-          <label for="unit">Đơn vị</label>
-          <select id="unit">
-            <option>cây</option>
-            <option>chậu</option>
-            <option>giỏ</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="row form-group">
-        <div>
-          <label for="phone">Số điện thoại</label>
-          <input id="phone" value="0918.60.42.60">
-        </div>
-        <div>
-          <label for="dateInput">Ngày</label>
-          <input id="dateInput" type="date">
-        </div>
-      </div>
-
-      <div class="section-title">3. Mã & Số thứ tự</div>
-      <div class="row form-group">
-        <div>
-          <label for="prefixCode">Tiền tố mã</label>
-          <input id="prefixCode" value="DT">
-        </div>
-        <div>
-          <label for="startNumber">Bắt đầu từ</label>
-          <input id="startNumber" type="number" value="1" min="1">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="zipName">Tên file ZIP tải về</label>
-        <input id="zipName" placeholder="Để trống: mau_YYYY-MM-DD">
-      </div>
-
-      <div class="section-title">4. Tùy chỉnh giao diện</div>
-      <div class="row form-group">
-        <div>
-          <label for="fontSize">Cỡ chữ (px)</label>
-          <input id="fontSize" type="number" value="30" min="10" max="150">
-        </div>
-        <div>
-          <label for="overlayPosition">Vị trí</label>
-          <select id="overlayPosition">
-            <option value="bottom">Góc dưới</option>
-            <option value="top">Góc trên</option>
-            <option value="center">Giữa ảnh</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="row form-group">
-        <div>
-          <label for="textColor">Màu chữ</label>
-          <input id="textColor" type="color" value="#ffffff">
-        </div>
-        <div>
-          <label for="boxColor">Màu nền khung</label>
-          <input id="boxColor" type="color" value="#000000">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="boxOpacity">Độ mờ khung nền: <span id="opacityValue">0.6</span></label>
-        <input id="boxOpacity" type="range" min="0" max="1" step="0.05" value="0.6" style="padding: 0; height: 6px;">
-      </div>
-
-    </form>
+  <div class="method-desc">
+    💡 Lấy key: <a href="https://platform.stability.ai/account/keys" target="_blank" style="color:#a78bfa">Stability</a> · 
+    <a href="https://replicate.com/account/api-tokens" target="_blank" style="color:#a78bfa">Replicate</a> · 
+    <a href="https://huggingface.co/settings/tokens" target="_blank" style="color:#a78bfa">HuggingFace</a>
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<!-- UPLOAD -->
+<div class="panel">
+  <h3>📁 Tải ảnh lên</h3>
+  <div class="upload-zone" id="dropZone">
+    <div style="font-size: 36px; margin-bottom: 6px;">️</div>
+    <div><b>Kéo thả ảnh vào đây</b> hoặc nhấn để chọn</div>
+    <div class="method-desc">Hỗ trợ JPG, PNG, WEBP — nhiều ảnh cùng lúc</div>
+    <input type="file" id="fileInput" multiple accept="image/*" style="display:none">
+  </div>
+
+  <div class="controls">
+    <button id="processBtn" disabled>⚡ Xử lý tất cả</button>
+    <button id="downloadBtn" class="success" disabled> Tải ZIP</button>
+    <button id="clearBtn" class="secondary">🗑 Xoá hết</button>
+
+    <div class="slider-group">
+      <label>Độ nhạy phát hiện:</label>
+      <input type="range" id="sensitivity" min="1" max="10" value="5">
+      <span id="sensVal">5</span>
+    </div>
+    <div class="slider-group">
+      <label>Kích thước min (%):</label>
+      <input type="range" id="minSize" min="1" max="10" value="2">
+      <span id="minSizeVal">2</span>
+    </div>
+    <div class="slider-group">
+      <label>Padding mask:</label>
+      <input type="range" id="padding" min="0" max="20" value="6">
+      <span id="padVal">6</span>
+    </div>
+    <span class="status" id="status"></span>
+  </div>
+</div>
+
+<div class="gallery" id="gallery"></div>
 
 <script>
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const boxOpacityInput = document.getElementById('boxOpacity');
-const opacityValueDisplay = document.getElementById('opacityValue');
+const state = { images: [], processed: false };
 
-// Cập nhật hiển thị giá trị opacity khi kéo thanh trượt
-boxOpacityInput.addEventListener('input', (e) => {
-  opacityValueDisplay.textContent = e.target.value;
+// ===== UI =====
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const gallery = document.getElementById('gallery');
+const status = document.getElementById('status');
+
+dropZone.onclick = () => fileInput.click();
+dropZone.ondragover = e => { e.preventDefault(); dropZone.classList.add('dragover'); };
+dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+dropZone.ondrop = e => {
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  handleFiles(e.dataTransfer.files);
+};
+fileInput.onchange = e => handleFiles(e.target.files);
+
+['sensitivity','minSize','padding'].forEach(id => {
+  const el = document.getElementById(id);
+  const valId = id === 'sensitivity' ? 'sensVal' : id === 'minSize' ? 'minSizeVal' : 'padVal';
+  el.oninput = () => document.getElementById(valId).textContent = el.value;
 });
 
-let imageFiles = [];
-let previewImg = new Image();
-
-(function(){
-  const d = new Date();
-  document.getElementById('dateInput').value = d.toISOString().slice(0,10);
-})();
-
-document.getElementById('imageInput').onchange = e => {
-  imageFiles = [...e.target.files];
-  if(!imageFiles.length) return;
-  loadPreview(imageFiles[0]);
+document.getElementById('processBtn').onclick = processAll;
+document.getElementById('downloadBtn').onclick = downloadAll;
+document.getElementById('clearBtn').onclick = () => {
+  state.images = []; gallery.innerHTML = ''; updateButtons();
 };
 
-function loadPreview(file){
-  const r = new FileReader();
-  r.onload = e => {
-    previewImg = new Image();
-    previewImg.onload = () => {
-      // Giới hạn kích thước canvas hiển thị để không bị quá lớn trên màn hình, nhưng vẫn giữ tỉ lệ gốc
-      canvas.width = previewImg.width;
-      canvas.height = previewImg.height;
-      ctx.drawImage(previewImg, 0, 0);
-      // Tự động render watermark khi tải ảnh xong
-      renderBtn.click();
-    };
-    previewImg.src = e.target.result;
-  };
-  r.readAsDataURL(file);
+function updateButtons() {
+  document.getElementById('processBtn').disabled = state.images.length === 0;
+  document.getElementById('downloadBtn').disabled = !state.processed;
 }
 
-function draw(img, code = ""){
-  canvas.width = img.width;
-  canvas.height = img.height;
-  ctx.drawImage(img, 0, 0);
-
-  const lines = [];
-  const productName = document.getElementById('productName').value;
-  const size = document.getElementById('size').value;
-  const qty = document.getElementById('qty').value;
-  const unit = document.getElementById('unit').value;
-  const phone = document.getElementById('phone').value;
-  const dateInput = document.getElementById('dateInput').value;
-  
-  if(productName) lines.push(productName);
-  if(size) lines.push("Mô tả: " + size);
-  if(qty) lines.push("SL: " + qty + " " + unit);
-  if(phone) lines.push("ĐT: " + phone);
-  if(code) lines.push("Mã mẫu: " + code); 
-
-  if(dateInput){
-    const p = dateInput.split("-");
-    lines.push("Ngày: " + p[2] + "/" + p[1] + "/" + p[0]);
-  }
-
-  const fs = parseInt(document.getElementById('fontSize').value) || 30;
-  // Sử dụng font Inter đồng bộ với web, fallback về Arial/sans-serif
-  ctx.font = fs + "px 'Inter', Arial, sans-serif";
-
-  let maxW = 0;
-  lines.forEach(l => maxW = Math.max(maxW, ctx.measureText(l).width));
-
-  const pad = fs * 0.8; // Padding tỉ lệ với cỡ chữ
-  const lh = fs * 1.5;  // Line height tỉ lệ
-  const boxW = maxW + pad * 2;
-  const boxH = lines.length * lh + pad * 1.5;
-
-  let x = 20, y = 15;
-  const pos = document.getElementById('overlayPosition').value;
-  
-  if(pos === "bottom") {
-    y = canvas.height - boxH - 20;
-    x = 20;
-  } else if(pos === "center"){
-    x = (canvas.width - boxW) / 2;
-    y = (canvas.height - boxH) / 2;
-  } else if(pos === "top") {
-    x = 20;
-    y = 20;
-  }
-
-  // Vẽ khung nền
-  ctx.globalAlpha = parseFloat(document.getElementById('boxOpacity').value);
-  ctx.fillStyle = document.getElementById('boxColor').value;
-  
-  // Bo góc cho khung nền (nâng cao thẩm mỹ)
-  const radius = 8;
-  ctx.beginPath();
-  ctx.roundRect(x, y, boxW, boxH, radius);
-  ctx.fill();
-  
-  ctx.globalAlpha = 1;
-
-  let ty = y + pad + (fs * 0.1); // Điều chỉnh baseline cho cân đối
-
-  lines.forEach(l => {
-    if(l.startsWith("Mã mẫu:")){
-      ctx.fillStyle = "#ff4444"; // Màu đỏ nổi bật hơn một chút
-      ctx.font = "bold " + fs + "px 'Inter', Arial, sans-serif";
-    } else {
-      ctx.fillStyle = document.getElementById('textColor').value;
-      ctx.font = fs + "px 'Inter', Arial, sans-serif";
-    }
-    ctx.fillText(l, x + pad, ty);
-    ty += lh;
+function handleFiles(files) {
+  const arr = Array.from(files).filter(f => f.type.startsWith('image/'));
+  if (!arr.length) return;
+  let loaded = 0;
+  arr.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        state.images.push({ name: file.name, img, src: e.target.result, result: null, method: null });
+        loaded++;
+        if (loaded === arr.length) { renderGallery(); updateButtons(); }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
   });
 }
 
-document.getElementById('renderBtn').onclick = () => {
-  if(!previewImg.src) {
-    alert("Vui lòng chọn ảnh trước!");
+function renderGallery() {
+  gallery.innerHTML = '';
+  state.images.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-images">
+        <img src="${item.src}" title="Gốc">
+        <img id="res-${i}" src="${item.src}" title="Kết quả">
+      </div>
+      <div class="card-body">
+        <div class="card-name">${item.name} <span id="badge-${i}"></span></div>
+        <div class="card-actions">
+          <button onclick="processOne(${i})"> Xử lý</button>
+          <button class="secondary" onclick="downloadOne(${i})"> Tải</button>
+        </div>
+      </div>`;
+    gallery.appendChild(card);
+  });
+}
+
+// ===== PHÁT HIỆN LABEL THÔNG MINH =====
+// Thuật toán: tìm vùng chữ nhật có (1) background đồng nhất + (2) chứa text có contrast cao
+function detectLabel(ctx, w, h) {
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+  const sensitivity = +document.getElementById('sensitivity').value;
+  const minSizePct = +document.getElementById('minSize').value / 100;
+  const padding = +document.getElementById('padding').value;
+
+  // Chuyển grayscale
+  const gray = new Float32Array(w * h);
+  for (let i = 0; i < w * h; i++) {
+    const r = data[i*4], g = data[i*4+1], b = data[i*4+2];
+    gray[i] = 0.299*r + 0.587*g + 0.114*b;
+  }
+
+  // Tìm các vùng candidate bằng cách scan grid
+  const cellSize = Math.max(8, Math.floor(Math.min(w, h) / 80));
+  const gw = Math.ceil(w / cellSize);
+  const gh = Math.ceil(h / cellSize);
+  const cellMean = new Float32Array(gw * gh);
+  const cellVar = new Float32Array(gw * gh);
+
+  for (let gy = 0; gy < gh; gy++) {
+    for (let gx = 0; gx < gw; gx++) {
+      let sum = 0, sum2 = 0, count = 0;
+      for (let y = gy*cellSize; y < Math.min(h, (gy+1)*cellSize); y++) {
+        for (let x = gx*cellSize; x < Math.min(w, (gx+1)*cellSize); x++) {
+          const v = gray[y*w+x];
+          sum += v; sum2 += v*v; count++;
+        }
+      }
+      cellMean[gy*gw+gx] = sum / count;
+      cellVar[gy*gw+gx] = sum2/count - (sum/count)**2;
+    }
+  }
+
+  // Tìm các cụm cell có mean gần nhau (background đồng nhất)
+  const visited = new Uint8Array(gw * gh);
+  let bestCandidate = null;
+  let bestScore = 0;
+
+  for (let gy = 0; gy < gh; gy++) {
+    for (let gx = 0; gx < gw; gx++) {
+      const idx = gy*gw+gx;
+      if (visited[idx]) continue;
+      const baseMean = cellMean[idx];
+      // Flood fill các cell có mean gần baseMean
+      const cluster = [];
+      const stack = [idx];
+      visited[idx] = 1;
+      let minX=gx, maxX=gx, minY=gy, maxY=gy;
+      while (stack.length) {
+        const cur = stack.pop();
+        const cx = cur%gw, cy = (cur/gw)|0;
+        cluster.push(cur);
+        if (cx<minX) minX=cx; if (cx>maxX) maxX=cx;
+        if (cy<minY) minY=cy; if (cy>maxY) maxY=cy;
+        const neighbors = [[cx-1,cy],[cx+1,cy],[cx,cy-1],[cx,cy+1]];
+        for (const [nx,ny] of neighbors) {
+          if (nx>=0 && nx<gw && ny>=0 && ny<gh) {
+            const ni = ny*gw+nx;
+            if (!visited[ni] && Math.abs(cellMean[ni]-baseMean) < 15*sensitivity/5) {
+              visited[ni] = 1; stack.push(ni);
+            }
+          }
+        }
+      }
+
+      const bw = (maxX-minX+1)*cellSize;
+      const bh = (maxY-minY+1)*cellSize;
+      const area = bw*bh;
+      const minArea = w*h*minSizePct;
+      if (area < minArea) continue;
+      const aspect = Math.max(bw,bh)/Math.min(bw,bh);
+      if (aspect < 1.3 || aspect > 10) continue;
+
+      // Kiểm tra trong bounding box có text contrast cao không
+      const bx1 = minX*cellSize, by1 = minY*cellSize;
+      const bx2 = Math.min(w, (maxX+1)*cellSize), by2 = Math.min(h, (maxY+1)*cellSize);
+      let highContrastPixels = 0;
+      let totalPixels = 0;
+      for (let y = by1; y < by2; y++) {
+        for (let x = bx1; x < bx2; x++) {
+          const v = gray[y*w+x];
+          if (Math.abs(v - baseMean) > 40*sensitivity/5) highContrastPixels++;
+          totalPixels++;
+        }
+      }
+      const contrastRatio = highContrastPixels / totalPixels;
+      if (contrastRatio < 0.03*sensitivity/5) continue;
+
+      const score = area * contrastRatio;
+      if (score > bestScore) {
+        bestScore = score;
+        bestCandidate = {
+          x: Math.max(0, bx1 - padding),
+          y: Math.max(0, by1 - padding),
+          w: Math.min(w, bx2 - bx1 + padding*2),
+          h: Math.min(h, by2 - by1 + padding*2),
+          bgMean: baseMean
+        };
+      }
+    }
+  }
+
+  return bestCandidate;
+}
+
+// ===== INPAINTING CỔ ĐIỂN CẢI TIẾN (Telea-like) =====
+function inpaintClassic(ctx, w, h, label) {
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+  const mask = new Uint8Array(w * h);
+  for (let y = label.y; y < label.y + label.h; y++) {
+    for (let x = label.x; x < label.x + label.w; x++) {
+      mask[y*w+x] = 1;
+    }
+  }
+
+  // Priority queue: fill từ biên vào trong
+  const dist = new Float32Array(w*h).fill(Infinity);
+  const known = new Uint8Array(w*h);
+  for (let i = 0; i < w*h; i++) if (!mask[i]) { known[i] = 1; dist[i] = 0; }
+
+  // BFS từ biên
+  const queue = [];
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (mask[y*w+x]) {
+        // Kiểm tra có neighbor known không
+        const neighbors = [[x-1,y],[x+1,y],[x,y-1],[x,y+1]];
+        for (const [nx,ny] of neighbors) {
+          if (nx>=0 && nx<w && ny>=0 && ny<h && known[ny*w+nx]) {
+            dist[y*w+x] = 1;
+            queue.push([1, y*w+x]);
+            break;
+          }
+        }
+      }
+    }
+  }
+  queue.sort((a,b) => a[0]-b[0]);
+
+  const radius = 5;
+  while (queue.length) {
+    const [d, idx] = queue.shift();
+    const x = idx%w, y = (idx/w)|0;
+    if (known[idx]) continue;
+    known[idx] = 1;
+
+    let r=0, g=0, b=0, tw=0;
+    for (let dy=-radius; dy<=radius; dy++) {
+      for (let dx=-radius; dx<=radius; dx++) {
+        const nx=x+dx, ny=y+dy;
+        if (nx<0||nx>=w||ny<0||ny>=h) continue;
+        const ni = ny*w+nx;
+        if (!known[ni]) continue;
+        const dd = Math.sqrt(dx*dx+dy*dy);
+        if (dd > radius) continue;
+        const weight = 1/(dd+0.1);
+        r += data[ni*4]*weight;
+        g += data[ni*4+1]*weight;
+        b += data[ni*4+2]*weight;
+        tw += weight;
+      }
+    }
+    if (tw > 0) {
+      data[idx*4] = r/tw;
+      data[idx*4+1] = g/tw;
+      data[idx*4+2] = b/tw;
+    }
+
+    // Thêm neighbors chưa known vào queue
+    const neighbors = [[x-1,y],[x+1,y],[x,y-1],[x,y+1]];
+    for (const [nx,ny] of neighbors) {
+      if (nx>=0 && nx<w && ny>=0 && ny<h) {
+        const ni = ny*w+nx;
+        if (!known[ni] && dist[ni] === Infinity) {
+          dist[ni] = d+1;
+          queue.push([d+1, ni]);
+        }
+      }
+    }
+  }
+
+  ctx.putImageData(imgData, 0, 0);
+}
+
+// ===== AI INPAINTING VIA API =====
+async function inpaintAI(imgElement, label, provider, apiKey, modelName) {
+  // Crop vùng cần inpaint + padding để gửi lên API
+  const pad = 40;
+  const x1 = Math.max(0, label.x - pad);
+  const y1 = Math.max(0, label.y - pad);
+  const x2 = Math.min(imgElement.width, label.x + label.w + pad);
+  const y2 = Math.min(imgElement.height, label.y + label.h + pad);
+  const cw = x2-x1, ch = y2-y1;
+
+  const cropCanvas = document.createElement('canvas');
+  cropCanvas.width = cw; cropCanvas.height = ch;
+  const cctx = cropCanvas.getContext('2d');
+  cctx.drawImage(imgElement, x1, y1, cw, ch, 0, 0, cw, ch);
+
+  // Tạo mask (trắng = vùng cần fill)
+  const maskCanvas = document.createElement('canvas');
+  maskCanvas.width = cw; maskCanvas.height = ch;
+  const mctx = maskCanvas.getContext('2d');
+  mctx.fillStyle = 'black';
+  mctx.fillRect(0, 0, cw, ch);
+  mctx.fillStyle = 'white';
+  mctx.fillRect(label.x-x1, label.y-y1, label.w, label.h);
+
+  const imgBlob = await new Promise(r => cropCanvas.toBlob(r, 'image/png'));
+  const maskBlob = await new Promise(r => maskCanvas.toBlob(r, 'image/png'));
+
+  let resultBlob;
+  if (provider === 'stability') {
+    const fd = new FormData();
+    fd.append('init_image', imgBlob);
+    fd.append('mask_image', maskBlob);
+    fd.append('mask_source', 'MASK_IMAGE_WHITE');
+    fd.append('text_prompts[0][text]', 'background, seamless, natural');
+    fd.append('text_prompts[0][weight]', '1');
+    fd.append('cfg_scale', '7');
+    fd.append('samples', '1');
+    fd.append('steps', '30');
+    const resp = await fetch('https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/image-to-image/mask', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Accept': 'application/json' },
+      body: fd
+    });
+    if (!resp.ok) throw new Error('Stability API: ' + resp.status);
+    const json = await resp.json();
+    const b64 = json.artifacts[0].base64;
+    resultBlob = await (await fetch(`data:image/png;base64,${b64}`)).blob();
+  } else if (provider === 'replicate') {
+    // Replicate cần 2 bước: tạo prediction + poll
+    const imgB64 = await blobToBase64(imgBlob);
+    const maskB64 = await blobToBase64(maskBlob);
+    const model = modelName || 'tstramer/sd-1-5-inpainting:8a83292a5b5f8b38644a501be20d5f5b9b0b8a7a5e3c3f3e3d3c3b3a39383736';
+    const createResp = await fetch('https://api.replicate.com/v1/predictions', {
+      method: 'POST',
+      headers: { 'Authorization': `Token ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        version: model,
+        input: { image: imgB64, mask: maskB64, prompt: 'background, natural, seamless texture' }
+      })
+    });
+    if (!createResp.ok) throw new Error('Replicate: ' + createResp.status);
+    let pred = await createResp.json();
+    // Poll
+    for (let i = 0; i < 60; i++) {
+      await new Promise(r => setTimeout(r, 2000));
+      const pollResp = await fetch(pred.urls.get, { headers: { 'Authorization': `Token ${apiKey}` }});
+      pred = await pollResp.json();
+      if (pred.status === 'succeeded') break;
+      if (pred.status === 'failed') throw new Error('Replicate failed');
+    }
+    resultBlob = await (await fetch(pred.output)).blob();
+  } else if (provider === 'huggingface') {
+    const model = modelName || 'runwayml/stable-diffusion-inpainting';
+    // HF Inference API đơn giản hơn nhưng cần gộp img+mask
+    const resp = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        inputs: 'background, seamless, natural',
+        parameters: { image: await blobToBase64(imgBlob), mask_image: await blobToBase64(maskBlob) }
+      })
+    });
+    if (!resp.ok) throw new Error('HF: ' + resp.status);
+    resultBlob = await resp.blob();
+  }
+
+  return { blob: resultBlob, x: x1, y: y1, w: cw, h: ch };
+}
+
+function blobToBase64(blob) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+}
+
+// ===== XỬ LÝ =====
+async function processOne(i) {
+  const item = state.images[i];
+  const canvas = document.createElement('canvas');
+  canvas.width = item.img.width;
+  canvas.height = item.img.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(item.img, 0, 0);
+
+  const label = detectLabel(ctx, canvas.width, canvas.height);
+  if (!label) {
+    alert(`Không tìm thấy label trong "${item.name}". Thử tăng độ nhạy.`);
     return;
   }
-  const start = parseInt(document.getElementById('startNumber').value) || 1;
-  const prefix = document.getElementById('prefixCode').value.trim() || "DT";
-  const code = prefix + String(start).padStart(3, '0');
-  draw(previewImg, code);
-};
 
-document.getElementById('downloadAll').onclick = async () => {
-  if(!imageFiles.length){
-    alert("Chưa chọn ảnh nào để xử lý!");
-    return;
+  const provider = document.getElementById('apiProvider').value;
+  const apiKey = document.getElementById('apiKey').value.trim();
+
+  if (provider && apiKey) {
+    try {
+      status.textContent = `🧠 Đang gọi AI (${provider})...`;
+      const aiResult = await inpaintAI(item.img, label, provider, apiKey, document.getElementById('modelName').value.trim());
+      // Paste kết quả AI trở lại canvas gốc
+      const aiImg = new Image();
+      aiImg.onload = () => {
+        ctx.drawImage(aiImg, aiResult.x, aiResult.y, aiResult.w, aiResult.h);
+        item.result = canvas.toDataURL('image/jpeg', 0.95);
+        item.method = 'ai';
+        document.getElementById(`res-${i}`).src = item.result;
+        updateBadge(i, 'AI', 'badge-ai');
+        state.processed = true;
+        updateButtons();
+        status.textContent = `✅ ${item.name} (AI)`;
+      };
+      aiImg.src = URL.createObjectURL(aiResult.blob);
+      return;
+    } catch (err) {
+      console.warn('AI failed, fallback:', err);
+      status.textContent = `⚠️ AI lỗi, dùng fallback: ${err.message}`;
+    }
   }
 
-  const prefix = document.getElementById('prefixCode').value.trim() || "DT";
-  let start = parseInt(document.getElementById('startNumber').value) || 1;
+  // Fallback cổ điển
+  status.textContent = `⚙️ Đang inpaint cổ điển...`;
+  await new Promise(r => setTimeout(r, 30));
+  inpaintClassic(ctx, canvas.width, canvas.height, label);
+  item.result = canvas.toDataURL('image/jpeg', 0.95);
+  item.method = 'classic';
+  document.getElementById(`res-${i}`).src = item.result;
+  updateBadge(i, 'Classic', 'badge-classic');
+  state.processed = true;
+  updateButtons();
+  status.textContent = `✅ ${item.name} (Classic)`;
+}
 
+function updateBadge(i, text, cls) {
+  const el = document.getElementById(`badge-${i}`);
+  if (el) { el.className = 'badge ' + cls; el.textContent = text; }
+}
+
+async function processAll() {
+  status.textContent = `⏳ Đang xử lý ${state.images.length} ảnh...`;
+  for (let i = 0; i < state.images.length; i++) {
+    await processOne(i);
+    await new Promise(r => setTimeout(r, 100));
+  }
+  status.textContent = `✅ Hoàn thành ${state.images.length} ảnh`;
+}
+
+function downloadOne(i) {
+  const item = state.images[i];
+  const a = document.createElement('a');
+  a.href = item.result || item.src;
+  a.download = 'clean_' + item.name.replace(/\.[^.]+$/, '.jpg');
+  a.click();
+}
+
+async function downloadAll() {
   const zip = new JSZip();
-  const btn = document.getElementById('downloadAll');
-  const originalText = btn.innerText;
-  btn.innerText = "⏳ Đang xử lý...";
-  btn.disabled = true;
-
-  try {
-    for(let i = 0; i < imageFiles.length; i++){
-      const f = imageFiles[i];
-      const img = await loadImage(f);
-
-      const number = String(start + i).padStart(3, '0');
-      const code = prefix + number;
-
-      draw(img, code);
-
-      const blob = await new Promise(r => canvas.toBlob(r, "image/png", 0.95));
-      zip.file(code + ".png", blob);
-    }
-
-    const zipBlob = await zip.generateAsync({type: "blob"});
-
-    let name = document.getElementById('zipName').value.trim();
-    if(!name){
-      const d = document.getElementById('dateInput').value || new Date().toISOString().slice(0,10);
-      name = "mau_" + d;
-    }
-    name = name.replace(/[^a-zA-Z0-9_-]/g, "_") + ".zip";
-
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(zipBlob);
-    a.download = name;
-    a.click();
-    
-    // Tự động tăng số bắt đầu sau khi tải xong để tiện cho lần sau
-    document.getElementById('startNumber').value = start + imageFiles.length;
-    
-  } catch(err) {
-    console.error(err);
-    alert("Có lỗi xảy ra khi tạo file ZIP!");
-  } finally {
-    btn.innerText = originalText;
-    btn.disabled = false;
-  }
-};
-
-function loadImage(file){
-  return new Promise(res => {
-    const r = new FileReader();
-    r.onload = e => {
-      const i = new Image();
-      i.onload = () => res(i);
-      i.src = e.target.result;
-    };
-    r.readAsDataURL(file);
+  state.images.forEach(item => {
+    const src = item.result || item.src;
+    zip.file('clean_' + item.name.replace(/\.[^.]+$/, '.jpg'), src.split(',')[1], { base64: true });
   });
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cleaned_images.zip';
+  a.click();
 }
 </script>
-
 </body>
 </html>
